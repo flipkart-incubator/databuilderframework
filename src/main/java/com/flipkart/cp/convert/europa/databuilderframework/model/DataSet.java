@@ -35,4 +35,8 @@ public class DataSet {
     public static DataSetAccessor accessor(DataSet dataSet) {
         return new DataSetAccessor(dataSet);
     }
+
+    public DataSetAccessor accessor() {
+        return new DataSetAccessor(this);
+    }
 }

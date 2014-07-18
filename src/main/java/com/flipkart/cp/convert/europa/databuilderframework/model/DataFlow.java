@@ -6,6 +6,7 @@ import org.hibernate.validator.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Flow specification for execution
@@ -46,6 +47,12 @@ public class DataFlow implements Serializable {
      * The deduced {@link com.flipkart.cp.convert.europa.databuilderframework.model.ExecutionGraph} for this flow.
      */
     private ExecutionGraph executionGraph;
+
+    /*
+     * A set specifying which data elements are transient in this flow. A transient data will not be saved in the data
+     * set. It's lifetime is bounded to the request scope.
+     */
+    private Set<String> transients;
 
     /**
      * Flag to check if the data flow can be instantiated. On by default.
@@ -101,5 +108,13 @@ public class DataFlow implements Serializable {
 
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
+    }
+
+    public Set<String> getTransients() {
+        return transients;
+    }
+
+    public void setTransients(Set<String> transients) {
+        this.transients = transients;
     }
 }

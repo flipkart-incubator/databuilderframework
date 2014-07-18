@@ -205,6 +205,7 @@ public class DataFlowExecutorTest {
             Assert.assertEquals("F",response.getResponses().get("BuilderC").getData());
         }
     }
+
     @Test
     public void testRunError() throws Exception {
         DataFlowInstance dataFlowInstance = new DataFlowInstance();
@@ -212,6 +213,23 @@ public class DataFlowExecutorTest {
         dataFlowInstance.setDataFlow(dataFlowError);
         {
             DataDelta dataDelta = new DataDelta(Lists.<Data>newArrayList(new TestDataX("Hello")));
+            try {
+                executor.run(dataFlowInstance, dataDelta);
+            } catch (Exception e) {
+                Assert.assertEquals("TestError", e.getCause().getMessage());
+                return;
+            }
+            fail("Should have thrown exception");
+        }
+    }
+
+    @Test
+    public void testRunErrorNPE() throws Exception {
+        DataFlowInstance dataFlowInstance = new DataFlowInstance();
+        dataFlowInstance.setId("testflow");
+        dataFlowInstance.setDataFlow(dataFlowError);
+        {
+            DataDelta dataDelta = new DataDelta(Lists.<Data>newArrayList(new TestDataX("Hello"), null));
             try {
                 executor.run(dataFlowInstance, dataDelta);
             } catch (Exception e) {

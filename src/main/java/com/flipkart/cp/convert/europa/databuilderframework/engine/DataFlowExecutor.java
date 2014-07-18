@@ -59,7 +59,7 @@ public class DataFlowExecutor {
     public DataExecutionResponse run(DataBuilderContext dataBuilderContext, DataFlowInstance dataFlowInstance, DataDelta dataDelta) throws DataFrameworkException {
         DataFlow dataFlow = dataFlowInstance.getDataFlow();
         ExecutionGraph executionGraph = dataFlow.getExecutionGraph();
-        DataSet dataSet = dataFlowInstance.getDataSet();
+        DataSet dataSet = dataFlowInstance.getDataSet().accessor().copy(); //Create own copy to work with
         DataSetAccessor dataSetAccessor = DataSet.accessor(dataSet);
         dataSetAccessor.merge(dataDelta);
         Set<String> alreadyRanBuilders = Sets.newHashSet();
@@ -140,6 +140,8 @@ public class DataFlowExecutor {
                 }
             }
         }
+        DataSet finalDataSet = dataSetAccessor.copy(dataFlowInstance.getDataFlow().getTransients());
+        dataFlowInstance.setDataSet(finalDataSet);
         return new DataExecutionResponse(responseData);
     }
 

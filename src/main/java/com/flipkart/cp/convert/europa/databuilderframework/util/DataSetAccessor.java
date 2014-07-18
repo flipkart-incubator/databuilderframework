@@ -3,9 +3,11 @@ package com.flipkart.cp.convert.europa.databuilderframework.util;
 import com.flipkart.cp.convert.europa.databuilderframework.model.Data;
 import com.flipkart.cp.convert.europa.databuilderframework.model.DataDelta;
 import com.flipkart.cp.convert.europa.databuilderframework.model.DataSet;
+import com.google.common.collect.Maps;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Accessor for data access from DataSet.
@@ -80,5 +82,27 @@ public class DataSetAccessor {
      */
     public boolean checkForData(String data) {
         return dataSet.getAvailableData().containsKey(data);
+    }
+
+    /**
+     * Get a copy of the underlying data set.
+     */
+    public DataSet copy() {
+        return copy(null);
+    }
+
+    /**
+     * Get a copy of the underlying data set. Don't copy transients.
+     */
+    public DataSet copy(Set<String> transients) {
+        Map<String, Data> dataMap = Maps.newHashMap();
+        for(Map.Entry<String, Data> data : dataSet.getAvailableData().entrySet()) {
+            if(null == transients || !transients.contains(data.getKey())) {
+                dataMap.put(data.getKey(), data.getValue());
+            }
+        }
+        DataSet tmpDataSet = new DataSet();
+        tmpDataSet.setAvailableData(dataMap);
+        return tmpDataSet;
     }
 }
