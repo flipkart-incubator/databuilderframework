@@ -45,7 +45,8 @@ public class DataFlowBuilder {
          * STEP 1:: GENERATE DEPENDENCY TREE {ROOT=>TARGET}
          */
         DependencyNode root = generateDependencyTree(dataFlow.getTargetData(), dataFlow, null,
-                                                    new DependencyNodeManager(), dependencyInfoManager);
+                new DependencyNodeManager(), dependencyInfoManager,
+                new FlattenedDataRoute());
         /**
          * STEP 2:: RANK NODES IN THE TREE ACCORDING TO DISTANCE FROM ROOT
          */
@@ -126,7 +127,9 @@ public class DataFlowBuilder {
     private DependencyNode generateDependencyTree(final String data, DataFlow dataFlow,
                                                   DependencyInfo outgoing,
                                                   DependencyNodeManager dependencyNodeManager,
-                                                  DependencyInfoManager dependencyInfoManager) throws DataFrameworkException {
+                                                  DependencyInfoManager dependencyInfoManager,
+                                                  FlattenedDataRoute routeMeta) throws DataFrameworkException {
+        logger.info("Generating for: " + data);
         List<DependencyNode> incoming = Lists.newArrayList();
         DataBuilderMeta dataBuilderMeta = findBuilder(data, dataFlow);
         DependencyInfo info = dependencyInfoManager.get(data);
@@ -138,7 +141,13 @@ public class DataFlowBuilder {
                 info.setBuilder(dataBuilderMeta.getName());
             }
             for(String consumes : dataBuilderMeta.getConsumes()) {
-                DependencyNode childnode = generateDependencyTree(consumes, dataFlow, info, dependencyNodeManager, dependencyInfoManager);
+                if(routeMeta.isAlreadyOnOutgoingPath(data, consumes)) {
+                    logger.info(String.format("Loop detected: Path for %s already contains %s", consumes, data));
+                    continue;
+                }
+                routeMeta.addOutputData(consumes, data);
+                DependencyNode childnode = generateDependencyTree(consumes, dataFlow, info,
+                                                dependencyNodeManager, dependencyInfoManager, routeMeta);
                 if(null != childnode) {
                     incoming.add(childnode);
                 }
@@ -165,6 +174,7 @@ public class DataFlowBuilder {
                 throw new DataFrameworkException(DataFrameworkException.ErrorCode.NO_BUILDER_FOR_DATA,
                         "No builder found with name: " + resolutionSpecs.get(data));
             }
+            //logger.info("Found builder for data " + data + ": " + resolutionSpecs.get(data));
         }
         if(null == producerMeta) {
             List<DataBuilderMeta> producerMetaList = dataBuilderMetadataManager.getMetaForProducerOf(data);
@@ -182,6 +192,28 @@ public class DataFlowBuilder {
             producerMeta = producerMetaList.get(0);
         }
         return producerMeta;
+    }
+
+    private static class FlattenedDataRoute {
+        private Map<String, Set<String>> outgoingMap = Maps.newHashMap();
+
+        public void addOutputData(String input, String output) {
+            if(!outgoingMap.containsKey(input)) {
+                outgoingMap.put(input, Sets.<String>newHashSet());
+            }
+            outgoingMap.get(input).add(output);
+            if(outgoingMap.containsKey(output)) {
+                outgoingMap.get(input).addAll(outgoingMap.get(output)); //My output's outputs are my outputs also
+            }
+            //logger.info(String.format("Added %s in path for %s", input, output));
+        }
+
+        public boolean isAlreadyOnOutgoingPath(String input, String output) {
+            if(!outgoingMap.containsKey(input)) {
+                return false;
+            }
+            return outgoingMap.get(input).contains(output);
+        }
     }
 
     private static class DependencyInfo {

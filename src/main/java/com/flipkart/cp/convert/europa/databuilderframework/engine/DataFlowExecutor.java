@@ -71,74 +71,93 @@ public class DataFlowExecutor {
             activeDataSet.add(data.getData());
         }
         List<List<DataBuilderMeta>> dependencyHierarchy = executionGraph.getDependencyHierarchy();
-        for (List<DataBuilderMeta> levelBuilders : dependencyHierarchy) {
-            for (DataBuilderMeta builderMeta : levelBuilders) {
-                if (builderMeta.isProcessed()) {
-                    continue;
-                }
-                Set<String> intersection = new HashSet<String>(builderMeta.getConsumes());
-                intersection.retainAll(activeDataSet);
-                //If there is an intersection, means some of it's inputs have changed. Reevaluate
-                if (intersection.isEmpty()) {
-                    continue;
-                }
-                DataBuilder builder = dataBuilderFactory.create(builderMeta.getName());
-                if (!dataSetAccessor.checkForData(builder.getDataBuilderMeta().getConsumes())) {
-                    break; //No need to run others, list is topo sorted
-                }
-                for (DataBuilderExecutionListener listener : dataBuilderExecutionListener) {
-                    try {
-                        listener.beforeExecute(dataFlowInstance, builderMeta, dataDelta, responseData);
-                    } catch (Throwable t) {
-                        logger.error("Error running pre-execution execution listener: ", t);
+        Set<String> newlyGeneratedData = Sets.newHashSet();
+        while(true) {
+            for (List<DataBuilderMeta> levelBuilders : dependencyHierarchy) {
+                for (DataBuilderMeta builderMeta : levelBuilders) {
+                    if (builderMeta.isProcessed()) {
+                        continue;
                     }
-                }
-                try {
-                    Data response = builder.process(dataBuilderContext);
-                    if (null != response) {
-                        dataSetAccessor.merge(response);
-                        responseData.put(builderMeta.getName(), response);
-                        activeDataSet.add(response.getData());
+                    Set<String> intersection = new HashSet<String>(builderMeta.getConsumes());
+                    intersection.retainAll(activeDataSet);
+                    //If there is an intersection, means some of it's inputs have changed. Reevaluate
+                    if (intersection.isEmpty()) {
+                        continue;
                     }
-                    alreadyRanBuilders.add(builderMeta.getName());
-                    builderMeta.setProcessed(true);
+                    DataBuilder builder = dataBuilderFactory.create(builderMeta.getName());
+                    if (!dataSetAccessor.checkForData(builder.getDataBuilderMeta().getConsumes())) {
+                        break; //No need to run others, list is topo sorted
+                    }
                     for (DataBuilderExecutionListener listener : dataBuilderExecutionListener) {
                         try {
-                            listener.afterExecute(dataFlowInstance, builderMeta, dataDelta, responseData, response);
+                            listener.beforeExecute(dataFlowInstance, builderMeta, dataDelta, responseData);
                         } catch (Throwable t) {
-                            logger.error("Error running post-execution listener: ", t);
+                            logger.error("Error running pre-execution execution listener: ", t);
                         }
                     }
-
-                } catch (DataBuilderException e) {
-                    logger.error("Error running builder: " + builderMeta.getName());
-                    for (DataBuilderExecutionListener listener : dataBuilderExecutionListener) {
-                        try {
-                            listener.afterException(dataFlowInstance, builderMeta, dataDelta, responseData, e);
-
-                        } catch (Throwable error) {
-                            logger.error("Error running post-execution listener: ", error);
+                    try {
+                        Data response = builder.process(dataBuilderContext);
+                        if (null != response) {
+                            dataSetAccessor.merge(response);
+                            responseData.put(builderMeta.getName(), response);
+                            activeDataSet.add(response.getData());
+                            if(null != dataFlow.getTransients() && !dataFlow.getTransients().contains(response.getData())) {
+                                newlyGeneratedData.add(response.getData());
+                            }
                         }
-                    }
-                    throw new DataFrameworkException(DataFrameworkException.ErrorCode.BUILDER_EXECUTION_ERROR,
-                            "Error running builder: " + builderMeta.getName(), e.getData(), e);
-
-                } catch (Throwable t) {
-                    logger.error("Error running builder: " + builderMeta.getName());
-                    for (DataBuilderExecutionListener listener : dataBuilderExecutionListener) {
-                        try {
-                            listener.afterException(dataFlowInstance, builderMeta, dataDelta, responseData, t);
-
-                        } catch (Throwable error) {
-                            logger.error("Error running post-execution listener: ", error);
+                        alreadyRanBuilders.add(builderMeta.getName());
+                        logger.info("Ran " + builderMeta.getName());
+                        builderMeta.setProcessed(true);
+                        for (DataBuilderExecutionListener listener : dataBuilderExecutionListener) {
+                            try {
+                                listener.afterExecute(dataFlowInstance, builderMeta, dataDelta, responseData, response);
+                            } catch (Throwable t) {
+                                logger.error("Error running post-execution listener: ", t);
+                            }
                         }
+
+                    } catch (DataBuilderException e) {
+                        logger.error("Error running builder: " + builderMeta.getName());
+                        for (DataBuilderExecutionListener listener : dataBuilderExecutionListener) {
+                            try {
+                                listener.afterException(dataFlowInstance, builderMeta, dataDelta, responseData, e);
+
+                            } catch (Throwable error) {
+                                logger.error("Error running post-execution listener: ", error);
+                            }
+                        }
+                        throw new DataFrameworkException(DataFrameworkException.ErrorCode.BUILDER_EXECUTION_ERROR,
+                                "Error running builder: " + builderMeta.getName(), e.getData(), e);
+
+                    } catch (Throwable t) {
+                        logger.error("Error running builder: " + builderMeta.getName());
+                        for (DataBuilderExecutionListener listener : dataBuilderExecutionListener) {
+                            try {
+                                listener.afterException(dataFlowInstance, builderMeta, dataDelta, responseData, t);
+
+                            } catch (Throwable error) {
+                                logger.error("Error running post-execution listener: ", error);
+                            }
+                        }
+                        Map<String, Object> objectMap = new HashMap<String, Object>();
+                        objectMap.put("MESSAGE", t.getMessage());
+                        throw new DataFrameworkException(DataFrameworkException.ErrorCode.BUILDER_EXECUTION_ERROR,
+                                "Error running builder: " + builderMeta.getName() + t.getMessage(), objectMap, t);
                     }
-                    Map<String, Object> objectMap = new HashMap<String, Object>();
-                    objectMap.put("MESSAGE", t.getMessage());
-                    throw new DataFrameworkException(DataFrameworkException.ErrorCode.BUILDER_EXECUTION_ERROR,
-                            "Error running builder: " + builderMeta.getName() + t.getMessage(), objectMap, t);
                 }
             }
+            if(newlyGeneratedData.isEmpty()) {
+                logger.info("Nothing happened in this loop, exiting..");
+                break;
+            }
+            StringBuilder stringBuilder = new StringBuilder();
+            for(String data : newlyGeneratedData) {
+                stringBuilder.append(data + ", ");
+            }
+            //logger.info("Newly generated: " + stringBuilder);
+            activeDataSet.clear();
+            activeDataSet.addAll(newlyGeneratedData);
+            newlyGeneratedData.clear();
         }
         DataSet finalDataSet = dataSetAccessor.copy(dataFlowInstance.getDataFlow().getTransients());
         dataFlowInstance.setDataSet(finalDataSet);
@@ -150,7 +169,7 @@ public class DataFlowExecutor {
      * that will be sent events when a builder is executed. This can be called multiple times with different listeners.
      * They will be called in order.
      *
-     * @param listener
+     * @param listener Register a listener to be invoked during execution.
      */
     public void registerExecutionListener(DataBuilderExecutionListener listener) {
         dataBuilderExecutionListener.add(listener);
