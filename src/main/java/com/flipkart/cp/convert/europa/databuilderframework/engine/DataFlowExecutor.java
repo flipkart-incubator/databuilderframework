@@ -146,6 +146,10 @@ public class DataFlowExecutor {
                     }
                 }
             }
+            if(newlyGeneratedData.contains(dataFlow.getTargetData())) {
+                logger.info("Finished running this instance of the flow. Exiting.");
+                break;
+            }
             if(newlyGeneratedData.isEmpty()) {
                 logger.info("Nothing happened in this loop, exiting..");
                 break;

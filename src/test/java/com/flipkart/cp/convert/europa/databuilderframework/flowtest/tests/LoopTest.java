@@ -85,7 +85,7 @@ public class LoopTest {
             DataDelta dataDelta = new DataDelta(Lists.newArrayList(new SelectedPaymentOption(), new EncryptedPaymentData()));
             DataExecutionResponse response = executor.run(dataFlowInstance, dataDelta);
             System.out.println(listPrint(response.getResponses().keySet()));
-            Assert.assertEquals(9, response.getResponses().size());
+            Assert.assertEquals(7, response.getResponses().size());
         }
     }
 
