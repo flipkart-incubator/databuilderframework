@@ -11,7 +11,7 @@ import org.junit.Test;
 
 public class ConditionalFlowTest {
     private DataBuilderMetadataManager dataBuilderMetadataManager = new DataBuilderMetadataManager();
-    private DataFlowExecutor executor = new DataFlowExecutor(new DataBuilderFactoryImpl(dataBuilderMetadataManager));
+    private DataFlowExecutor executor = new SimpleDataFlowExecutor(new DataBuilderFactoryImpl(dataBuilderMetadataManager));
     private DataFlowBuilder dataFlowBuilder = new DataFlowBuilder(dataBuilderMetadataManager);
     private DataFlow dataFlow = new DataFlow();
     private DataFlow dataFlowError = new DataFlow();
@@ -57,7 +57,7 @@ public class ConditionalFlowTest {
             DataDelta dataDelta = new DataDelta(Lists.<Data>newArrayList(new TestDataB("Bhai")));
             DataExecutionResponse response = executor.run(dataFlowInstance, dataDelta);
             Assert.assertFalse(response.getResponses().isEmpty());
-            Assert.assertEquals("C",response.getResponses().get("BuilderA").getData());
+            Assert.assertTrue(response.getResponses().containsKey("C"));
         }
         {
             DataDelta dataDelta = new DataDelta(Lists.<Data>newArrayList(new TestDataD("this")));
@@ -81,14 +81,14 @@ public class ConditionalFlowTest {
             DataDelta dataDelta = new DataDelta(Lists.<Data>newArrayList(new TestDataB("World")));
             DataExecutionResponse response = executor.run(dataFlowInstance, dataDelta);
             Assert.assertFalse(response.getResponses().isEmpty());
-            Assert.assertEquals("C",response.getResponses().get("BuilderA").getData());
+            Assert.assertTrue(response.getResponses().containsKey("C"));
         }
         {
             DataDelta dataDelta = new DataDelta(Lists.<Data>newArrayList(new TestDataD("this")));
             DataExecutionResponse response = executor.run(dataFlowInstance, dataDelta);
             Assert.assertFalse(response.getResponses().isEmpty());
-            Assert.assertEquals("E", response.getResponses().get("BuilderB").getData());
-            Assert.assertEquals("F",response.getResponses().get("BuilderC").getData());
+            Assert.assertTrue(response.getResponses().containsKey("E"));
+            Assert.assertTrue(response.getResponses().containsKey("F"));
         }
 
     }

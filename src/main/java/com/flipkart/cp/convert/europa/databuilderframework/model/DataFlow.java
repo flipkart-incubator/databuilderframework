@@ -59,6 +59,11 @@ public class DataFlow implements Serializable {
      */
     private boolean enabled = true;
 
+    /**
+     * Flag to not run loops
+     */
+    private boolean loopingEnabled = true;
+
     public DataFlow() {
     }
 
@@ -116,5 +121,13 @@ public class DataFlow implements Serializable {
 
     public void setTransients(Set<String> transients) {
         this.transients = transients;
+    }
+
+    public boolean isLoopingEnabled() {
+        return loopingEnabled;
+    }
+
+    public void setLoopingEnabled(boolean loopingEnabled) {
+        this.loopingEnabled = loopingEnabled;
     }
 }

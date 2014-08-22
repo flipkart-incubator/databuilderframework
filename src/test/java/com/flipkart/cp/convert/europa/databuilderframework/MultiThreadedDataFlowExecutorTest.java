@@ -9,10 +9,11 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Map;
+import java.util.concurrent.Executors;
 
 import static org.junit.Assert.fail;
 
-public class DataFlowExecutorTest {
+public class MultiThreadedDataFlowExecutorTest {
     private static class TestListener implements DataBuilderExecutionListener {
 
         @Override
@@ -117,7 +118,9 @@ public class DataFlowExecutorTest {
     }
 
     private DataBuilderMetadataManager dataBuilderMetadataManager = new DataBuilderMetadataManager();
-    private DataFlowExecutor executor = new SimpleDataFlowExecutor(new DataBuilderFactoryImpl(dataBuilderMetadataManager));
+    private DataFlowExecutor executor = new MultiThreadedDataFlowExecutor(
+                                                new DataBuilderFactoryImpl(dataBuilderMetadataManager),
+                                                Executors.newFixedThreadPool(2));
     private DataFlowBuilder dataFlowBuilder = new DataFlowBuilder(dataBuilderMetadataManager);
     private DataFlow dataFlow = new DataFlow();
     private DataFlow dataFlowError = new DataFlow();

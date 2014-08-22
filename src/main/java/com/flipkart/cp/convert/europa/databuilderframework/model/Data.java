@@ -19,6 +19,13 @@ public abstract class Data {
     @JsonIgnore
     private String data;
 
+    /**
+     * Indicated which builder generated this data.
+     */
+    @NotNull
+    @JsonIgnore
+    private String generatedBy;
+
     protected Data(String data) {
         this.data = data;
     }
@@ -29,5 +36,13 @@ public abstract class Data {
 
     public void setData(String data) {
         this.data = data;
+    }
+
+    public String getGeneratedBy() {
+        return generatedBy;
+    }
+
+    public void setGeneratedBy(String generatedBy) {
+        this.generatedBy = generatedBy;
     }
 }

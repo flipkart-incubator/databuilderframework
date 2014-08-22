@@ -2,9 +2,7 @@ package com.flipkart.cp.convert.europa.databuilderframework.flowtest.tests;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.flipkart.cp.convert.europa.databuilderframework.engine.DataBuilderMetadataManager;
-import com.flipkart.cp.convert.europa.databuilderframework.engine.DataFlowBuilder;
-import com.flipkart.cp.convert.europa.databuilderframework.engine.DataFlowExecutor;
+import com.flipkart.cp.convert.europa.databuilderframework.engine.*;
 import com.flipkart.cp.convert.europa.databuilderframework.engine.impl.DataBuilderFactoryImpl;
 import com.flipkart.cp.convert.europa.databuilderframework.flowtest.builders.*;
 import com.flipkart.cp.convert.europa.databuilderframework.flowtest.data.*;
@@ -16,13 +14,14 @@ import org.junit.Test;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.Executors;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 public class LoopTest {
     private DataBuilderMetadataManager dataBuilderMetadataManager = new DataBuilderMetadataManager();
-    private DataFlowExecutor executor = new DataFlowExecutor(new DataBuilderFactoryImpl(dataBuilderMetadataManager));
+    private DataFlowExecutor executor = new MultiThreadedDataFlowExecutor(new DataBuilderFactoryImpl(dataBuilderMetadataManager), Executors.newFixedThreadPool(10));
     private DataFlowBuilder dataFlowBuilder = new DataFlowBuilder(dataBuilderMetadataManager);
     private ObjectMapper mapper = new ObjectMapper();
 

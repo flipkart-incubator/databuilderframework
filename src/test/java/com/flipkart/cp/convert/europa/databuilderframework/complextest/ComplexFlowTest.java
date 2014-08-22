@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.cp.convert.europa.databuilderframework.engine.DataBuilderMetadataManager;
 import com.flipkart.cp.convert.europa.databuilderframework.engine.DataFlowBuilder;
 import com.flipkart.cp.convert.europa.databuilderframework.engine.DataFlowExecutor;
+import com.flipkart.cp.convert.europa.databuilderframework.engine.SimpleDataFlowExecutor;
 import com.flipkart.cp.convert.europa.databuilderframework.engine.impl.DataBuilderFactoryImpl;
 import com.flipkart.cp.convert.europa.databuilderframework.model.*;
 import com.google.common.collect.Lists;
@@ -11,7 +12,7 @@ import org.junit.Test;
 
 public class ComplexFlowTest {
     private DataBuilderMetadataManager dataBuilderMetadataManager = new DataBuilderMetadataManager();
-    private DataFlowExecutor executor = new DataFlowExecutor(new DataBuilderFactoryImpl(dataBuilderMetadataManager));
+    private DataFlowExecutor executor = new SimpleDataFlowExecutor(new DataBuilderFactoryImpl(dataBuilderMetadataManager));
     private DataFlowBuilder dataFlowBuilder = new DataFlowBuilder(dataBuilderMetadataManager);
     public ComplexFlowTest() throws Exception {
         dataBuilderMetadataManager.register(Lists.newArrayList("CR", "CAID", "VAS"), "OO", "SB", SummaryBuilderTest.class);
