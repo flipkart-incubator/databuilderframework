@@ -36,7 +36,7 @@
         <dependency>
             <groupId>com.flipkart.cp.convert.europa</groupId>
             <artifactId>common</artifactId>
-            <version>0.1-SNAPSHOT</version>
+            <version>0.4-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
