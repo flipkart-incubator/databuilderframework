@@ -35,7 +35,7 @@ public class ExecutionGraph implements Serializable {
             for(DataBuilderMeta meta : levelMeta) {
                 dataBuilderMetas.add(meta.deepCopy());
             }
-            tmpDependencyHierarchy.add(levelMeta);
+            tmpDependencyHierarchy.add(dataBuilderMetas);
         }
         return new ExecutionGraph(tmpDependencyHierarchy);
     }
