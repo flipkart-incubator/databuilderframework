@@ -213,7 +213,7 @@ public class MultiThreadedDataFlowExecutor extends DataFlowExecutor {
                     }
                 }
                 return new DataContainer(builderMeta, new DataFrameworkException(DataFrameworkException.ErrorCode.BUILDER_EXECUTION_ERROR,
-                        "Error running builder: " + builderMeta.getName(), e.getData(), e));
+                        "Error running builder: " + builderMeta.getName(), e.getDetails(), e));
 
             } catch (Throwable t) {
                 logger.error("Error running builder: " + builderMeta.getName());

@@ -1,15 +1,13 @@
 package com.flipkart.cp.convert.europa.databuilderframework.engine;
 
 
-
-import com.flipkart.cp.convert.europa.common.execption.BaseException;
-
 import java.util.Map;
 
 /**
  * Created by ajaysingh on 13/06/14.
  */
-public class DataBuilderException extends BaseException {
+public class DataBuilderException extends Exception{
+    private Map<String,Object> details;
     public static enum ErrorCode {
         HANDLER_FAILURE
     }
@@ -33,14 +31,22 @@ public class DataBuilderException extends BaseException {
     }
 
     public DataBuilderException(ErrorCode errorCode, String message, Map<String, Object> details) {
-        super(message, details);
+        super(message);
+        this.details=details;
         this.errorCode = errorCode;
     }
 
     public DataBuilderException(ErrorCode errorCode, String message, Map<String, Object> details, Throwable cause) {
-        super(message, cause, details);
+        super(message, cause);
+        this.details=details;
         this.errorCode = errorCode;
     }
 
+    public Map<String, Object> getDetails() {
+        return details;
+    }
 
+    public ErrorCode getErrorCode() {
+        return errorCode;
+    }
 }

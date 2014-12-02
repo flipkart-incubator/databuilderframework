@@ -1,12 +1,10 @@
 package com.flipkart.cp.convert.europa.databuilderframework.engine;
 
 
-
-import com.flipkart.cp.convert.europa.common.execption.BaseException;
-
 import java.util.Map;
 
-public class DataFrameworkException extends BaseException {
+public class DataFrameworkException extends Exception {
+    private Map<String,Object> details;
     public ErrorCode getErrorCode() {
         return errorCode;
     }
@@ -34,14 +32,18 @@ public class DataFrameworkException extends BaseException {
     }
 
     public DataFrameworkException(ErrorCode errorCode, String message, Map<String, Object> details) {
-        super(message, details);
+        super(message);
         this.errorCode = errorCode;
+        this.details=details;
     }
 
     public DataFrameworkException(ErrorCode errorCode, String message, Map<String, Object> details, Throwable cause) {
-        super(message, cause, details);
+        super(message, cause);
         this.errorCode = errorCode;
+        this.details=details;
     }
 
-
+    public Map<String, Object> getDetails() {
+        return details;
+    }
 }
