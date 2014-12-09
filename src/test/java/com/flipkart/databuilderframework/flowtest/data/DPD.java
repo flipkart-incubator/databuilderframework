@@ -2,8 +2,8 @@ package com.flipkart.databuilderframework.flowtest.data;
 
 import com.flipkart.databuilderframework.model.Data;
 
-public class OmsPayments extends Data {
-    public OmsPayments() {
-        super("OMSP");
+public class DPD extends Data {
+    public DPD() {
+        super("DPD");
     }
 }

@@ -26,16 +26,16 @@ public class LoopTest {
     private ObjectMapper mapper = new ObjectMapper();
 
     public LoopTest() throws Exception {
-        dataBuilderMetadataManager.register(Lists.newArrayList("CR", "CAID"), "OO", "OOB", OmsOrderBuilderTest.class);
-        dataBuilderMetadataManager.register(Lists.newArrayList("OO", "OMSP"), "OCRD", "OCRDB", OmsCreateOrderBuilder.class);
-        dataBuilderMetadataManager.register(Lists.newArrayList("OO", "CAID", "OMSP", "OCRD"), "POD", "PODB", PaymentOptionsBuilder.class);
-        dataBuilderMetadataManager.register(Lists.newArrayList("SPD", "OO", "OCRD", "POD"), "ILD", "ILDB", IntegrationLogicBuilder.class);
-        dataBuilderMetadataManager.register(Lists.newArrayList("SPD", "ILD", "OO", "OCRD"), "IPD", "IPDB", InitPaymentBuilder.class);
-        dataBuilderMetadataManager.register(Lists.newArrayList("IPD", "EPD", "OO"), "DPD", "DPDB", DecryptedPaymentBuilder.class);
-        dataBuilderMetadataManager.register(Lists.newArrayList("DPD", "IPD", "OO"), "OMSP", "OMSPD", OmsPaymentBuilder.class);
-        dataBuilderMetadataManager.register(Lists.newArrayList("OMSP", "OO", "DPD"), "PSD", "PSDB", PaymentSummaryBuilder.class);
-        dataBuilderMetadataManager.register(Lists.newArrayList("PSD", "OMSP", "OO"), "PPD", "PPDB", PaymentPersistedBuilder.class);
-        dataBuilderMetadataManager.register(Lists.newArrayList("PPD", "PSD"), "OCD", "OCDB", CountingOrderCompletedBuilder.class);
+        dataBuilderMetadataManager.register(Lists.newArrayList("CR", "CAID"), "OO", "OOB", OOBuilderTest.class);
+        dataBuilderMetadataManager.register(Lists.newArrayList("OO", "OMSP"), "OCRD", "OCRDB", OCOBuilder.class);
+        dataBuilderMetadataManager.register(Lists.newArrayList("OO", "CAID", "OMSP", "OCRD"), "POD", "PODB", POBuilder.class);
+        dataBuilderMetadataManager.register(Lists.newArrayList("SPD", "OO", "OCRD", "POD"), "ILD", "ILDB", ILBuilder.class);
+        dataBuilderMetadataManager.register(Lists.newArrayList("SPD", "ILD", "OO", "OCRD"), "IPD", "IPDB", IPBuilder.class);
+        dataBuilderMetadataManager.register(Lists.newArrayList("IPD", "EPD", "OO"), "DPD", "DPDB", DPBuilder.class);
+        dataBuilderMetadataManager.register(Lists.newArrayList("DPD", "IPD", "OO"), "OMSP", "OMSPD", OPBuilder.class);
+        dataBuilderMetadataManager.register(Lists.newArrayList("OMSP", "OO", "DPD"), "PSD", "PSDB", PSBuilder.class);
+        dataBuilderMetadataManager.register(Lists.newArrayList("PSD", "OMSP", "OO"), "PPD", "PPDB", PPBuilder.class);
+        dataBuilderMetadataManager.register(Lists.newArrayList("PPD", "PSD"), "OCD", "OCDB", CountingOCBuilder.class);
 
         mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         mapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
@@ -59,7 +59,7 @@ public class LoopTest {
 
         {
             DataDelta dataDelta = new DataDelta(Lists.newArrayList(
-                    new CartAccountID(), new CartRef(), new OmsPayments(), new SelectedPaymentOption(), new EncryptedPaymentData()));
+                    new CAID(), new CR(), new OP(), new SPO(), new EPD()));
             DataExecutionResponse response = executor.run(dataFlowInstance, dataDelta);
             System.out.println(listPrint(response.getResponses().keySet()));
             Assert.assertEquals(9, response.getResponses().size());
@@ -70,7 +70,7 @@ public class LoopTest {
             }
         }
         {
-            DataDelta dataDelta = new DataDelta(Lists.newArrayList(new SelectedPaymentOption(), new EncryptedPaymentData()));
+            DataDelta dataDelta = new DataDelta(Lists.newArrayList(new SPO(), new EPD()));
             DataExecutionResponse response = executor.run(dataFlowInstance, dataDelta);
             System.out.println(listPrint(response.getResponses().keySet()));
             Assert.assertEquals(8, response.getResponses().size());
@@ -81,7 +81,7 @@ public class LoopTest {
             }
         }
         {
-            DataDelta dataDelta = new DataDelta(Lists.newArrayList(new SelectedPaymentOption(), new EncryptedPaymentData()));
+            DataDelta dataDelta = new DataDelta(Lists.newArrayList(new SPO(), new EPD()));
             DataExecutionResponse response = executor.run(dataFlowInstance, dataDelta);
             System.out.println(listPrint(response.getResponses().keySet()));
             Assert.assertEquals(7, response.getResponses().size());
