@@ -58,7 +58,7 @@
                         <packageBranchRate>85</packageBranchRate>
                         <regexes>
                             <regex>
-                                <pattern>com.flipkart.cp.convert.europa.databuilderframework.*</pattern>
+                                <pattern>com.flipkart.databuilderframework.*</pattern>
                                 <branchRate>100</branchRate>
                                 <lineRate>100</lineRate>
                             </regex>
