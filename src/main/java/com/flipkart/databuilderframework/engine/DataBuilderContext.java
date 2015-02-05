@@ -1,6 +1,7 @@
 package com.flipkart.databuilderframework.engine;
 
 import com.flipkart.databuilderframework.model.DataSet;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 
 import java.util.Map;
@@ -18,6 +19,11 @@ public class DataBuilderContext {
     private Map<String, Object> contextData = Maps.newHashMap();
 
     public DataBuilderContext() {
+    }
+
+    DataBuilderContext(DataSet dataSet, Map<String, Object> contextData) {
+        this.dataSet = dataSet;
+        this.contextData = contextData;
     }
 
     public DataSet getDataSet() {
@@ -41,5 +47,9 @@ public class DataBuilderContext {
             return null;
         }
         return tClass.cast(value);
+    }
+
+    public DataBuilderContext immutableCopy(DataSet dataSet) {
+        return new DataBuilderContext(dataSet, ImmutableMap.copyOf(contextData));
     }
 }

@@ -7,7 +7,8 @@ import com.flipkart.databuilderframework.engine.DataFlowExecutor;
 import com.flipkart.databuilderframework.engine.SimpleDataFlowExecutor;
 import com.flipkart.databuilderframework.engine.impl.DataBuilderFactoryImpl;
 import com.flipkart.databuilderframework.model.*;
-import com.flipkart.databuilderframework.util.DataSetAccessor;
+import com.flipkart.databuilderframework.engine.DataSetAccessor;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.junit.Assert;
@@ -24,12 +25,12 @@ public class DataFlowWithTransientDataTest {
 
     @Before
     public void setup() throws Exception {
-        dataBuilderMetadataManager.register(Lists.newArrayList("A", "B"), "C", "BuilderA", TestBuilderA.class );
-        dataBuilderMetadataManager.register(Lists.newArrayList("C", "D"), "E", "BuilderB", TestBuilderB.class );
-        dataBuilderMetadataManager.register(Lists.newArrayList("C", "E"), "F", "BuilderC", TestBuilderC.class );
-        dataBuilderMetadataManager.register(Lists.newArrayList("X"), "Y", "BuilderX", TestBuilderError.class );
-        //dataBuilderMetadataManager.register(Lists.newArrayList("F"),      "G", "BuilderD", TestBuilderD.class );
-        //dataBuilderMetadataManager.register(Lists.newArrayList("E", "C"), "G", "BuilderE", TestBuilderE.class );
+        dataBuilderMetadataManager.register(ImmutableSet.of("A", "B"), "C", "BuilderA", TestBuilderA.class );
+        dataBuilderMetadataManager.register(ImmutableSet.of("C", "D"), "E", "BuilderB", TestBuilderB.class );
+        dataBuilderMetadataManager.register(ImmutableSet.of("C", "E"), "F", "BuilderC", TestBuilderC.class );
+        dataBuilderMetadataManager.register(ImmutableSet.of("X"), "Y", "BuilderX", TestBuilderError.class );
+        //dataBuilderMetadataManager.register(ImmutableSet.of("F"),      "G", "BuilderD", TestBuilderD.class );
+        //dataBuilderMetadataManager.register(ImmutableSet.of("E", "C"), "G", "BuilderE", TestBuilderE.class );
 
         dataFlow.setTargetData("F");
         dataFlow.setExecutionGraph(dataFlowBuilder.generateGraph(dataFlow).deepCopy());
@@ -54,7 +55,7 @@ public class DataFlowWithTransientDataTest {
             Assert.assertFalse(response.getResponses().isEmpty());
             Assert.assertTrue(response.getResponses().containsKey("C"));
             DataSetAccessor accessor = new DataSetAccessor(dataFlowInstance.getDataSet());
-            Assert.assertTrue(accessor.checkForData(Lists.newArrayList("A", "B")));
+            Assert.assertTrue(accessor.checkForData(ImmutableSet.of("A", "B")));
             Assert.assertFalse(accessor.checkForData("C"));
             dataC = response.getResponses().get("C");
         }

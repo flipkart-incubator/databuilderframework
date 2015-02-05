@@ -1,5 +1,6 @@
 package com.flipkart.databuilderframework.model;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import org.junit.Assert;
 import org.junit.Test;
@@ -18,7 +19,7 @@ public class ExecutionGraphTest {
     @Test
     public void testDeepCopy() throws Exception {
         List<DataBuilderMeta> builders = Lists.newArrayList(
-                                            new DataBuilderMeta(Lists.newArrayList("A", "B"), "C", "test"));
+                                            new DataBuilderMeta(ImmutableSet.of("A", "B"), "C", "test"));
         ExecutionGraph executionGraph = new ExecutionGraph(Collections.singletonList(builders));
         ExecutionGraph executionGraph1 = executionGraph.deepCopy();
         Assert.assertArrayEquals(executionGraph.getDependencyHierarchy().get(0).toArray(new DataBuilderMeta[executionGraph.getDependencyHierarchy().size()]),

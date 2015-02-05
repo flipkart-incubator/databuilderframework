@@ -10,6 +10,7 @@ import com.flipkart.databuilderframework.engine.impl.DataBuilderFactoryImpl;
 import com.flipkart.databuilderframework.flowtest.builders.*;
 import com.flipkart.databuilderframework.flowtest.data.*;
 import com.flipkart.databuilderframework.model.*;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import org.junit.Assert;
 import org.junit.Test;
@@ -27,16 +28,16 @@ public class FlowTest {
     private ObjectMapper mapper = new ObjectMapper();
 
     public FlowTest() throws Exception {
-        dataBuilderMetadataManager.register(Lists.newArrayList("CR", "CAID"), "OO", "OOB", OOBuilderTest.class);
-        dataBuilderMetadataManager.register(Lists.newArrayList("OO", "OMSP"), "OCRD", "OCRDB", OCOBuilder.class);
-        dataBuilderMetadataManager.register(Lists.newArrayList("OO", "CAID", "OMSP", "OCRD"), "POD", "PODB", POBuilder.class);
-        dataBuilderMetadataManager.register(Lists.newArrayList("SPD", "OO", "OCRD", "POD"), "ILD", "ILDB", ILBuilder.class);
-        dataBuilderMetadataManager.register(Lists.newArrayList("SPD", "ILD", "OO", "OCRD"), "IPD", "IPDB", IPBuilder.class);
-        dataBuilderMetadataManager.register(Lists.newArrayList("IPD", "EPD", "OO"), "DPD", "DPDB", DPBuilder.class);
-        dataBuilderMetadataManager.register(Lists.newArrayList("DPD", "IPD", "OO"), "OMSP", "OMSPD", OPBuilder.class);
-        dataBuilderMetadataManager.register(Lists.newArrayList("OMSP", "OO", "DPD"), "PSD", "PSDB", PSBuilder.class);
-        dataBuilderMetadataManager.register(Lists.newArrayList("PSD", "OMSP", "OO"), "PPD", "PPDB", PPBuilder.class);
-        dataBuilderMetadataManager.register(Lists.newArrayList("PPD", "PSD"), "OCD", "OCDB", OCBuilder.class);
+        dataBuilderMetadataManager.register(ImmutableSet.of("CR", "CAID"), "OO", "OOB", OOBuilderTest.class);
+        dataBuilderMetadataManager.register(ImmutableSet.of("OO", "OMSP"), "OCRD", "OCRDB", OCOBuilder.class);
+        dataBuilderMetadataManager.register(ImmutableSet.of("OO", "CAID", "OMSP", "OCRD"), "POD", "PODB", POBuilder.class);
+        dataBuilderMetadataManager.register(ImmutableSet.of("SPD", "OO", "OCRD", "POD"), "ILD", "ILDB", ILBuilder.class);
+        dataBuilderMetadataManager.register(ImmutableSet.of("SPD", "ILD", "OO", "OCRD"), "IPD", "IPDB", IPBuilder.class);
+        dataBuilderMetadataManager.register(ImmutableSet.of("IPD", "EPD", "OO"), "DPD", "DPDB", DPBuilder.class);
+        dataBuilderMetadataManager.register(ImmutableSet.of("DPD", "IPD", "OO"), "OMSP", "OMSPD", OPBuilder.class);
+        dataBuilderMetadataManager.register(ImmutableSet.of("OMSP", "OO", "DPD"), "PSD", "PSDB", PSBuilder.class);
+        dataBuilderMetadataManager.register(ImmutableSet.of("PSD", "OMSP", "OO"), "PPD", "PPDB", PPBuilder.class);
+        dataBuilderMetadataManager.register(ImmutableSet.of("PPD", "PSD"), "OCD", "OCDB", OCBuilder.class);
 
         mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         mapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);

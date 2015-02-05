@@ -1,8 +1,6 @@
 package com.flipkart.databuilderframework.engine;
 
 import com.flipkart.databuilderframework.model.*;
-import com.flipkart.databuilderframework.util.DataSetAccessor;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import org.slf4j.Logger;
@@ -29,7 +27,6 @@ public class SimpleDataFlowExecutor extends DataFlowExecutor {
         DataSet dataSet = dataFlowInstance.getDataSet().accessor().copy(); //Create own copy to work with
         DataSetAccessor dataSetAccessor = DataSet.accessor(dataSet);
         dataSetAccessor.merge(dataDelta);
-        dataBuilderContext.setDataSet(dataSet);
         Map<String, Data> responseData = Maps.newTreeMap();
         Set<String> activeDataSet = Sets.newHashSet();
 
@@ -44,10 +41,8 @@ public class SimpleDataFlowExecutor extends DataFlowExecutor {
                     if (builderMeta.isProcessed()) {
                         continue;
                     }
-                    Set<String> intersection = new HashSet<String>(builderMeta.getConsumes());
-                    intersection.retainAll(activeDataSet);
                     //If there is an intersection, means some of it's inputs have changed. Reevaluate
-                    if (intersection.isEmpty()) {
+                    if (Sets.intersection(builderMeta.getConsumes(), activeDataSet).isEmpty()) {
                         continue;
                     }
                     DataBuilder builder = dataBuilderFactory.create(builderMeta.getName());
@@ -62,7 +57,9 @@ public class SimpleDataFlowExecutor extends DataFlowExecutor {
                         }
                     }
                     try {
-                        Data response = builder.process(dataBuilderContext);
+                        Data response = builder.process(
+                                                    dataBuilderContext.immutableCopy(
+                                                            dataSet.accessor().getAccesibleDataSetFor(builder)));
                         if (null != response) {
                             dataSetAccessor.merge(response);
                             responseData.put(response.getData(), response);

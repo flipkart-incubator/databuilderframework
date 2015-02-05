@@ -5,7 +5,7 @@ import com.flipkart.databuilderframework.engine.DataBuilderContext;
 import com.flipkart.databuilderframework.engine.DataBuilderException;
 import com.flipkart.databuilderframework.model.Data;
 import com.flipkart.databuilderframework.model.DataSet;
-import com.flipkart.databuilderframework.util.DataSetAccessor;
+import com.flipkart.databuilderframework.engine.DataSetAccessor;
 
 public class TestBuilderError extends DataBuilder {
 

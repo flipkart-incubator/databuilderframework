@@ -8,6 +8,7 @@ import com.google.common.collect.Sets;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * Metadata manager class for {@link DataBuilder} implementations.
@@ -19,7 +20,7 @@ public class DataBuilderMetadataManager {
     private Map<String, Class<? extends DataBuilder>> dataBuilders = Maps.newHashMap();
     private Map<String, DataBuilderMeta> meta = Maps.newHashMap();
     private Map<String, List<DataBuilderMeta>> producedToProducerMap = Maps.newHashMap();
-    private Map<String, Set<DataBuilderMeta>> consumesMeta = Maps.newHashMap();
+    private Map<String, TreeSet<DataBuilderMeta>> consumesMeta = Maps.newHashMap();
 
     /**
      * Register metadata for a {@link DataBuilder} implementation.
@@ -29,7 +30,7 @@ public class DataBuilderMetadataManager {
      * @param dataBuilder The class of the builder to be created
      * @throws DataFrameworkException In case of name conflict
      */
-    public void register(List<String> consumes, String produces,
+    public void register(Set<String> consumes, String produces,
                          String builder, Class<? extends DataBuilder> dataBuilder) throws DataFrameworkException {
         DataBuilderMeta metadata = new DataBuilderMeta(consumes, produces, builder);
         if(meta.containsKey(builder)) {

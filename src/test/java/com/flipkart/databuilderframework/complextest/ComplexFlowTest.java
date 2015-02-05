@@ -7,6 +7,7 @@ import com.flipkart.databuilderframework.engine.DataFlowExecutor;
 import com.flipkart.databuilderframework.engine.SimpleDataFlowExecutor;
 import com.flipkart.databuilderframework.engine.impl.DataBuilderFactoryImpl;
 import com.flipkart.databuilderframework.model.*;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import org.junit.Test;
 
@@ -15,11 +16,11 @@ public class ComplexFlowTest {
     private DataFlowExecutor executor = new SimpleDataFlowExecutor(new DataBuilderFactoryImpl(dataBuilderMetadataManager));
     private DataFlowBuilder dataFlowBuilder = new DataFlowBuilder(dataBuilderMetadataManager);
     public ComplexFlowTest() throws Exception {
-        dataBuilderMetadataManager.register(Lists.newArrayList("CR", "CAID", "VAS"), "OO", "SB", SummaryBuilderTest.class);
-        dataBuilderMetadataManager.register(Lists.newArrayList("OO"), "POD", "POB", PaymentOptionBuilderTest.class);
-        dataBuilderMetadataManager.register(Lists.newArrayList("OO", "POD", "SPD"), "ILD", "PRB", PaymentRequestBuilderTest.class);
-        dataBuilderMetadataManager.register(Lists.newArrayList("ILD", "EPD"), "OSD", "PPB", PaymentProcessorBuilderTest.class);
-        dataBuilderMetadataManager.register(Lists.newArrayList("OO", "OSD"), "OCD", "COB", CompleteOrderBuilderTest.class);
+        dataBuilderMetadataManager.register(ImmutableSet.of("CR", "CAID", "VAS"), "OO", "SB", SummaryBuilderTest.class);
+        dataBuilderMetadataManager.register(ImmutableSet.of("OO"), "POD", "POB", PaymentOptionBuilderTest.class);
+        dataBuilderMetadataManager.register(ImmutableSet.of("OO", "POD", "SPD"), "ILD", "PRB", PaymentRequestBuilderTest.class);
+        dataBuilderMetadataManager.register(ImmutableSet.of("ILD", "EPD"), "OSD", "PPB", PaymentProcessorBuilderTest.class);
+        dataBuilderMetadataManager.register(ImmutableSet.of("OO", "OSD"), "OCD", "COB", CompleteOrderBuilderTest.class);
     }
 
     @Test

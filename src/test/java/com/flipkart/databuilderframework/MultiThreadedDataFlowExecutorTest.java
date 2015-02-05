@@ -3,6 +3,7 @@ package com.flipkart.databuilderframework;
 import com.flipkart.databuilderframework.engine.*;
 import com.flipkart.databuilderframework.engine.impl.DataBuilderFactoryImpl;
 import com.flipkart.databuilderframework.model.*;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import org.junit.Assert;
 import org.junit.Before;
@@ -127,10 +128,10 @@ public class MultiThreadedDataFlowExecutorTest {
 
     @Before
     public void setup() throws Exception {
-        dataBuilderMetadataManager.register(Lists.newArrayList("A", "B"), "C", "BuilderA", TestBuilderA.class );
-        dataBuilderMetadataManager.register(Lists.newArrayList("C", "D"), "E", "BuilderB", TestBuilderB.class );
-        dataBuilderMetadataManager.register(Lists.newArrayList("C", "E"), "F", "BuilderC", TestBuilderC.class );
-        dataBuilderMetadataManager.register(Lists.newArrayList("X"), "Y", "BuilderX", TestBuilderError.class );
+        dataBuilderMetadataManager.register(ImmutableSet.of("A", "B"), "C", "BuilderA", TestBuilderA.class );
+        dataBuilderMetadataManager.register(ImmutableSet.of("C", "D"), "E", "BuilderB", TestBuilderB.class );
+        dataBuilderMetadataManager.register(ImmutableSet.of("C", "E"), "F", "BuilderC", TestBuilderC.class );
+        dataBuilderMetadataManager.register(ImmutableSet.of("X"), "Y", "BuilderX", TestBuilderError.class );
         //dataBuilderMetadataManager.register(Lists.newArrayList("F"),      "G", "BuilderD", TestBuilderD.class );
         //dataBuilderMetadataManager.register(Lists.newArrayList("E", "C"), "G", "BuilderE", TestBuilderE.class );
 

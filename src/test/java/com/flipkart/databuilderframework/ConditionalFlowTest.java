@@ -3,7 +3,8 @@ package com.flipkart.databuilderframework;
 import com.flipkart.databuilderframework.engine.*;
 import com.flipkart.databuilderframework.engine.impl.DataBuilderFactoryImpl;
 import com.flipkart.databuilderframework.model.*;
-import com.flipkart.databuilderframework.util.DataSetAccessor;
+import com.flipkart.databuilderframework.engine.DataSetAccessor;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import org.junit.Assert;
 import org.junit.Before;
@@ -33,9 +34,9 @@ public class ConditionalFlowTest {
 
     @Before
     public void setup() throws Exception {
-        dataBuilderMetadataManager.register(Lists.newArrayList("A", "B"), "C", "BuilderA", TestBuilderA.class );
-        dataBuilderMetadataManager.register(Lists.newArrayList("C", "D"), "E", "BuilderB", ConditionalBuilder.class );
-        dataBuilderMetadataManager.register(Lists.newArrayList("C", "E"), "F", "BuilderC", TestBuilderC.class );
+        dataBuilderMetadataManager.register(ImmutableSet.of("A", "B"), "C", "BuilderA", TestBuilderA.class );
+        dataBuilderMetadataManager.register(ImmutableSet.of("C", "D"), "E", "BuilderB", ConditionalBuilder.class );
+        dataBuilderMetadataManager.register(ImmutableSet.of("C", "E"), "F", "BuilderC", TestBuilderC.class );
 
         dataFlow.setTargetData("F");
         dataFlow.setExecutionGraph(dataFlowBuilder.generateGraph(dataFlow).deepCopy());

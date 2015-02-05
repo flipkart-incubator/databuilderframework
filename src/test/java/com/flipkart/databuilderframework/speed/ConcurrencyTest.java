@@ -4,6 +4,7 @@ import com.flipkart.databuilderframework.*;
 import com.flipkart.databuilderframework.engine.*;
 import com.flipkart.databuilderframework.engine.impl.DataBuilderFactoryImpl;
 import com.flipkart.databuilderframework.model.*;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import org.junit.Assert;
 import org.junit.Before;
@@ -22,14 +23,14 @@ public class ConcurrencyTest {
 
     @Before
     public void setup() throws Exception {
-        dataBuilderMetadataManager.register(Lists.newArrayList("REQ"), "A", "BuilderA", ServiceCallerA.class );
-        dataBuilderMetadataManager.register(Lists.newArrayList("REQ"), "B", "BuilderB", ServiceCallerB.class );
-        dataBuilderMetadataManager.register(Lists.newArrayList("REQ"), "C", "BuilderC", ServiceCallerC.class );
-        dataBuilderMetadataManager.register(Lists.newArrayList("REQ"), "D", "BuilderD", ServiceCallerD.class );
-        dataBuilderMetadataManager.register(Lists.newArrayList("REQ"), "E", "BuilderE", ServiceCallerE.class );
-        dataBuilderMetadataManager.register(Lists.newArrayList("REQ"), "F", "BuilderF", ServiceCallerF.class );
-        dataBuilderMetadataManager.register(Lists.newArrayList("REQ"), "G", "BuilderG", ServiceCallerG.class );
-        dataBuilderMetadataManager.register(Lists.newArrayList("A", "B", "C", "D", "E", "F", "G"), "RES", "ResponseBuilder", DataCombiner.class );
+        dataBuilderMetadataManager.register(ImmutableSet.of("REQ"), "A", "BuilderA", ServiceCallerA.class );
+        dataBuilderMetadataManager.register(ImmutableSet.of("REQ"), "B", "BuilderB", ServiceCallerB.class );
+        dataBuilderMetadataManager.register(ImmutableSet.of("REQ"), "C", "BuilderC", ServiceCallerC.class );
+        dataBuilderMetadataManager.register(ImmutableSet.of("REQ"), "D", "BuilderD", ServiceCallerD.class );
+        dataBuilderMetadataManager.register(ImmutableSet.of("REQ"), "E", "BuilderE", ServiceCallerE.class );
+        dataBuilderMetadataManager.register(ImmutableSet.of("REQ"), "F", "BuilderF", ServiceCallerF.class );
+        dataBuilderMetadataManager.register(ImmutableSet.of("REQ"), "G", "BuilderG", ServiceCallerG.class );
+        dataBuilderMetadataManager.register(ImmutableSet.of("A", "B", "C", "D", "E", "F", "G"), "RES", "ResponseBuilder", DataCombiner.class );
 
     }
 

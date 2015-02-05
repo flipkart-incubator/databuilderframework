@@ -4,6 +4,7 @@ import com.flipkart.databuilderframework.engine.*;
 import com.flipkart.databuilderframework.engine.impl.DataBuilderFactoryImpl;
 import com.flipkart.databuilderframework.model.Data;
 import com.flipkart.databuilderframework.model.ExecutionGraph;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import org.junit.Assert;
 import org.junit.Before;
@@ -29,9 +30,9 @@ public class DataBuilderFactoryImplTest {
 
     @Before
     public void setup() throws Exception {
-        dataBuilderMetadataManager.register(Lists.newArrayList("A", "B"), "C", "BuilderA", TestBuilderA.class);
-        dataBuilderMetadataManager.register(Lists.newArrayList("A", "B"), "C", "BuilderB", null);
-        dataBuilderMetadataManager.register(Lists.newArrayList("A", "B"), "X", "BuilderC", WrongBuilder.class);
+        dataBuilderMetadataManager.register(ImmutableSet.of("A", "B"), "C", "BuilderA", TestBuilderA.class);
+        dataBuilderMetadataManager.register(ImmutableSet.of("A", "B"), "C", "BuilderB", null);
+        dataBuilderMetadataManager.register(ImmutableSet.of("A", "B"), "X", "BuilderC", WrongBuilder.class);
     }
 
 

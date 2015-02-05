@@ -2,12 +2,13 @@ package com.flipkart.databuilderframework.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.collect.ImmutableSet;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Set;
 
 /**
  * Metadata about {@link com.flipkart.databuilderframework.engine.DataBuilder}.
@@ -22,7 +23,7 @@ public class DataBuilderMeta implements Comparable<DataBuilderMeta>, Serializabl
     @NotNull
     @NotEmpty
     @JsonProperty
-    private List<String> consumes;
+    private Set<String> consumes;
 
     /**
      * {@link com.flipkart.databuilderframework.model.Data} this {@link com.flipkart.databuilderframework.engine.DataBuilder} generates.
@@ -48,13 +49,13 @@ public class DataBuilderMeta implements Comparable<DataBuilderMeta>, Serializabl
 
     private int rank;
 
-    public DataBuilderMeta(List<String> consumes, String produces, String name) {
+    public DataBuilderMeta(Set<String> consumes, String produces, String name) {
         this.consumes = consumes;
         this.produces = produces;
         this.name = name;
     }
 
-    public DataBuilderMeta(List<String> consumes, String produces, String name, boolean processed) {
+    public DataBuilderMeta(Set<String> consumes, String produces, String name, boolean processed) {
         this.consumes = consumes;
         this.produces = produces;
         this.name = name;
@@ -64,7 +65,7 @@ public class DataBuilderMeta implements Comparable<DataBuilderMeta>, Serializabl
     public DataBuilderMeta() {
     }
 
-    public List<String> getConsumes() {
+    public Set<String> getConsumes() {
         return consumes;
     }
 
@@ -113,10 +114,10 @@ public class DataBuilderMeta implements Comparable<DataBuilderMeta>, Serializabl
     }
 
     public DataBuilderMeta deepCopy() {
-        return new DataBuilderMeta(new ArrayList<String>(consumes), produces, name, processed);
+        return new DataBuilderMeta(ImmutableSet.copyOf(consumes), produces, name, processed);
     }
 
-    public void setConsumes(List<String> consumes) {
+    public void setConsumes(Set<String> consumes) {
         this.consumes = consumes;
     }
 

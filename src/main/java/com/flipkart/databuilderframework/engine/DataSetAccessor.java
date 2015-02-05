@@ -1,11 +1,14 @@
-package com.flipkart.databuilderframework.util;
+package com.flipkart.databuilderframework.engine;
 
+import com.flipkart.databuilderframework.engine.DataBuilder;
 import com.flipkart.databuilderframework.model.Data;
 import com.flipkart.databuilderframework.model.DataDelta;
 import com.flipkart.databuilderframework.model.DataSet;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Predicates;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -22,12 +25,14 @@ public class DataSetAccessor {
     }
 
     /**
-     * Get a data from {@link com.flipkart.databuilderframework.model.DataSet}
+     * Get a data from {@link com.flipkart.databuilderframework.model.DataSet}.
+     * Note this method is deprecated and will be removed in a future relase.
      * @param key Key for the data
      * @param tClass Class to cast the data to. Should inherit from {@link com.flipkart.databuilderframework.model.Data}
      * @param <T> Sub-Type for {@link com.flipkart.databuilderframework.model.Data}. Should be same as <i>tClass</i>
-     * @return
+     * @return data
      */
+    @Deprecated
     public <T extends Data> T get(String key, Class<T> tClass) {
         Map<String, Data> availableData = dataSet.getAvailableData();
         if(availableData.containsKey(key)) {
@@ -35,6 +40,33 @@ public class DataSetAccessor {
             return tClass.cast(data);
         }
         return null;
+    }
+
+    /**
+     * Get data from {@link com.flipkart.databuilderframework.model.DataSet}, with accessibility checks.
+     * This will throw an exception if the calling data builder is not supposed to use the requested data.
+     * @param key Key for the data
+     * @param builder {@link com.flipkart.databuilderframework.engine.DataBuilder} that is accessing the data
+     * @param tClass Class to cast the data to. Should inherit from {@link com.flipkart.databuilderframework.model.Data}
+     * @param <T> Sub-Type for {@link com.flipkart.databuilderframework.model.Data}. Should be same as <i>tClass</i>
+     * @return data
+     */
+    public <B extends DataBuilder, T extends Data> T getAccessibleData(String key, B builder, Class<T> tClass) {
+        Preconditions.checkArgument(!builder.getDataBuilderMeta().getConsumes().contains(key),
+                            String.format("Builder %s can access only %s",
+                                            builder.getDataBuilderMeta().getName(),
+                                            builder.getDataBuilderMeta().getConsumes()));
+        return get(key, tClass);
+    }
+
+    /**
+     * Get only the accesible data for this builder.
+     * @param builder
+     * @return
+     */
+    public DataSet getAccesibleDataSetFor(DataBuilder builder) {
+        return new DataSet(Maps.filterKeys(dataSet.getAvailableData(),
+                                    Predicates.in(builder.getDataBuilderMeta().getConsumes())));
     }
 
     /**
@@ -65,14 +97,9 @@ public class DataSetAccessor {
      * @param dataList List of all name of all data items to be checked.
      * @return <i>true</i> if all elements are present. <i>false</i> otherwise.
      */
-    public boolean checkForData(List<String> dataList) {
+    public boolean checkForData(Set<String> dataList) {
         Map<String, Data> availableData = dataSet.getAvailableData();
-        for(String data : dataList) {
-            if(!availableData.containsKey(data)) {
-                return false;
-            }
-        }
-        return true;
+        return availableData.keySet().containsAll(dataList);
     }
 
     /**

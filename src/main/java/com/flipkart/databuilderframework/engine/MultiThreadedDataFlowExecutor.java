@@ -1,7 +1,6 @@
 package com.flipkart.databuilderframework.engine;
 
 import com.flipkart.databuilderframework.model.*;
-import com.flipkart.databuilderframework.util.DataSetAccessor;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -33,7 +32,6 @@ public class MultiThreadedDataFlowExecutor extends DataFlowExecutor {
         DataSet dataSet = dataFlowInstance.getDataSet().accessor().copy(); //Create own copy to work with
         DataSetAccessor dataSetAccessor = DataSet.accessor(dataSet);
         dataSetAccessor.merge(dataDelta);
-        dataBuilderContext.setDataSet(dataSet);
         Map<String, Data> responseData = Maps.newTreeMap();
         Set<String> activeDataSet = Sets.newHashSet();
 
@@ -49,10 +47,8 @@ public class MultiThreadedDataFlowExecutor extends DataFlowExecutor {
                     if (builderMeta.isProcessed()) {
                         continue;
                     }
-                    Set<String> intersection = new HashSet<String>(builderMeta.getConsumes());
-                    intersection.retainAll(activeDataSet);
                     //If there is an intersection, means some of it's inputs have changed. Reevaluate
-                    if (intersection.isEmpty()) {
+                    if (Sets.intersection(builderMeta.getConsumes(), activeDataSet).isEmpty()) {
                         continue;
                     }
                     DataBuilder builder = dataBuilderFactory.create(builderMeta.getName());
@@ -61,7 +57,7 @@ public class MultiThreadedDataFlowExecutor extends DataFlowExecutor {
                     }
                     BuilderRunner builderRunner = new BuilderRunner(dataBuilderExecutionListener, dataFlowInstance,
                                                                         builderMeta, dataDelta, responseData,
-                                                                        builder, dataBuilderContext);
+                                                                        builder, dataBuilderContext, dataSet);
                     Future<DataContainer> future = completionExecutor.submit(builderRunner);
                     dataFutures.add(future);
                 }
@@ -160,6 +156,7 @@ public class MultiThreadedDataFlowExecutor extends DataFlowExecutor {
         private Map<String,Data> responseData;
         private DataBuilder builder;
         private DataBuilderContext dataBuilderContext;
+        private DataSet dataSet;
 
         private BuilderRunner(List<DataBuilderExecutionListener> dataBuilderExecutionListener,
                               DataFlowInstance dataFlowInstance,
@@ -167,7 +164,8 @@ public class MultiThreadedDataFlowExecutor extends DataFlowExecutor {
                               DataDelta dataDelta,
                               Map<String, Data> responseData,
                               DataBuilder builder,
-                              DataBuilderContext dataBuilderContext) {
+                              DataBuilderContext dataBuilderContext,
+                              DataSet dataSet) {
             this.dataBuilderExecutionListener = dataBuilderExecutionListener;
             this.dataFlowInstance = dataFlowInstance;
             this.builderMeta = builderMeta;
@@ -175,6 +173,7 @@ public class MultiThreadedDataFlowExecutor extends DataFlowExecutor {
             this.responseData = responseData;
             this.builder = builder;
             this.dataBuilderContext = dataBuilderContext;
+            this.dataSet = dataSet;
         }
 
         @Override
@@ -188,7 +187,8 @@ public class MultiThreadedDataFlowExecutor extends DataFlowExecutor {
                 }
             }
             try {
-                Data response = builder.process(dataBuilderContext);
+                Data response = builder.process(dataBuilderContext.immutableCopy(
+                                            dataSet.accessor().getAccesibleDataSetFor(builder)));
                 logger.debug("Ran " + builderMeta.getName());
                 builderMeta.setProcessed(true);
                 for (DataBuilderExecutionListener listener : dataBuilderExecutionListener) {
