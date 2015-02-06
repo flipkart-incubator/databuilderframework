@@ -21,6 +21,10 @@ public class MultiThreadedDataFlowExecutor extends DataFlowExecutor {
     private static final Logger logger = LoggerFactory.getLogger(MultiThreadedDataFlowExecutor.class.getSimpleName());
     private final ExecutorService executorService;
 
+    public MultiThreadedDataFlowExecutor(ExecutorService executorService) {
+        this.executorService = executorService;
+    }
+
     public MultiThreadedDataFlowExecutor(DataBuilderFactory dataBuilderFactory, ExecutorService executorService) {
         super(dataBuilderFactory);
         this.executorService = executorService;

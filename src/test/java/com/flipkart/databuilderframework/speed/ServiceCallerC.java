@@ -11,7 +11,7 @@ public class ServiceCallerC extends DataBuilder {
     @Override
     public Data process(DataBuilderContext context) throws DataBuilderException {
         try {
-            Thread.sleep(10);
+            Thread.sleep(1);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

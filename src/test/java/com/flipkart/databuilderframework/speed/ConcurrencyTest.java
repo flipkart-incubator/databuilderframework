@@ -54,14 +54,16 @@ public class ConcurrencyTest {
     }
     @Test
     public void testSpeed() throws Exception {
+        DataFlow dataFlow = new DataFlow();
+        dataFlow.setTargetData("RES");
+        ExecutionGraph executionGraph = executionGraphGenerator.generateGraph(dataFlow);
+        dataFlow.setExecutionGraph(executionGraph);
+
         long mTime = 0 ;
         for(int i = 0; i < 1000; i++) {
-            DataFlow dataFlow = new DataFlow();
-            dataFlow.setTargetData("RES");
-            dataFlow.setExecutionGraph(executionGraphGenerator.generateGraph(dataFlow).deepCopy());
             DataFlowInstance dataFlowInstance = new DataFlowInstance();
             dataFlowInstance.setId("testflow");
-            dataFlowInstance.setDataFlow(dataFlow);
+            dataFlowInstance.setDataFlow(dataFlow.deepCopy());
             DataDelta dataDelta = new DataDelta(Lists.<Data>newArrayList(new RequestData()));
             long startTime = System.currentTimeMillis();
             DataExecutionResponse response = executor.run(dataFlowInstance, dataDelta);
@@ -71,12 +73,9 @@ public class ConcurrencyTest {
         }
         long sTime = 0;
         for(int i = 0; i < 1000; i++) {
-            DataFlow dataFlow = new DataFlow();
-            dataFlow.setTargetData("RES");
-            dataFlow.setExecutionGraph(executionGraphGenerator.generateGraph(dataFlow).deepCopy());
             DataFlowInstance dataFlowInstance = new DataFlowInstance();
             dataFlowInstance.setId("testflow");
-            dataFlowInstance.setDataFlow(dataFlow);
+            dataFlowInstance.setDataFlow(dataFlow.deepCopy());
             DataDelta dataDelta = new DataDelta(Lists.<Data>newArrayList(new RequestData()));
             long startTime = System.currentTimeMillis();
             DataExecutionResponse response = simpleExecutor.run(dataFlowInstance, dataDelta);

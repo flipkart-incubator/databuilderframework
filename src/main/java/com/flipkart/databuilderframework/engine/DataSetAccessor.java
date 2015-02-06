@@ -22,6 +22,9 @@ public class DataSetAccessor {
         this.dataSet = dataSet;
     }
 
+    public <T extends Data> T get(Class<T> tClass) {
+        return get(tClass.getCanonicalName(), tClass);
+    }
     /**
      * Get a data from {@link com.flipkart.databuilderframework.model.DataSet}.
      * @param key Key for the data

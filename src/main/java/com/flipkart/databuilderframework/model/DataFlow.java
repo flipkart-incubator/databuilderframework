@@ -73,6 +73,26 @@ public class DataFlow implements Serializable {
     public DataFlow() {
     }
 
+    DataFlow(String name,
+                    String description,
+                    String targetData,
+                    Map<String, String> resolutionSpecs,
+                    ExecutionGraph executionGraph,
+                    Set<String> transients,
+                    boolean enabled,
+                    boolean loopingEnabled,
+                    DataBuilderFactory dataBuilderFactory) {
+        this.name = name;
+        this.description = description;
+        this.targetData = targetData;
+        this.resolutionSpecs = resolutionSpecs;
+        this.executionGraph = executionGraph;
+        this.transients = transients;
+        this.enabled = enabled;
+        this.loopingEnabled = loopingEnabled;
+        this.dataBuilderFactory = dataBuilderFactory;
+    }
+
     public String getName() {
         return name;
     }
@@ -143,5 +163,17 @@ public class DataFlow implements Serializable {
 
     public void setDataBuilderFactory(DataBuilderFactory dataBuilderFactory) {
         this.dataBuilderFactory = dataBuilderFactory;
+    }
+
+    public DataFlow deepCopy() {
+        return new DataFlow(name,
+                            description,
+                            targetData,
+                            resolutionSpecs,
+                            executionGraph.deepCopy(),
+                            transients,
+                            enabled,
+                            loopingEnabled,
+                            dataBuilderFactory);
     }
 }

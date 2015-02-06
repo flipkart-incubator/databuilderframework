@@ -25,6 +25,7 @@ public abstract class DataFlowExecutor {
      * The executor will use the builder factory in the DataFlow.
      */
     public DataFlowExecutor() {
+        this.dataBuilderExecutionListener = Lists.newArrayList();
         this.dataBuilderFactory = null;
     }
 

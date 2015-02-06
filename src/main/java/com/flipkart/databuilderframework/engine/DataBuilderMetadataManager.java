@@ -2,6 +2,7 @@ package com.flipkart.databuilderframework.engine;
 
 import com.flipkart.databuilderframework.model.DataBuilderMeta;
 import com.google.common.base.Predicates;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -19,6 +20,31 @@ public class DataBuilderMetadataManager {
     private Map<String, DataBuilderMeta> meta = Maps.newHashMap();
     private Map<String, List<DataBuilderMeta>> producedToProducerMap = Maps.newHashMap();
     private Map<String, TreeSet<DataBuilderMeta>> consumesMeta = Maps.newHashMap();
+
+    private DataBuilderMetadataManager(Map<String, Class<? extends DataBuilder>> dataBuilders,
+                                       Map<String, DataBuilderMeta> meta,
+                                       Map<String, List<DataBuilderMeta>> producedToProducerMap,
+                                       Map<String, TreeSet<DataBuilderMeta>> consumesMeta) {
+        this.dataBuilders = dataBuilders;
+        this.meta = meta;
+        this.producedToProducerMap = producedToProducerMap;
+        this.consumesMeta = consumesMeta;
+    }
+
+    public DataBuilderMetadataManager() {
+    }
+
+    /**
+     * Register builder by using meta directly.
+     *
+     * @param dataBuilderMeta Meta about the builder
+     * @param dataBuilder The actual databuilder class
+     * @return this
+     * @throws DataBuilderFrameworkException
+     */
+    public DataBuilderMetadataManager register(DataBuilderMeta dataBuilderMeta, Class<? extends DataBuilder> dataBuilder) throws DataBuilderFrameworkException {
+        return register(dataBuilderMeta.getConsumes(), dataBuilderMeta.getProduces(), dataBuilderMeta.getName(), dataBuilder);
+    }
 
     /**
      * Register metadata for a {@link DataBuilder} implementation.
@@ -99,5 +125,12 @@ public class DataBuilderMetadataManager {
      */
     public Class<? extends DataBuilder> getDataBuilderClass(String builderName) {
         return dataBuilders.get(builderName);
+    }
+
+    public DataBuilderMetadataManager immutableCopy() {
+        return new DataBuilderMetadataManager(ImmutableMap.copyOf(dataBuilders),
+                ImmutableMap.copyOf(meta),
+                ImmutableMap.copyOf(producedToProducerMap),
+                ImmutableMap.copyOf(consumesMeta));
     }
 }

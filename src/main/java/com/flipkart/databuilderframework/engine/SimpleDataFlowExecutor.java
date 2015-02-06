@@ -18,6 +18,10 @@ import java.util.Set;
 public class SimpleDataFlowExecutor extends DataFlowExecutor {
     private static final Logger logger = LoggerFactory.getLogger(SimpleDataFlowExecutor.class.getSimpleName());
 
+    public SimpleDataFlowExecutor() {
+
+    }
+
     public SimpleDataFlowExecutor(DataBuilderFactory dataBuilderFactory) {
         super(dataBuilderFactory);
     }
