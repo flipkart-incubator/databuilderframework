@@ -1,6 +1,5 @@
 package com.flipkart.databuilderframework.databuilderinstancetest;
 
-import com.flipkart.databuilderframework.*;
 import com.flipkart.databuilderframework.annotations.DataBuilderClassInfo;
 import com.flipkart.databuilderframework.engine.*;
 import com.flipkart.databuilderframework.model.*;

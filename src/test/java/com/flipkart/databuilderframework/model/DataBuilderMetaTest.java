@@ -1,7 +1,6 @@
 package com.flipkart.databuilderframework.model;
 
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Lists;
 import org.junit.Assert;
 import org.junit.Test;
 

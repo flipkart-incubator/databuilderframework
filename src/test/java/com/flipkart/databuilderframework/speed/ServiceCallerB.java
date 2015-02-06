@@ -1,6 +1,5 @@
 package com.flipkart.databuilderframework.speed;
 
-import com.flipkart.databuilderframework.TestDataA;
 import com.flipkart.databuilderframework.TestDataB;
 import com.flipkart.databuilderframework.engine.DataBuilder;
 import com.flipkart.databuilderframework.engine.DataBuilderContext;

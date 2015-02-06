@@ -3,7 +3,6 @@ package com.flipkart.databuilderframework;
 import com.flipkart.databuilderframework.engine.*;
 import com.flipkart.databuilderframework.engine.impl.InstantiatingDataBuilderFactory;
 import com.flipkart.databuilderframework.model.*;
-import com.flipkart.databuilderframework.engine.DataSetAccessor;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import org.junit.Assert;
