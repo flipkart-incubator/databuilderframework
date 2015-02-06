@@ -9,7 +9,7 @@ public interface DataBuilderFactory {
      * Create a {@link DataBuilder} of the given name.
      * @param builderName Name of the builder to create
      * @return A {@link DataBuilder}
-     * @throws DataFrameworkException
+     * @throws DataBuilderFrameworkException
      */
-    public DataBuilder create(String builderName) throws DataFrameworkException;
+    public DataBuilder create(String builderName) throws DataBuilderFrameworkException;
 }

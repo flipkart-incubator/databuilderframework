@@ -5,10 +5,9 @@ import com.flipkart.databuilderframework.engine.DataBuilderContext;
 import com.flipkart.databuilderframework.engine.DataBuilderException;
 import com.flipkart.databuilderframework.model.Data;
 
-public class SummaryBuilderTest extends DataBuilder {
-
+public class PRB extends DataBuilder {
     @Override
     public Data process(DataBuilderContext context) throws DataBuilderException {
-        return new OmsOrderTest();
+        return new ILD();
     }
 }

@@ -1,12 +1,16 @@
 package com.flipkart.databuilderframework.engine;
 
 import com.flipkart.databuilderframework.model.*;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * The executor for a {@link com.flipkart.databuilderframework.model.DataFlow}.
@@ -21,8 +25,11 @@ public class SimpleDataFlowExecutor extends DataFlowExecutor {
     /*
      * {@inheritDoc}
      */
-    public DataExecutionResponse run(DataBuilderContext dataBuilderContext, DataFlowInstance dataFlowInstance, DataDelta dataDelta) throws DataFrameworkException {
-        DataFlow dataFlow = dataFlowInstance.getDataFlow();
+    protected DataExecutionResponse run(DataBuilderContext dataBuilderContext,
+                                     DataFlowInstance dataFlowInstance,
+                                     DataDelta dataDelta,
+                                     DataFlow dataFlow,
+                                     DataBuilderFactory builderFactory) throws DataBuilderFrameworkException {
         ExecutionGraph executionGraph = dataFlow.getExecutionGraph();
         DataSet dataSet = dataFlowInstance.getDataSet().accessor().copy(); //Create own copy to work with
         DataSetAccessor dataSetAccessor = DataSet.accessor(dataSet);
@@ -45,7 +52,7 @@ public class SimpleDataFlowExecutor extends DataFlowExecutor {
                     if (Sets.intersection(builderMeta.getConsumes(), activeDataSet).isEmpty()) {
                         continue;
                     }
-                    DataBuilder builder = dataBuilderFactory.create(builderMeta.getName());
+                    DataBuilder builder = builderFactory.create(builderMeta.getName());
                     if (!dataSetAccessor.checkForData(builder.getDataBuilderMeta().getConsumes())) {
                         break; //No need to run others, list is topo sorted
                     }
@@ -61,6 +68,9 @@ public class SimpleDataFlowExecutor extends DataFlowExecutor {
                                                     dataBuilderContext.immutableCopy(
                                                             dataSet.accessor().getAccesibleDataSetFor(builder)));
                         if (null != response) {
+                            Preconditions.checkArgument(response.getData().equalsIgnoreCase(builderMeta.getProduces()),
+                                                String.format("Builder is supposed to produce %s but produces %s",
+                                                                builderMeta.getProduces(), response.getData()));
                             dataSetAccessor.merge(response);
                             responseData.put(response.getData(), response);
                             response.setGeneratedBy(builderMeta.getName());
@@ -89,7 +99,7 @@ public class SimpleDataFlowExecutor extends DataFlowExecutor {
                                 logger.error("Error running post-execution listener: ", error);
                             }
                         }
-                        throw new DataFrameworkException(DataFrameworkException.ErrorCode.BUILDER_EXECUTION_ERROR,
+                        throw new DataBuilderFrameworkException(DataBuilderFrameworkException.ErrorCode.BUILDER_EXECUTION_ERROR,
                                 "Error running builder: " + builderMeta.getName(), e.getDetails(), e);
 
                     } catch (Throwable t) {
@@ -104,8 +114,9 @@ public class SimpleDataFlowExecutor extends DataFlowExecutor {
                         }
                         Map<String, Object> objectMap = new HashMap<String, Object>();
                         objectMap.put("MESSAGE", t.getMessage());
-                        throw new DataFrameworkException(DataFrameworkException.ErrorCode.BUILDER_EXECUTION_ERROR,
-                                "Error running builder: " + builderMeta.getName() + t.getMessage(), objectMap, t);
+                        throw new DataBuilderFrameworkException(DataBuilderFrameworkException.ErrorCode.BUILDER_EXECUTION_ERROR,
+                                "Error running builder: " + builderMeta.getName()
+                                        + ": " + t.getMessage(), objectMap, t);
                     }
                 }
             }

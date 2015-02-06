@@ -3,13 +3,14 @@ package com.flipkart.databuilderframework.engine;
 
 import java.util.Map;
 
-public class DataFrameworkException extends Exception {
+public class DataBuilderFrameworkException extends Exception {
     private Map<String,Object> details;
     public ErrorCode getErrorCode() {
         return errorCode;
     }
 
     public static enum ErrorCode {
+        NO_FACTORY_FOR_DATA_BUILDER,
         NO_BUILDER_FOR_DATA,
         BUILDER_EXISTS,
         NO_TARGET_DATA,
@@ -21,23 +22,23 @@ public class DataFrameworkException extends Exception {
 
     private final ErrorCode errorCode;
 
-    public DataFrameworkException(ErrorCode errorCode, String message) {
+    public DataBuilderFrameworkException(ErrorCode errorCode, String message) {
         super(message);
         this.errorCode = errorCode;
     }
 
-    public DataFrameworkException(ErrorCode errorCode, String message, Throwable cause) {
+    public DataBuilderFrameworkException(ErrorCode errorCode, String message, Throwable cause) {
         super(message, cause);
         this.errorCode = errorCode;
     }
 
-    public DataFrameworkException(ErrorCode errorCode, String message, Map<String, Object> details) {
+    public DataBuilderFrameworkException(ErrorCode errorCode, String message, Map<String, Object> details) {
         super(message);
         this.errorCode = errorCode;
         this.details=details;
     }
 
-    public DataFrameworkException(ErrorCode errorCode, String message, Map<String, Object> details, Throwable cause) {
+    public DataBuilderFrameworkException(ErrorCode errorCode, String message, Map<String, Object> details, Throwable cause) {
         super(message, cause);
         this.errorCode = errorCode;
         this.details=details;

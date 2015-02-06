@@ -1,8 +1,7 @@
 package com.flipkart.databuilderframework.speed;
 
-import com.flipkart.databuilderframework.*;
 import com.flipkart.databuilderframework.engine.*;
-import com.flipkart.databuilderframework.engine.impl.DataBuilderFactoryImpl;
+import com.flipkart.databuilderframework.engine.impl.InstantiatingDataBuilderFactory;
 import com.flipkart.databuilderframework.model.*;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
@@ -15,11 +14,11 @@ import java.util.concurrent.Executors;
 public class ConcurrencyTest {
     private DataBuilderMetadataManager dataBuilderMetadataManager = new DataBuilderMetadataManager();
     private DataFlowExecutor executor = new MultiThreadedDataFlowExecutor(
-                                                new DataBuilderFactoryImpl(dataBuilderMetadataManager),
+                                                new InstantiatingDataBuilderFactory(dataBuilderMetadataManager),
                                                 Executors.newFixedThreadPool(10));
     private DataFlowExecutor simpleExecutor = new SimpleDataFlowExecutor(
-                                                new DataBuilderFactoryImpl(dataBuilderMetadataManager));
-    private DataFlowBuilder dataFlowBuilder = new DataFlowBuilder(dataBuilderMetadataManager);
+                                                new InstantiatingDataBuilderFactory(dataBuilderMetadataManager));
+    private ExecutionGraphGenerator executionGraphGenerator = new ExecutionGraphGenerator(dataBuilderMetadataManager);
 
     @Before
     public void setup() throws Exception {
@@ -38,7 +37,7 @@ public class ConcurrencyTest {
     public void testFunctionality() throws Exception {
         DataFlow dataFlow = new DataFlow();
         dataFlow.setTargetData("RES");
-        dataFlow.setExecutionGraph(dataFlowBuilder.generateGraph(dataFlow).deepCopy());
+        dataFlow.setExecutionGraph(executionGraphGenerator.generateGraph(dataFlow).deepCopy());
         DataFlowInstance dataFlowInstance = new DataFlowInstance();
         dataFlowInstance.setId("testflow");
         dataFlowInstance.setDataFlow(dataFlow);
@@ -59,7 +58,7 @@ public class ConcurrencyTest {
         for(int i = 0; i < 1000; i++) {
             DataFlow dataFlow = new DataFlow();
             dataFlow.setTargetData("RES");
-            dataFlow.setExecutionGraph(dataFlowBuilder.generateGraph(dataFlow).deepCopy());
+            dataFlow.setExecutionGraph(executionGraphGenerator.generateGraph(dataFlow).deepCopy());
             DataFlowInstance dataFlowInstance = new DataFlowInstance();
             dataFlowInstance.setId("testflow");
             dataFlowInstance.setDataFlow(dataFlow);
@@ -68,13 +67,13 @@ public class ConcurrencyTest {
             DataExecutionResponse response = executor.run(dataFlowInstance, dataDelta);
             mTime += (System.currentTimeMillis() - startTime);
             Assert.assertEquals(8, response.getResponses().size());
-            System.out.println("MT:" + System.currentTimeMillis());
+            //System.out.println("MT:" + System.currentTimeMillis());
         }
         long sTime = 0;
         for(int i = 0; i < 1000; i++) {
             DataFlow dataFlow = new DataFlow();
             dataFlow.setTargetData("RES");
-            dataFlow.setExecutionGraph(dataFlowBuilder.generateGraph(dataFlow).deepCopy());
+            dataFlow.setExecutionGraph(executionGraphGenerator.generateGraph(dataFlow).deepCopy());
             DataFlowInstance dataFlowInstance = new DataFlowInstance();
             dataFlowInstance.setId("testflow");
             dataFlowInstance.setDataFlow(dataFlow);
@@ -83,7 +82,7 @@ public class ConcurrencyTest {
             DataExecutionResponse response = simpleExecutor.run(dataFlowInstance, dataDelta);
             sTime += (System.currentTimeMillis() - startTime);
             Assert.assertEquals(8, response.getResponses().size());
-            System.out.println("ST:" + System.currentTimeMillis());
+            //System.out.println("ST:" + System.currentTimeMillis());
         }
         System.out.println(String.format("MT: %d ST: %d", mTime, sTime));
     }

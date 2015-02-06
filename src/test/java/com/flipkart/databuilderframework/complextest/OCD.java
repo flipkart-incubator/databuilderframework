@@ -2,8 +2,8 @@ package com.flipkart.databuilderframework.complextest;
 
 import com.flipkart.databuilderframework.model.Data;
 
-public class OrderCompleteDataTest extends Data {
-    OrderCompleteDataTest() {
+public class OCD extends Data {
+    OCD() {
         super("OCD");
     }
 }

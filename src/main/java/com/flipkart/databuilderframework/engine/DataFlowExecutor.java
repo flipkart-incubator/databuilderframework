@@ -1,20 +1,31 @@
 package com.flipkart.databuilderframework.engine;
 
-import com.flipkart.databuilderframework.model.*;
+import com.flipkart.databuilderframework.model.DataDelta;
+import com.flipkart.databuilderframework.model.DataExecutionResponse;
+import com.flipkart.databuilderframework.model.DataFlow;
+import com.flipkart.databuilderframework.model.DataFlowInstance;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 
-import java.util.*;
+import java.util.List;
 
 /**
  * The executor for a {@link com.flipkart.databuilderframework.model.DataFlow}.
  */
 public abstract class DataFlowExecutor {
     protected List<DataBuilderExecutionListener> dataBuilderExecutionListener;
-    protected DataBuilderFactory dataBuilderFactory;
+    private final DataBuilderFactory dataBuilderFactory;
 
     public DataFlowExecutor(DataBuilderFactory dataBuilderFactory) {
         this.dataBuilderExecutionListener = Lists.newArrayList();
         this.dataBuilderFactory = dataBuilderFactory;
+    }
+
+    /**
+     * The executor will use the builder factory in the DataFlow.
+     */
+    public DataFlowExecutor() {
+        this.dataBuilderFactory = null;
     }
 
     /**
@@ -28,9 +39,9 @@ public abstract class DataFlowExecutor {
      * @param dataDelta        The set of data to be considered for analysis.
      * @return A response containing responses from every {@link DataBuilder}
      * that was invoked in this stage. Note that these have already been added to the DataSet before returning.
-     * @throws DataFrameworkException
+     * @throws DataBuilderFrameworkException
      */
-    public DataExecutionResponse run(DataFlowInstance dataFlowInstance, DataDelta dataDelta) throws DataFrameworkException {
+    public DataExecutionResponse run(DataFlowInstance dataFlowInstance, DataDelta dataDelta) throws DataBuilderFrameworkException {
         DataBuilderContext dataBuilderContext = new DataBuilderContext();
         return run(dataBuilderContext, dataFlowInstance, dataDelta);
     }
@@ -47,9 +58,30 @@ public abstract class DataFlowExecutor {
      * @param dataDelta          The set of data to be considered for analysis.
      * @return A response containing responses from every {@link DataBuilder}
      * that was invoked in this stage. Note that these have already been added to the DataSet before returning.
-     * @throws DataFrameworkException
+     * @throws DataBuilderFrameworkException
      */
-    abstract public DataExecutionResponse run(DataBuilderContext dataBuilderContext, DataFlowInstance dataFlowInstance, DataDelta dataDelta) throws DataFrameworkException;
+    public DataExecutionResponse run(DataBuilderContext dataBuilderContext,
+                                              DataFlowInstance dataFlowInstance,
+                                              DataDelta dataDelta) throws DataBuilderFrameworkException {
+        DataFlow dataFlow = dataFlowInstance.getDataFlow();
+        Preconditions.checkArgument(null != dataFlow.getDataBuilderFactory()
+                || null != dataBuilderFactory);
+        DataBuilderFactory builderFactory = dataFlow.getDataBuilderFactory();
+        if(null == builderFactory) {
+            builderFactory = dataBuilderFactory;
+        }
+        if(null == builderFactory) {
+            throw new DataBuilderFrameworkException(DataBuilderFrameworkException.ErrorCode.NO_FACTORY_FOR_DATA_BUILDER,
+                                                "No builder specified in contructor or dataflow");
+        }
+        return run(dataBuilderContext, dataFlowInstance, dataDelta, dataFlow, builderFactory);
+    }
+
+    abstract protected DataExecutionResponse run(DataBuilderContext dataBuilderContext,
+                                              DataFlowInstance dataFlowInstance,
+                                              DataDelta dataDelta,
+                                              DataFlow dataFlow,
+                                              DataBuilderFactory builderFactory) throws DataBuilderFrameworkException;
 
     /**
      * A instance of {@link com.flipkart.databuilderframework.engine.DataBuilderExecutionListener}

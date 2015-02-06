@@ -5,9 +5,10 @@ import com.flipkart.databuilderframework.engine.DataBuilderContext;
 import com.flipkart.databuilderframework.engine.DataBuilderException;
 import com.flipkart.databuilderframework.model.Data;
 
-public class PaymentOptionBuilderTest extends DataBuilder {
+public class SB extends DataBuilder {
+
     @Override
     public Data process(DataBuilderContext context) throws DataBuilderException {
-        return new PaymentOptionDataTest();
+        return new OO();
     }
 }

@@ -1,7 +1,7 @@
 package com.flipkart.databuilderframework;
 
 import com.flipkart.databuilderframework.engine.*;
-import com.flipkart.databuilderframework.engine.impl.DataBuilderFactoryImpl;
+import com.flipkart.databuilderframework.engine.impl.InstantiatingDataBuilderFactory;
 import com.flipkart.databuilderframework.model.*;
 import com.flipkart.databuilderframework.engine.DataSetAccessor;
 import com.google.common.collect.ImmutableSet;
@@ -12,8 +12,8 @@ import org.junit.Test;
 
 public class ConditionalFlowTest {
     private DataBuilderMetadataManager dataBuilderMetadataManager = new DataBuilderMetadataManager();
-    private DataFlowExecutor executor = new SimpleDataFlowExecutor(new DataBuilderFactoryImpl(dataBuilderMetadataManager));
-    private DataFlowBuilder dataFlowBuilder = new DataFlowBuilder(dataBuilderMetadataManager);
+    private DataFlowExecutor executor = new SimpleDataFlowExecutor(new InstantiatingDataBuilderFactory(dataBuilderMetadataManager));
+    private ExecutionGraphGenerator executionGraphGenerator = new ExecutionGraphGenerator(dataBuilderMetadataManager);
     private DataFlow dataFlow = new DataFlow();
     private DataFlow dataFlowError = new DataFlow();
 
@@ -36,12 +36,12 @@ public class ConditionalFlowTest {
     public void setup() throws Exception {
         dataBuilderMetadataManager.register(ImmutableSet.of("A", "B"), "C", "BuilderA", TestBuilderA.class );
         dataBuilderMetadataManager.register(ImmutableSet.of("C", "D"), "E", "BuilderB", ConditionalBuilder.class );
-        dataBuilderMetadataManager.register(ImmutableSet.of("C", "E"), "F", "BuilderC", TestBuilderC.class );
+        dataBuilderMetadataManager.register(ImmutableSet.of("A", "E"), "F", "BuilderC", TestBuilderC.class );
 
         dataFlow.setTargetData("F");
-        dataFlow.setExecutionGraph(dataFlowBuilder.generateGraph(dataFlow).deepCopy());
+        dataFlow.setExecutionGraph(executionGraphGenerator.generateGraph(dataFlow).deepCopy());
         dataFlowError.setTargetData("Y");
-        dataFlowError.setExecutionGraph(dataFlowBuilder.generateGraph(dataFlowError).deepCopy());
+        dataFlowError.setExecutionGraph(executionGraphGenerator.generateGraph(dataFlowError).deepCopy());
     }
 
     @Test

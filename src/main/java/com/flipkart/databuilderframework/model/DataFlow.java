@@ -1,6 +1,7 @@
 package com.flipkart.databuilderframework.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.flipkart.databuilderframework.engine.DataBuilderFactory;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.constraints.NotNull;
@@ -63,6 +64,11 @@ public class DataFlow implements Serializable {
      * Flag to not run loops
      */
     private boolean loopingEnabled = true;
+
+    /**
+     * Factory to be used to build data for this flow. This is set by the framework generally.
+     */
+    private DataBuilderFactory dataBuilderFactory;
 
     public DataFlow() {
     }
@@ -129,5 +135,13 @@ public class DataFlow implements Serializable {
 
     public void setLoopingEnabled(boolean loopingEnabled) {
         this.loopingEnabled = loopingEnabled;
+    }
+
+    public DataBuilderFactory getDataBuilderFactory() {
+        return dataBuilderFactory;
+    }
+
+    public void setDataBuilderFactory(DataBuilderFactory dataBuilderFactory) {
+        this.dataBuilderFactory = dataBuilderFactory;
     }
 }

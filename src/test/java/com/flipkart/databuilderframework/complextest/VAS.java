@@ -2,8 +2,8 @@ package com.flipkart.databuilderframework.complextest;
 
 import com.flipkart.databuilderframework.model.Data;
 
-public class PaymentSummaryDataTest extends Data {
-    PaymentSummaryDataTest() {
-        super("PSD");
+public class VAS extends Data {
+    VAS() {
+        super("VAS");
     }
 }

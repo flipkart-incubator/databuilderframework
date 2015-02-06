@@ -2,10 +2,10 @@ package com.flipkart.databuilderframework;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.databuilderframework.engine.DataBuilderMetadataManager;
-import com.flipkart.databuilderframework.engine.DataFlowBuilder;
+import com.flipkart.databuilderframework.engine.ExecutionGraphGenerator;
 import com.flipkart.databuilderframework.engine.DataFlowExecutor;
 import com.flipkart.databuilderframework.engine.SimpleDataFlowExecutor;
-import com.flipkart.databuilderframework.engine.impl.DataBuilderFactoryImpl;
+import com.flipkart.databuilderframework.engine.impl.InstantiatingDataBuilderFactory;
 import com.flipkart.databuilderframework.model.*;
 import com.flipkart.databuilderframework.engine.DataSetAccessor;
 import com.google.common.collect.ImmutableSet;
@@ -18,22 +18,23 @@ import org.junit.Test;
 public class DataFlowWithTransientDataTest {
 
     private DataBuilderMetadataManager dataBuilderMetadataManager = new DataBuilderMetadataManager();
-    private DataFlowExecutor executor = new SimpleDataFlowExecutor(new DataBuilderFactoryImpl(dataBuilderMetadataManager));
-    private DataFlowBuilder dataFlowBuilder = new DataFlowBuilder(dataBuilderMetadataManager);
+    private DataFlowExecutor executor = new SimpleDataFlowExecutor(new InstantiatingDataBuilderFactory(dataBuilderMetadataManager));
+    private ExecutionGraphGenerator executionGraphGenerator = new ExecutionGraphGenerator(dataBuilderMetadataManager);
     private DataFlow dataFlow = new DataFlow();
     private DataFlow dataFlowError = new DataFlow();
 
     @Before
     public void setup() throws Exception {
-        dataBuilderMetadataManager.register(ImmutableSet.of("A", "B"), "C", "BuilderA", TestBuilderA.class );
-        dataBuilderMetadataManager.register(ImmutableSet.of("C", "D"), "E", "BuilderB", TestBuilderB.class );
-        dataBuilderMetadataManager.register(ImmutableSet.of("C", "E"), "F", "BuilderC", TestBuilderC.class );
-        dataBuilderMetadataManager.register(ImmutableSet.of("X"), "Y", "BuilderX", TestBuilderError.class );
+        dataBuilderMetadataManager
+                .register(ImmutableSet.of("A", "B"), "C", "BuilderA", TestBuilderA.class )
+                .register(ImmutableSet.of("C", "D"), "E", "BuilderB", TestBuilderB.class )
+                .register(ImmutableSet.of("A", "E"), "F", "BuilderC", TestBuilderC.class )
+                .register(ImmutableSet.of("X"), "Y", "BuilderX", TestBuilderError.class);
         //dataBuilderMetadataManager.register(ImmutableSet.of("F"),      "G", "BuilderD", TestBuilderD.class );
         //dataBuilderMetadataManager.register(ImmutableSet.of("E", "C"), "G", "BuilderE", TestBuilderE.class );
 
         dataFlow.setTargetData("F");
-        dataFlow.setExecutionGraph(dataFlowBuilder.generateGraph(dataFlow).deepCopy());
+        dataFlow.setExecutionGraph(executionGraphGenerator.generateGraph(dataFlow).deepCopy());
         dataFlow.setTransients(Sets.newHashSet("C"));
         System.out.println(new ObjectMapper().writeValueAsString(dataFlow));
     }

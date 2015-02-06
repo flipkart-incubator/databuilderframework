@@ -1,12 +1,10 @@
 package com.flipkart.databuilderframework.engine;
 
-import com.flipkart.databuilderframework.engine.DataBuilder;
 import com.flipkart.databuilderframework.model.Data;
 import com.flipkart.databuilderframework.model.DataDelta;
 import com.flipkart.databuilderframework.model.DataSet;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicates;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 
 import java.util.Map;
@@ -26,13 +24,11 @@ public class DataSetAccessor {
 
     /**
      * Get a data from {@link com.flipkart.databuilderframework.model.DataSet}.
-     * Note this method is deprecated and will be removed in a future relase.
      * @param key Key for the data
      * @param tClass Class to cast the data to. Should inherit from {@link com.flipkart.databuilderframework.model.Data}
      * @param <T> Sub-Type for {@link com.flipkart.databuilderframework.model.Data}. Should be same as <i>tClass</i>
      * @return data
      */
-    @Deprecated
     public <T extends Data> T get(String key, Class<T> tClass) {
         Map<String, Data> availableData = dataSet.getAvailableData();
         if(availableData.containsKey(key)) {

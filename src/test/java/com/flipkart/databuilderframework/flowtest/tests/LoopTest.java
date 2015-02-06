@@ -3,7 +3,7 @@ package com.flipkart.databuilderframework.flowtest.tests;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.databuilderframework.engine.*;
-import com.flipkart.databuilderframework.engine.impl.DataBuilderFactoryImpl;
+import com.flipkart.databuilderframework.engine.impl.InstantiatingDataBuilderFactory;
 import com.flipkart.databuilderframework.flowtest.builders.*;
 import com.flipkart.databuilderframework.flowtest.data.*;
 import com.flipkart.databuilderframework.model.*;
@@ -22,8 +22,8 @@ import static org.junit.Assert.assertNotNull;
 
 public class LoopTest {
     private DataBuilderMetadataManager dataBuilderMetadataManager = new DataBuilderMetadataManager();
-    private DataFlowExecutor executor = new MultiThreadedDataFlowExecutor(new DataBuilderFactoryImpl(dataBuilderMetadataManager), Executors.newFixedThreadPool(10));
-    private DataFlowBuilder dataFlowBuilder = new DataFlowBuilder(dataBuilderMetadataManager);
+    private DataFlowExecutor executor = new MultiThreadedDataFlowExecutor(new InstantiatingDataBuilderFactory(dataBuilderMetadataManager), Executors.newFixedThreadPool(10));
+    private ExecutionGraphGenerator executionGraphGenerator = new ExecutionGraphGenerator(dataBuilderMetadataManager);
     private ObjectMapper mapper = new ObjectMapper();
 
     public LoopTest() throws Exception {
@@ -49,7 +49,7 @@ public class LoopTest {
         dataFlow.setName("TestFlow");
         dataFlow.setTargetData("OCD");
         dataFlow.setTransients(Sets.newHashSet("SPD", "EPD", "DPD"));
-        ExecutionGraph e = dataFlowBuilder.generateGraph(dataFlow);
+        ExecutionGraph e = executionGraphGenerator.generateGraph(dataFlow);
         dataFlow.setExecutionGraph(e);
 
         DataFlowInstance dataFlowInstance = new DataFlowInstance("Test", dataFlow, new DataSet());

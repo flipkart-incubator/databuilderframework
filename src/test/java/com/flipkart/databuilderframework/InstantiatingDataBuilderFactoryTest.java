@@ -1,18 +1,17 @@
 package com.flipkart.databuilderframework;
 
 import com.flipkart.databuilderframework.engine.*;
-import com.flipkart.databuilderframework.engine.impl.DataBuilderFactoryImpl;
+import com.flipkart.databuilderframework.engine.impl.InstantiatingDataBuilderFactory;
 import com.flipkart.databuilderframework.model.Data;
 import com.flipkart.databuilderframework.model.ExecutionGraph;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Lists;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.fail;
 
-public class DataBuilderFactoryImplTest {
+public class InstantiatingDataBuilderFactoryTest {
     public static class WrongBuilder extends DataBuilder {
 
         public WrongBuilder(String blah) {
@@ -25,8 +24,8 @@ public class DataBuilderFactoryImplTest {
         }
     }
     private DataBuilderMetadataManager dataBuilderMetadataManager = new DataBuilderMetadataManager();
-    private DataFlowBuilder dataFlowBuilder = new DataFlowBuilder(dataBuilderMetadataManager);
-    private DataBuilderFactory dataBuilderFactory = new DataBuilderFactoryImpl(dataBuilderMetadataManager);
+    private ExecutionGraphGenerator executionGraphGenerator = new ExecutionGraphGenerator(dataBuilderMetadataManager);
+    private DataBuilderFactory dataBuilderFactory = new InstantiatingDataBuilderFactory(dataBuilderMetadataManager);
 
     @Before
     public void setup() throws Exception {
@@ -41,8 +40,8 @@ public class DataBuilderFactoryImplTest {
         try {
             Assert.assertNotNull(dataBuilderFactory.create("BuilderA"));
             dataBuilderFactory.create("BuilderB"); //Should throw
-        } catch (DataFrameworkException e) {
-            if(DataFrameworkException.ErrorCode.NO_BUILDER_FOUND_FOR_NAME == e.getErrorCode()) {
+        } catch (DataBuilderFrameworkException e) {
+            if(DataBuilderFrameworkException.ErrorCode.NO_BUILDER_FOUND_FOR_NAME == e.getErrorCode()) {
                 return;
             }
         }
@@ -54,8 +53,8 @@ public class DataBuilderFactoryImplTest {
         ExecutionGraph executionGraph = new ExecutionGraph();
         try {
             dataBuilderFactory.create("BuilderC"); //Should throw
-        } catch (DataFrameworkException e) {
-            if(DataFrameworkException.ErrorCode.INSTANTIATION_FAILURE == e.getErrorCode()) {
+        } catch (DataBuilderFrameworkException e) {
+            if(DataBuilderFrameworkException.ErrorCode.INSTANTIATION_FAILURE == e.getErrorCode()) {
                 return;
             }
         }

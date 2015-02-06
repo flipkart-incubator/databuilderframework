@@ -2,8 +2,8 @@ package com.flipkart.databuilderframework.complextest;
 
 import com.flipkart.databuilderframework.model.Data;
 
-public class IntegrationLogicDataTest extends Data {
-    IntegrationLogicDataTest() {
-        super("ILD");
+public class OSD extends Data {
+    OSD() {
+        super("OSD");
     }
 }
