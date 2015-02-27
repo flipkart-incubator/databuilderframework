@@ -83,7 +83,7 @@ public class SimpleDataFlowExecutor extends DataFlowExecutor {
                                 newlyGeneratedData.add(response.getData());
                             }
                         }
-                        logger.debug("Ran " + builderMeta.getName());
+                        //logger.debug("Ran " + builderMeta.getName());
                         builderMeta.setProcessed(true);
                         for (DataBuilderExecutionListener listener : dataBuilderExecutionListener) {
                             try {
@@ -125,11 +125,11 @@ public class SimpleDataFlowExecutor extends DataFlowExecutor {
                 }
             }
             if(newlyGeneratedData.contains(dataFlow.getTargetData())) {
-                logger.debug("Finished running this instance of the flow. Exiting.");
+                //logger.debug("Finished running this instance of the flow. Exiting.");
                 break;
             }
             if(newlyGeneratedData.isEmpty()) {
-                logger.debug("Nothing happened in this loop, exiting..");
+                //logger.debug("Nothing happened in this loop, exiting..");
                 break;
             }
 //            StringBuilder stringBuilder = new StringBuilder();

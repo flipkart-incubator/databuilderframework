@@ -7,6 +7,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Predicates;
 import com.google.common.collect.Maps;
 
+import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
@@ -121,7 +122,7 @@ public class DataSetAccessor {
      * Get a copy of the underlying data set. Don't copy transients.
      */
     public DataSet copy(Set<String> transients) {
-        Map<String, Data> dataMap = Maps.newHashMap();
+        /*Map<String, Data> dataMap = Maps.newHashMap();
         for(Map.Entry<String, Data> data : dataSet.getAvailableData().entrySet()) {
             if(null == transients || !transients.contains(data.getKey())) {
                 dataMap.put(data.getKey(), data.getValue());
@@ -129,6 +130,14 @@ public class DataSetAccessor {
         }
         DataSet tmpDataSet = new DataSet();
         tmpDataSet.setAvailableData(dataMap);
-        return tmpDataSet;
+        return tmpDataSet;*/
+         Map<String, Data> dataMap = Maps.newHashMap();
+         if(null != transients && !transients.isEmpty()) {
+            dataMap.putAll(Maps.filterKeys(dataSet.getAvailableData(), Predicates.not(Predicates.in(transients))));
+         }
+        else {
+             dataMap.putAll(dataSet.getAvailableData());
+         }
+         return new DataSet(dataMap);
     }
 }

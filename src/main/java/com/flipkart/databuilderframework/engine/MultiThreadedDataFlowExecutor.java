@@ -75,7 +75,8 @@ public class MultiThreadedDataFlowExecutor extends DataFlowExecutor {
                 }
 
                 //Now wait for something to complete.
-                for(int i = 0; i < dataFutures.size(); i++) {
+                int listSize = dataFutures.size();
+                for(int i = 0; i < listSize; i++) {
                     try {
                         DataContainer responseContainer = completionExecutor.take().get();
                         Data response = responseContainer.getGeneratedData();
@@ -100,11 +101,11 @@ public class MultiThreadedDataFlowExecutor extends DataFlowExecutor {
                 }
             }
             if(newlyGeneratedData.contains(dataFlow.getTargetData())) {
-                logger.debug("Finished running this instance of the flow. Exiting.");
+                //logger.debug("Finished running this instance of the flow. Exiting.");
                 break;
             }
             if(newlyGeneratedData.isEmpty()) {
-                logger.debug("Nothing happened in this loop, exiting..");
+                //logger.debug("Nothing happened in this loop, exiting..");
                 break;
             }
 //            StringBuilder stringBuilder = new StringBuilder();
@@ -201,7 +202,7 @@ public class MultiThreadedDataFlowExecutor extends DataFlowExecutor {
             try {
                 Data response = builder.process(dataBuilderContext.immutableCopy(
                                             dataSet.accessor().getAccesibleDataSetFor(builder)));
-                logger.debug("Ran " + builderMeta.getName());
+                //logger.debug("Ran " + builderMeta.getName());
                 builderMeta.setProcessed(true);
                 for (DataBuilderExecutionListener listener : dataBuilderExecutionListener) {
                     try {

@@ -129,7 +129,7 @@ public class ExecutionGraphGenerator {
                                                   DependencyNodeManager dependencyNodeManager,
                                                   DependencyInfoManager dependencyInfoManager,
                                                   FlattenedDataRoute routeMeta) throws DataBuilderFrameworkException {
-        logger.info("Generating for: " + data);
+        logger.debug("Generating for: " + data);
         List<DependencyNode> incoming = Lists.newArrayList();
         DataBuilderMeta dataBuilderMeta = findBuilder(data, dataFlow);
         DependencyInfo info = dependencyInfoManager.get(data);
