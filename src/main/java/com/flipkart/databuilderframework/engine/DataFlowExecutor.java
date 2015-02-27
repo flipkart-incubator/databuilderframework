@@ -1,9 +1,6 @@
 package com.flipkart.databuilderframework.engine;
 
-import com.flipkart.databuilderframework.model.DataDelta;
-import com.flipkart.databuilderframework.model.DataExecutionResponse;
-import com.flipkart.databuilderframework.model.DataFlow;
-import com.flipkart.databuilderframework.model.DataFlowInstance;
+import com.flipkart.databuilderframework.model.*;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 
@@ -27,6 +24,34 @@ public abstract class DataFlowExecutor {
     public DataFlowExecutor() {
         this.dataBuilderExecutionListener = Lists.newArrayList();
         this.dataBuilderFactory = null;
+    }
+
+    /**
+     * Execute a data flow built using {@link com.flipkart.databuilderframework.engine.DataFlowBuilder}.
+     * This should be used when using the framework in single request context.
+     * @param dataFlow A data-flow built using {@link com.flipkart.databuilderframework.engine.DataFlowBuilder}.
+     * @param data The {@link com.flipkart.databuilderframework.model.Data} objects to be used as input to execute this flow.
+     * @return A response containing responses from every {@link DataBuilder}
+     * @throws DataBuilderFrameworkException
+     */
+    public DataExecutionResponse run(final DataFlow dataFlow, Data... data) throws DataBuilderFrameworkException {
+        return run(dataFlow, new DataDelta(data));
+    }
+
+    /**
+     * Execute a data flow built using {@link com.flipkart.databuilderframework.engine.DataFlowBuilder}.
+     * This should be used when using the framework in single request context.
+     * @param dataFlow A data-flow built using {@link com.flipkart.databuilderframework.engine.DataFlowBuilder}.
+     * @param dataDelta A {@link com.flipkart.databuilderframework.model.DataDelta} of objects to be used as input to execute this flow.
+     * @return A response containing responses from every {@link DataBuilder}.
+     * @throws DataBuilderFrameworkException
+     */
+    public DataExecutionResponse run(final DataFlow dataFlow,
+                                     DataDelta dataDelta) throws DataBuilderFrameworkException {
+        Preconditions.checkNotNull(dataFlow);
+        Preconditions.checkArgument(null != dataFlow.getDataBuilderFactory() || null != dataBuilderFactory);
+
+        return run(new DataBuilderContext(), new DataFlowInstance(), dataDelta, dataFlow, dataFlow.getDataBuilderFactory());
     }
 
     /**

@@ -1,9 +1,7 @@
 package examples.bloghomepagebuilder.controller;
 
 import com.flipkart.databuilderframework.engine.*;
-import com.flipkart.databuilderframework.model.DataDelta;
 import com.flipkart.databuilderframework.model.DataFlow;
-import com.flipkart.databuilderframework.model.DataFlowInstance;
 import com.google.common.base.Stopwatch;
 import examples.bloghomepagebuilder.builders.*;
 import examples.bloghomepagebuilder.data.HomePageRequest;
@@ -46,12 +44,7 @@ public class HomePageControllerTest {
         Stopwatch stopwatch = new Stopwatch();
         stopwatch.start();
         for(long i = 0; i < 100000; i++) {
-            HomePageResponse response = executor.run(
-                                            new DataFlowInstance(
-                                                    Long.toString(i),
-                                                    homePageDataFlow),
-                                                    new DataDelta(request))
-                                            .get(HomePageResponse.class);
+            HomePageResponse response = executor.run(homePageDataFlow, request).get(HomePageResponse.class);
             if(null == response) {
                 throw new Exception("WTF!!");
             }

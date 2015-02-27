@@ -1,5 +1,6 @@
 package com.flipkart.databuilderframework.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.flipkart.databuilderframework.engine.DataBuilderFactory;
 import org.hibernate.validator.constraints.NotEmpty;
@@ -68,6 +69,7 @@ public class DataFlow implements Serializable {
     /**
      * Factory to be used to build data for this flow. This is set by the framework generally.
      */
+    @JsonIgnore
     private DataBuilderFactory dataBuilderFactory;
 
     public DataFlow() {

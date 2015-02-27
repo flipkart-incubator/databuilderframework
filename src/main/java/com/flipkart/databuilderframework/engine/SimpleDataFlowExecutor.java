@@ -145,7 +145,7 @@ public class SimpleDataFlowExecutor extends DataFlowExecutor {
                 break;
             }
         }
-        DataSet finalDataSet = dataSetAccessor.copy(dataFlowInstance.getDataFlow().getTransients());
+        DataSet finalDataSet = dataSetAccessor.copy(dataFlow.getTransients());
         dataFlowInstance.setDataSet(finalDataSet);
         return new DataExecutionResponse(responseData);
     }
