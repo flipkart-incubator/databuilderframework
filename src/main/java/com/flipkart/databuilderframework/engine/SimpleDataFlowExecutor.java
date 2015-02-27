@@ -46,10 +46,11 @@ public class SimpleDataFlowExecutor extends DataFlowExecutor {
         }
         List<List<DataBuilderMeta>> dependencyHierarchy = executionGraph.getDependencyHierarchy();
         Set<String> newlyGeneratedData = Sets.newHashSet();
+        Set<DataBuilderMeta> processedBuilders = Sets.newHashSet();
         while(true) {
             for (List<DataBuilderMeta> levelBuilders : dependencyHierarchy) {
                 for (DataBuilderMeta builderMeta : levelBuilders) {
-                    if (builderMeta.isProcessed()) {
+                    if (processedBuilders.contains(builderMeta)) {
                         continue;
                     }
                     //If there is an intersection, means some of it's inputs have changed. Reevaluate
@@ -84,7 +85,7 @@ public class SimpleDataFlowExecutor extends DataFlowExecutor {
                             }
                         }
                         //logger.debug("Ran " + builderMeta.getName());
-                        builderMeta.setProcessed(true);
+                        processedBuilders.add(builderMeta);
                         for (DataBuilderExecutionListener listener : dataBuilderExecutionListener) {
                             try {
                                 listener.afterExecute(dataFlowInstance, builderMeta, dataDelta, responseData, response);

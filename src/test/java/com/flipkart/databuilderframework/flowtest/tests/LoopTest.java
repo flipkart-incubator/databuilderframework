@@ -68,21 +68,11 @@ public class LoopTest {
             System.out.println(listPrint(response.getResponses().keySet()));
             Assert.assertEquals(9, response.getResponses().size());
         }
-        for(List<DataBuilderMeta> metas : dataFlowInstance.getDataFlow().getExecutionGraph().getDependencyHierarchy()) {
-            for(DataBuilderMeta meta : metas) {
-                meta.setProcessed(false);
-            }
-        }
         {
             DataDelta dataDelta = new DataDelta(Lists.newArrayList(new SPO(), new EPD()));
             DataExecutionResponse response = executor.run(dataFlowInstance, dataDelta);
             System.out.println(listPrint(response.getResponses().keySet()));
             Assert.assertEquals(8, response.getResponses().size());
-        }
-        for(List<DataBuilderMeta> metas : dataFlowInstance.getDataFlow().getExecutionGraph().getDependencyHierarchy()) {
-            for(DataBuilderMeta meta : metas) {
-                meta.setProcessed(false);
-            }
         }
         {
             DataDelta dataDelta = new DataDelta(Lists.newArrayList(new SPO(), new EPD()));

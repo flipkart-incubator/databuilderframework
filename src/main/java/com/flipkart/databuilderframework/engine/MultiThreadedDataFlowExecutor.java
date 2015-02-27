@@ -8,10 +8,7 @@ import com.google.common.collect.Sets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.*;
 
 /**
@@ -52,11 +49,12 @@ public class MultiThreadedDataFlowExecutor extends DataFlowExecutor {
         }
         List<List<DataBuilderMeta>> dependencyHierarchy = executionGraph.getDependencyHierarchy();
         Set<String> newlyGeneratedData = Sets.newHashSet();
+        Set<DataBuilderMeta> processedBuilders = Collections.synchronizedSet(Sets.<DataBuilderMeta>newHashSet());
         while(true) {
             for (List<DataBuilderMeta> levelBuilders : dependencyHierarchy) {
                 List<Future<DataContainer>> dataFutures = Lists.newArrayList();
                 for (DataBuilderMeta builderMeta : levelBuilders) {
-                    if (builderMeta.isProcessed()) {
+                    if (processedBuilders.contains(builderMeta)) {
                         continue;
                     }
                     //If there is an intersection, means some of it's inputs have changed. Reevaluate
@@ -69,7 +67,7 @@ public class MultiThreadedDataFlowExecutor extends DataFlowExecutor {
                     }
                     BuilderRunner builderRunner = new BuilderRunner(dataBuilderExecutionListener, dataFlowInstance,
                                                                         builderMeta, dataDelta, responseData,
-                                                                        builder, dataBuilderContext, dataSet);
+                                                                        builder, dataBuilderContext, processedBuilders, dataSet);
                     Future<DataContainer> future = completionExecutor.submit(builderRunner);
                     dataFutures.add(future);
                 }
@@ -169,6 +167,7 @@ public class MultiThreadedDataFlowExecutor extends DataFlowExecutor {
         private Map<String,Data> responseData;
         private DataBuilder builder;
         private DataBuilderContext dataBuilderContext;
+        private final Set<DataBuilderMeta> procesedBuilders;
         private DataSet dataSet;
 
         private BuilderRunner(List<DataBuilderExecutionListener> dataBuilderExecutionListener,
@@ -178,6 +177,7 @@ public class MultiThreadedDataFlowExecutor extends DataFlowExecutor {
                               Map<String, Data> responseData,
                               DataBuilder builder,
                               DataBuilderContext dataBuilderContext,
+                              Set<DataBuilderMeta> procesedBuilders,
                               DataSet dataSet) {
             this.dataBuilderExecutionListener = dataBuilderExecutionListener;
             this.dataFlowInstance = dataFlowInstance;
@@ -186,6 +186,7 @@ public class MultiThreadedDataFlowExecutor extends DataFlowExecutor {
             this.responseData = responseData;
             this.builder = builder;
             this.dataBuilderContext = dataBuilderContext;
+            this.procesedBuilders = procesedBuilders;
             this.dataSet = dataSet;
         }
 
@@ -203,7 +204,7 @@ public class MultiThreadedDataFlowExecutor extends DataFlowExecutor {
                 Data response = builder.process(dataBuilderContext.immutableCopy(
                                             dataSet.accessor().getAccesibleDataSetFor(builder)));
                 //logger.debug("Ran " + builderMeta.getName());
-                builderMeta.setProcessed(true);
+                procesedBuilders.add(builderMeta);
                 for (DataBuilderExecutionListener listener : dataBuilderExecutionListener) {
                     try {
                         listener.afterExecute(dataFlowInstance, builderMeta, dataDelta, responseData, response);

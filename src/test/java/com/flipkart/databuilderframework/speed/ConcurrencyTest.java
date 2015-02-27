@@ -63,7 +63,7 @@ public class ConcurrencyTest {
         for(int i = 0; i < 1000; i++) {
             DataFlowInstance dataFlowInstance = new DataFlowInstance();
             dataFlowInstance.setId("testflow");
-            dataFlowInstance.setDataFlow(dataFlow.deepCopy());
+            dataFlowInstance.setDataFlow(dataFlow);
             DataDelta dataDelta = new DataDelta(Lists.<Data>newArrayList(new RequestData()));
             long startTime = System.currentTimeMillis();
             DataExecutionResponse response = executor.run(dataFlowInstance, dataDelta);
@@ -75,7 +75,7 @@ public class ConcurrencyTest {
         for(int i = 0; i < 1000; i++) {
             DataFlowInstance dataFlowInstance = new DataFlowInstance();
             dataFlowInstance.setId("testflow");
-            dataFlowInstance.setDataFlow(dataFlow.deepCopy());
+            dataFlowInstance.setDataFlow(dataFlow);
             DataDelta dataDelta = new DataDelta(Lists.<Data>newArrayList(new RequestData()));
             long startTime = System.currentTimeMillis();
             DataExecutionResponse response = simpleExecutor.run(dataFlowInstance, dataDelta);

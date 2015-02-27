@@ -43,7 +43,7 @@ public class DataBuilderMetaTest {
 
     @Test
     public void testNotEquals5() {
-        DataBuilderMeta lhs = new DataBuilderMeta(ImmutableSet.of("A", "B"), "C", "test", true);
+        DataBuilderMeta lhs = new DataBuilderMeta(ImmutableSet.of("A", "B"), "C", "test");
         DataBuilderMeta rhs = new DataBuilderMeta(ImmutableSet.of("A", "X"), "D", "test");
         Assert.assertFalse(lhs.equals(rhs));
         Assert.assertFalse(lhs.hashCode() == rhs.hashCode());

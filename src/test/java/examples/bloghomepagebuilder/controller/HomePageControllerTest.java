@@ -49,7 +49,7 @@ public class HomePageControllerTest {
             HomePageResponse response = executor.run(
                                             new DataFlowInstance(
                                                     Long.toString(i),
-                                                    homePageDataFlow.deepCopy()),
+                                                    homePageDataFlow),
                                                     new DataDelta(request))
                                             .get(HomePageResponse.class);
             if(null == response) {

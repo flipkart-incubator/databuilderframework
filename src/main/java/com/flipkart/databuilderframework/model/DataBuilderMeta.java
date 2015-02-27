@@ -40,25 +40,12 @@ public class DataBuilderMeta implements Comparable<DataBuilderMeta>, Serializabl
     @JsonProperty
     private String name;
 
-    /**
-     * Whether this builder has run once or not.
-     */
-    @JsonIgnore
-    private boolean processed = false;
-
     private int rank;
 
     public DataBuilderMeta(Set<String> consumes, String produces, String name) {
         this.consumes = consumes;
         this.produces = produces;
         this.name = name;
-    }
-
-    public DataBuilderMeta(Set<String> consumes, String produces, String name, boolean processed) {
-        this.consumes = consumes;
-        this.produces = produces;
-        this.name = name;
-        this.processed = processed;
     }
 
     public DataBuilderMeta() {
@@ -76,14 +63,6 @@ public class DataBuilderMeta implements Comparable<DataBuilderMeta>, Serializabl
         return name;
     }
 
-    public boolean isProcessed() {
-        return processed;
-    }
-
-    public void setProcessed(boolean processed) {
-        this.processed = processed;
-    }
-
     public int compareTo(DataBuilderMeta rhs) {
         return name.compareTo(rhs.getName());
     }
@@ -95,7 +74,6 @@ public class DataBuilderMeta implements Comparable<DataBuilderMeta>, Serializabl
 
         DataBuilderMeta that = (DataBuilderMeta) o;
 
-        if (processed != that.processed) return false;
         if (!consumes.equals(that.consumes)) return false;
         if (!name.equals(that.name)) return false;
         if (!produces.equals(that.produces)) return false;
@@ -108,12 +86,11 @@ public class DataBuilderMeta implements Comparable<DataBuilderMeta>, Serializabl
         int result = consumes.hashCode();
         result = 31 * result + produces.hashCode();
         result = 31 * result + name.hashCode();
-        result = 31 * result + (processed ? 1 : 0);
         return result;
     }
 
     public DataBuilderMeta deepCopy() {
-        return new DataBuilderMeta(ImmutableSet.copyOf(consumes), produces, name, processed);
+        return new DataBuilderMeta(ImmutableSet.copyOf(consumes), produces, name);
     }
 
     public void setConsumes(Set<String> consumes) {
