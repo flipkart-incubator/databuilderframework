@@ -1,6 +1,5 @@
 package com.flipkart.databuilderframework.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableSet;
 import org.hibernate.validator.constraints.NotEmpty;
