@@ -13,7 +13,7 @@ public class ConditionalFlowTest {
     private DataBuilderMetadataManager dataBuilderMetadataManager = new DataBuilderMetadataManager();
     private DataFlowExecutor executor = new SimpleDataFlowExecutor(new InstantiatingDataBuilderFactory(dataBuilderMetadataManager));
     private ExecutionGraphGenerator executionGraphGenerator = new ExecutionGraphGenerator(dataBuilderMetadataManager);
-    private DataFlow dataFlow = new DataFlow();
+    private DataFlow dataFlow;
     private DataFlow dataFlowError = new DataFlow();
 
     public static final class ConditionalBuilder extends DataBuilder {
@@ -37,10 +37,16 @@ public class ConditionalFlowTest {
         dataBuilderMetadataManager.register(ImmutableSet.of("C", "D"), "E", "BuilderB", ConditionalBuilder.class );
         dataBuilderMetadataManager.register(ImmutableSet.of("A", "E"), "F", "BuilderC", TestBuilderC.class );
 
-        dataFlow.setTargetData("F");
-        dataFlow.setExecutionGraph(executionGraphGenerator.generateGraph(dataFlow).deepCopy());
-        dataFlowError.setTargetData("Y");
-        dataFlowError.setExecutionGraph(executionGraphGenerator.generateGraph(dataFlowError).deepCopy());
+        dataFlow = new DataFlowBuilder()
+                        .withMetaDataManager(dataBuilderMetadataManager)
+                        .withTargetData("F")
+                        .build();
+
+        dataFlowError = new DataFlowBuilder()
+                        .withMetaDataManager(dataBuilderMetadataManager)
+                        .withTargetData("Y")
+                        .build();
+
     }
 
     @Test

@@ -1,11 +1,13 @@
 package com.flipkart.databuilderframework.engine;
 
+import com.flipkart.databuilderframework.annotations.DataBuilderClassInfo;
+import com.flipkart.databuilderframework.annotations.DataBuilderInfo;
+import com.flipkart.databuilderframework.model.Data;
 import com.flipkart.databuilderframework.model.DataBuilderMeta;
+import com.google.common.base.Preconditions;
 import com.google.common.base.Predicates;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
+import com.google.common.base.Strings;
+import com.google.common.collect.*;
 
 import java.util.*;
 
@@ -32,6 +34,34 @@ public class DataBuilderMetadataManager {
     }
 
     public DataBuilderMetadataManager() {
+    }
+
+    public DataBuilderMetadataManager register(Class<? extends DataBuilder> annotatedDataBuilder) throws DataBuilderFrameworkException {
+        DataBuilderInfo info = annotatedDataBuilder.getAnnotation(DataBuilderInfo.class);
+        if(null != info) {
+            register(
+                    ImmutableSet.copyOf(info.consumes()),
+                    info.produces(),
+                    info.name(),
+                    annotatedDataBuilder);
+        }
+        else {
+            DataBuilderClassInfo dataBuilderClassInfo = annotatedDataBuilder.getAnnotation(DataBuilderClassInfo.class);
+            Preconditions.checkNotNull(dataBuilderClassInfo,
+                    "No useful annotations found on class. Use DataBuilderInfo or DataBuilderClassInfo to annotate");
+            Set<String> consumes = Sets.newHashSet();
+            for(Class<? extends Data> data : dataBuilderClassInfo.consumes()) {
+                consumes.add(data.getCanonicalName());
+            }
+            register(
+                    ImmutableSet.copyOf(consumes),
+                    dataBuilderClassInfo.produces().getCanonicalName(),
+                    Strings.isNullOrEmpty(dataBuilderClassInfo.name())
+                            ? annotatedDataBuilder.getCanonicalName()
+                            : dataBuilderClassInfo.name(),
+                    annotatedDataBuilder);
+        }
+        return this;
     }
 
     /**

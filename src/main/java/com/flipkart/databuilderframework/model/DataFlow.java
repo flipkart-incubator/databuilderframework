@@ -3,6 +3,7 @@ package com.flipkart.databuilderframework.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.flipkart.databuilderframework.engine.DataBuilderFactory;
+import com.google.common.collect.Maps;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.constraints.NotNull;
@@ -73,6 +74,7 @@ public class DataFlow implements Serializable {
     private DataBuilderFactory dataBuilderFactory;
 
     public DataFlow() {
+        this.resolutionSpecs = Maps.newHashMap();
     }
 
     DataFlow(String name,

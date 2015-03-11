@@ -38,6 +38,15 @@ public class DataFlowBuilder {
     }
 
     /**
+     * Set name for the data flow. This is optional but recommended.
+     * @param name Name for the dataflow
+     * @return
+     */
+    public DataFlowBuilder withName(final String name) {
+        this.dataFlow.setName(name);
+        return this;
+    }
+    /**
      * Register your own metadata manager. This comes in handy if you want to manage DataBuilder metadata yourself.
      * @param dataBuilderMetadataManager
      * @return
@@ -104,30 +113,7 @@ public class DataFlowBuilder {
      */
 
     public DataFlowBuilder withAnnotatedDataBuilder(Class<? extends DataBuilder> annotatedDataBuilder) throws DataBuilderFrameworkException {
-        DataBuilderInfo info = annotatedDataBuilder.getAnnotation(DataBuilderInfo.class);
-        if(null != info) {
-            dataBuilderMetadataManager.register(
-                    ImmutableSet.copyOf(info.consumes()),
-                    info.produces(),
-                    info.name(),
-                    annotatedDataBuilder);
-        }
-        else {
-            DataBuilderClassInfo dataBuilderClassInfo = annotatedDataBuilder.getAnnotation(DataBuilderClassInfo.class);
-            Preconditions.checkNotNull(dataBuilderClassInfo,
-                    "No useful annotations found on class. Use DataBuilderInfo or DataBuilderClassInfo to annotate");
-            Set<String> consumes = Sets.newHashSet();
-            for(Class<? extends Data> data : dataBuilderClassInfo.consumes()) {
-                consumes.add(data.getCanonicalName());
-            }
-            dataBuilderMetadataManager.register(
-                    ImmutableSet.copyOf(consumes),
-                    dataBuilderClassInfo.produces().getCanonicalName(),
-                    Strings.isNullOrEmpty(dataBuilderClassInfo.name())
-                            ? annotatedDataBuilder.getCanonicalName()
-                            : dataBuilderClassInfo.name(),
-                    annotatedDataBuilder);
-        }
+        dataBuilderMetadataManager.register(annotatedDataBuilder);
         return this;
     }
 
@@ -238,6 +224,28 @@ public class DataFlowBuilder {
      */
     public DataFlowBuilder withTargetData(String data) {
         this.dataFlow.setTargetData(data);
+        return this;
+    }
+
+    /**
+     * Register a resolution spec to resolve conflicts in scenarios when multiple builders known to the system can generate the same required data.
+     * @param data Data to be generated
+     * @param generatingBuilder Name of the builder that will generate this data in the context of the flow being built
+     * @return
+     */
+    public DataFlowBuilder withResolutionSpec(final String data, final String generatingBuilder) {
+        this.dataFlow.getResolutionSpecs().put(data, generatingBuilder);
+        return this;
+    }
+
+    /**
+     * Register a resolution spec to resolve conflicts in scenarios when multiple builders known to the system can generate the same required data.
+     * @param data Data to be generated
+     * @param generatingBuilder Name of the builder that will generate this data in the context of the flow being built
+     * @return
+     */
+    public DataFlowBuilder withResolutionSpec(final Class<? extends Data> data, final Class<? extends DataBuilder> generatingBuilder) {
+        this.dataFlow.getResolutionSpecs().put(data.getCanonicalName(), generatingBuilder.getCanonicalName());
         return this;
     }
 

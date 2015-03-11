@@ -12,11 +12,7 @@ public class TestBuilderA extends DataBuilder {
 
     @Override
     public Data process(DataBuilderContext context) {
-        DataSet dataSet = context.getDataSet();
-        if(dataSet == null) {
-            return null;
-        }
-        DataSetAccessor dataSetAccessor = DataSet.accessor(dataSet);
+        DataSetAccessor dataSetAccessor = context.getDataSet().accessor();
         TestDataA a = dataSetAccessor.get("A", TestDataA.class);
         TestDataB b = dataSetAccessor.get("B", TestDataB.class);
         return new TestDataC(a.getValue() + " " + b.getValue());

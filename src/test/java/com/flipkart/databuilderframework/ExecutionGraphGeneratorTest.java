@@ -3,6 +3,7 @@ package com.flipkart.databuilderframework;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.databuilderframework.engine.DataBuilderFrameworkException;
 import com.flipkart.databuilderframework.engine.DataBuilderMetadataManager;
+import com.flipkart.databuilderframework.engine.DataFlowBuilder;
 import com.flipkart.databuilderframework.engine.ExecutionGraphGenerator;
 import com.flipkart.databuilderframework.model.DataFlow;
 import com.flipkart.databuilderframework.model.ExecutionGraph;
@@ -65,19 +66,23 @@ public class ExecutionGraphGeneratorTest {
 
     @Test
     public void testGenerateGraphNoExecutors() throws Exception {
-        DataFlow dataFlow = new DataFlow();
-        dataFlow.setName("test");
-        dataFlow.setTargetData("X");
-        ExecutionGraph e = executionGraphGenerator.generateGraph(dataFlow);
+        DataFlow dataFlow = new DataFlowBuilder()
+                .withMetaDataManager(dataBuilderMetadataManager)
+                .withName("test")
+                .withTargetData("X")
+                .build();
+        ExecutionGraph e = dataFlow.getExecutionGraph();
         Assert.assertTrue(e.getDependencyHierarchy().isEmpty());
     }
 
     @Test
     public void testGenerate() throws Exception {
-        DataFlow dataFlow = new DataFlow();
-        dataFlow.setName("test");
-        dataFlow.setTargetData("C");
-        ExecutionGraph e = executionGraphGenerator.generateGraph(dataFlow);
+        DataFlow dataFlow = new DataFlowBuilder()
+                .withMetaDataManager(dataBuilderMetadataManager)
+                .withName("test")
+                .withTargetData("C")
+                .build();
+        ExecutionGraph e = dataFlow.getExecutionGraph();
         Assert.assertFalse(e.getDependencyHierarchy().isEmpty());
         Assert.assertEquals(1, e.getDependencyHierarchy().size());
         Assert.assertEquals("BuilderA", e.getDependencyHierarchy().get(0).get(0).getName());
@@ -85,10 +90,12 @@ public class ExecutionGraphGeneratorTest {
 
     @Test
     public void testGenerateTwoStep() throws Exception  {
-        DataFlow dataFlow = new DataFlow();
-        dataFlow.setName("test");
-        dataFlow.setTargetData("E");
-        ExecutionGraph e = executionGraphGenerator.generateGraph(dataFlow);
+        DataFlow dataFlow = new DataFlowBuilder()
+                .withMetaDataManager(dataBuilderMetadataManager)
+                .withName("test")
+                .withTargetData("E")
+                .build();
+        ExecutionGraph e = dataFlow.getExecutionGraph();
         Assert.assertFalse(e.getDependencyHierarchy().isEmpty());
         Assert.assertEquals(2, e.getDependencyHierarchy().size());
         Assert.assertEquals("BuilderA", e.getDependencyHierarchy().get(0).get(0).getName());
@@ -99,10 +106,12 @@ public class ExecutionGraphGeneratorTest {
 
     @Test
     public void testGenerateInterdependentStep() throws Exception  {
-        DataFlow dataFlow = new DataFlow();
-        dataFlow.setName("test");
-        dataFlow.setTargetData("F");
-        ExecutionGraph e = executionGraphGenerator.generateGraph(dataFlow);
+        DataFlow dataFlow = new DataFlowBuilder()
+                .withMetaDataManager(dataBuilderMetadataManager)
+                .withName("test")
+                .withTargetData("F")
+                .build();
+        ExecutionGraph e = dataFlow.getExecutionGraph();
         Assert.assertEquals(3, e.getDependencyHierarchy().size());
         Assert.assertEquals("BuilderA", e.getDependencyHierarchy().get(0).get(0).getName());
         Assert.assertEquals(1, e.getDependencyHierarchy().get(0).size());
@@ -114,11 +123,12 @@ public class ExecutionGraphGeneratorTest {
 
     @Test
     public void testGenerateInterdependentStepConflict() throws Exception  {
-        DataFlow dataFlow = new DataFlow();
-        dataFlow.setName("test");
-        dataFlow.setTargetData("G");
         try {
-            ExecutionGraph e = executionGraphGenerator.generateGraph(dataFlow);
+            DataFlow dataFlow = new DataFlowBuilder()
+                    .withMetaDataManager(dataBuilderMetadataManager)
+                    .withName("test")
+                    .withTargetData("G")
+                    .build();
         } catch (DataBuilderFrameworkException e) {
             if(DataBuilderFrameworkException.ErrorCode.BUILDER_RESOLUTION_CONFLICT_FOR_DATA == e.getErrorCode()) {
                 return;
@@ -144,11 +154,13 @@ public class ExecutionGraphGeneratorTest {
     }
     @Test
     public void testGenerateInterdependentStepWithResolution() throws Exception  {
-        DataFlow dataFlow = new DataFlow();
-        dataFlow.setName("test");
-        dataFlow.setTargetData("G");
-        dataFlow.setResolutionSpecs(Collections.singletonMap("G", "BuilderE"));
-        ExecutionGraph e = executionGraphGenerator.generateGraph(dataFlow);
+        final DataFlow dataFlow = new DataFlowBuilder()
+                .withMetaDataManager(dataBuilderMetadataManager)
+                .withName("test")
+                .withTargetData("G")
+                .withResolutionSpec("G", "BuilderE")
+                .build();
+        ExecutionGraph e = dataFlow.getExecutionGraph();
         Assert.assertEquals(3, e.getDependencyHierarchy().size());
         Assert.assertEquals("BuilderA", e.getDependencyHierarchy().get(0).get(0).getName());
         Assert.assertEquals(1, e.getDependencyHierarchy().get(0).size());
@@ -160,11 +172,13 @@ public class ExecutionGraphGeneratorTest {
     }
     @Test
     public void testGenerateInterdependentStepWithResolutionAlt() throws Exception  {
-        DataFlow dataFlow = new DataFlow();
-        dataFlow.setName("test");
-        dataFlow.setTargetData("G");
-        dataFlow.setResolutionSpecs(Collections.singletonMap("G", "BuilderD"));
-        ExecutionGraph e = executionGraphGenerator.generateGraph(dataFlow);
+        final DataFlow dataFlow = new DataFlowBuilder()
+                                    .withMetaDataManager(dataBuilderMetadataManager)
+                                    .withName("test")
+                                    .withTargetData("G")
+                                    .withResolutionSpec("G", "BuilderD")
+                                    .build();
+        ExecutionGraph e = dataFlow.getExecutionGraph();
         System.out.println(new ObjectMapper().writeValueAsString(e));
         Assert.assertEquals(4, e.getDependencyHierarchy().size());
         Assert.assertEquals("BuilderA", e.getDependencyHierarchy().get(0).get(0).getName());
