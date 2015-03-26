@@ -33,7 +33,7 @@ public class SimpleDataFlowExecutor extends DataFlowExecutor {
                                      DataFlowInstance dataFlowInstance,
                                      DataDelta dataDelta,
                                      DataFlow dataFlow,
-                                     DataBuilderFactory builderFactory) throws DataBuilderFrameworkException {
+                                     DataBuilderFactory builderFactory) throws DataBuilderFrameworkException, DataValidationException {
         ExecutionGraph executionGraph = dataFlow.getExecutionGraph();
         DataSet dataSet = dataFlowInstance.getDataSet().accessor().copy(); //Create own copy to work with
         DataSetAccessor dataSetAccessor = DataSet.accessor(dataSet);
@@ -107,7 +107,32 @@ public class SimpleDataFlowExecutor extends DataFlowExecutor {
                         throw new DataBuilderFrameworkException(DataBuilderFrameworkException.ErrorCode.BUILDER_EXECUTION_ERROR,
                                 "Error running builder: " + builderMeta.getName(), e.getDetails(), e);
 
-                    } catch (Throwable t) {
+                    } catch (DataValidationException e) {
+                        logger.error("Validation error in data produced by builder" +builderMeta.getName());
+                        for (DataBuilderExecutionListener listener : dataBuilderExecutionListener) {
+                            try {
+                                listener.afterException(dataFlowInstance, builderMeta, dataDelta, responseData, e);
+
+                            } catch (Throwable error) {
+                                logger.error("Error running post-execution listener: ", error);
+                            }
+                        }
+                        // Preserving data in active data set whichever produced by previous builders
+                        activeDataSet.clear();
+                        activeDataSet.addAll(newlyGeneratedData);
+                        newlyGeneratedData.clear();
+                        if(!dataFlow.isLoopingEnabled()) {
+                            break;
+                        }
+
+                        DataSet finalDataSet = dataSetAccessor.copy(dataFlow.getTransients());
+                        dataFlowInstance.setDataSet(finalDataSet);
+
+                        throw new DataValidationException(DataValidationException.ErrorCode.DATA_VALIDATION_EXCEPTION, "Data validation error" +builderMeta.getName(), e.getDetails(), e);
+
+
+                    }
+                    catch (Throwable t) {
                         logger.error("Error running builder: " + builderMeta.getName());
                         for (DataBuilderExecutionListener listener : dataBuilderExecutionListener) {
                             try {

@@ -120,6 +120,8 @@ public class DataFlowExecutorTest {
     private DataFlowExecutor executor = new SimpleDataFlowExecutor(new InstantiatingDataBuilderFactory(dataBuilderMetadataManager));
     private DataFlow dataFlow = new DataFlow();
     private DataFlow dataFlowError = new DataFlow();
+    private DataFlow dataFlowValidationError = new DataFlow();
+    private DataFlow dataFlowValidationErrorWithPartialData = new DataFlow();
 
     @Before
     public void setup() throws Exception {
@@ -132,6 +134,25 @@ public class DataFlowExecutorTest {
 
         dataFlowError = new DataFlowBuilder()
                 .withAnnotatedDataBuilder(TestBuilderError.class)
+                .withTargetData("Y")
+                .build();
+        executor.registerExecutionListener(new TestListener());
+        executor.registerExecutionListener(new TestListenerBeforeExecutionError());
+        executor.registerExecutionListener(new TestListenerAfterExecutionError());
+        executor.registerExecutionListener(new TestListenerAfterExceptionError());
+
+        dataFlowValidationError = new DataFlowBuilder()
+                .withAnnotatedDataBuilder(TestBuilderDataValidationError.class)
+                .withTargetData("Y")
+                .build();
+        executor.registerExecutionListener(new TestListener());
+        executor.registerExecutionListener(new TestListenerBeforeExecutionError());
+        executor.registerExecutionListener(new TestListenerAfterExecutionError());
+        executor.registerExecutionListener(new TestListenerAfterExceptionError());
+
+        dataFlowValidationErrorWithPartialData = new DataFlowBuilder()
+                .withAnnotatedDataBuilder(TestBuilderA.class)
+                .withAnnotatedDataBuilder(TestBuilderDataValidationError.class)
                 .withTargetData("Y")
                 .build();
         executor.registerExecutionListener(new TestListener());
@@ -229,6 +250,42 @@ public class DataFlowExecutorTest {
             try {
                 executor.run(dataFlowInstance, dataDelta);
             } catch (Exception e) {
+                return;
+            }
+            fail("Should have thrown exception");
+        }
+    }
+
+    @Test
+    public void testRunValidationError() throws Exception {
+        DataFlowInstance dataFlowInstance = new DataFlowInstance();
+        dataFlowInstance.setId("testflow");
+        dataFlowInstance.setDataFlow(dataFlowValidationError);
+        {
+            DataDelta dataDelta = new DataDelta(Lists.<Data>newArrayList(new TestDataC("Hello")));
+            try {
+                executor.run(dataFlowInstance, dataDelta);
+            } catch (Exception e) {
+                Assert.assertEquals("DataValidationError", e.getCause().getMessage());
+                return;
+            }
+            fail("Should have thrown exception");
+        }
+    }
+
+    @Test
+    public void testRunValidationErrorWithPartialData() throws Exception {
+        DataFlowInstance dataFlowInstance = new DataFlowInstance();
+        DataExecutionResponse response = new DataExecutionResponse();
+        dataFlowInstance.setId("testflow");
+        dataFlowInstance.setDataFlow(dataFlowValidationErrorWithPartialData);
+        {
+            DataDelta dataDelta = new DataDelta(Lists.<Data>newArrayList(new TestDataA("Hello"), new TestDataB("World")));
+            try {
+                 response = executor.run(dataFlowInstance, dataDelta);
+            } catch (Exception e) {
+                Assert.assertTrue(dataFlowInstance.getDataSet().getAvailableData().containsKey("C"));
+                Assert.assertEquals("DataValidationError", e.getCause().getMessage());
                 return;
             }
             fail("Should have thrown exception");

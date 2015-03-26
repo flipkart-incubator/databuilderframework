@@ -42,7 +42,7 @@ public abstract class DataBuilder {
      * @throws com.flipkart.databuilderframework.engine.DataBuilderException in case any downstream system or itself errors out.
      * (This is generic, as the upper layers need to be prepared for it).
      */
-    abstract public Data process(final DataBuilderContext context) throws DataBuilderException;
+    abstract public Data process(final DataBuilderContext context) throws DataBuilderException,DataValidationException;
 
     public DataBuilderMeta getDataBuilderMeta() {
         return dataBuilderMeta;
