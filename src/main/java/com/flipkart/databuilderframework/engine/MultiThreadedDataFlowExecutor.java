@@ -80,11 +80,6 @@ public class MultiThreadedDataFlowExecutor extends DataFlowExecutor {
                         Data response = responseContainer.getGeneratedData();
                         if(responseContainer.isHasError()) {
                             if(null != responseContainer.getValidationException()) {
-                                activeDataSet.clear();
-                                activeDataSet.addAll(newlyGeneratedData);
-                                newlyGeneratedData.clear();
-                                DataSet finalDataSet = dataSetAccessor.copy(dataFlow.getTransients());
-                                dataFlowInstance.setDataSet(finalDataSet);
                                 throw responseContainer.getValidationException();
 
                             }
@@ -271,7 +266,7 @@ public class MultiThreadedDataFlowExecutor extends DataFlowExecutor {
                     }
                 }
                 return new DataContainer(builderMeta, new DataValidationException(DataValidationException.ErrorCode.DATA_VALIDATION_EXCEPTION,
-                        "Error running builder: " + builderMeta.getName(), e.getDetails(), e));
+                        "Error running builder: " + builderMeta.getName(), new DataExecutionResponse(responseData), e.getDetails(), e));
 
 
             }

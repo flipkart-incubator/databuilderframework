@@ -283,9 +283,9 @@ public class DataFlowExecutorTest {
             DataDelta dataDelta = new DataDelta(Lists.<Data>newArrayList(new TestDataA("Hello"), new TestDataB("World")));
             try {
                  response = executor.run(dataFlowInstance, dataDelta);
-            } catch (Exception e) {
-                Assert.assertTrue(dataFlowInstance.getDataSet().getAvailableData().containsKey("C"));
-                Assert.assertEquals("DataValidationError", e.getCause().getMessage());
+            } catch (DataValidationException e) {
+                DataExecutionResponse dataExecutionResponse = e.getResponse();
+                Assert.assertTrue(dataExecutionResponse.getResponses().containsKey("C"));
                 return;
             }
             fail("Should have thrown exception");

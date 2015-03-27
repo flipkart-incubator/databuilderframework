@@ -117,18 +117,9 @@ public class SimpleDataFlowExecutor extends DataFlowExecutor {
                                 logger.error("Error running post-execution listener: ", error);
                             }
                         }
-                        // Preserving data in active data set whichever produced by previous builders
-                        activeDataSet.clear();
-                        activeDataSet.addAll(newlyGeneratedData);
-                        newlyGeneratedData.clear();
-                        if(!dataFlow.isLoopingEnabled()) {
-                            break;
-                        }
+                        // Sending Execution response in exception object
 
-                        DataSet finalDataSet = dataSetAccessor.copy(dataFlow.getTransients());
-                        dataFlowInstance.setDataSet(finalDataSet);
-
-                        throw new DataValidationException(DataValidationException.ErrorCode.DATA_VALIDATION_EXCEPTION, "Data validation error" +builderMeta.getName(), e.getDetails(), e);
+                        throw new DataValidationException(DataValidationException.ErrorCode.DATA_VALIDATION_EXCEPTION, "Data validation error" +builderMeta.getName(), new DataExecutionResponse(responseData),e.getDetails(), e);
 
 
                     }

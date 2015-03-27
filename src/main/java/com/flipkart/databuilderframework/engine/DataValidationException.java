@@ -1,5 +1,7 @@
 package com.flipkart.databuilderframework.engine;
 
+import com.flipkart.databuilderframework.model.DataExecutionResponse;
+
 import java.util.Map;
 
 /**
@@ -7,6 +9,7 @@ import java.util.Map;
  */
 public class DataValidationException extends Exception {
     private Map<String,Object> details;
+    private DataExecutionResponse response;
     public static enum ErrorCode {
         DATA_VALIDATION_EXCEPTION
     }
@@ -41,11 +44,26 @@ public class DataValidationException extends Exception {
         this.errorCode = errorCode;
     }
 
+    public DataValidationException(ErrorCode errorCode, String message, DataExecutionResponse response, Map<String, Object> details, Throwable cause) {
+        super(message, cause);
+        this.details=details;
+        this.errorCode = errorCode;
+        this.response = response;
+    }
+
     public Map<String, Object> getDetails() {
         return details;
     }
 
     public ErrorCode getErrorCode() {
         return errorCode;
+    }
+
+    public DataExecutionResponse getResponse() {
+        return response;
+    }
+
+    public void setResponse(DataExecutionResponse response) {
+        this.response = response;
     }
 }
