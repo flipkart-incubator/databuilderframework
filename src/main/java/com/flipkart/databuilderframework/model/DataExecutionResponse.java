@@ -25,6 +25,11 @@ public class DataExecutionResponse {
         return responses;
     }
 
+    public <T extends Data> T get(Class<T> type) {
+        Data d = responses.get(type.getCanonicalName());
+        return type.cast(d);
+    }
+
     public void setResponses(Map<String, Data> responses) {
         this.responses = responses;
     }

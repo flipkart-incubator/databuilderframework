@@ -1,312 +1,262 @@
 package com.flipkart.databuilderframework.engine;
 
+import com.flipkart.databuilderframework.annotations.DataBuilderClassInfo;
+import com.flipkart.databuilderframework.annotations.DataBuilderInfo;
+import com.flipkart.databuilderframework.engine.impl.MixedDataBuilderFactory;
+import com.flipkart.databuilderframework.model.Data;
+import com.flipkart.databuilderframework.model.DataAdapter;
 import com.flipkart.databuilderframework.model.DataBuilderMeta;
 import com.flipkart.databuilderframework.model.DataFlow;
-import com.flipkart.databuilderframework.model.ExecutionGraph;
-import com.google.common.collect.Lists;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.Map;
+import java.util.Set;
 
 /**
- * This class generates an {@link com.flipkart.databuilderframework.model.ExecutionGraph}.
- * It uses the target data and resolution spec provided in the {@link com.flipkart.databuilderframework.model.DataFlow}
- * to generate a dependency list. This is used later by the {@link DataFlowExecutor}
- * to run the flow.
+ * Build {@link com.flipkart.databuilderframework.model.DataFlow} for execution by the {@link com.flipkart.databuilderframework.engine.DataFlowExecutor}.
+ * A {@link com.flipkart.databuilderframework.model.DataFlow} needs to be calculated based on the target
+ * {@link com.flipkart.databuilderframework.model.Data} that needs to be generated. DataFlowBuilder uses the registered
+ * {@link com.flipkart.databuilderframework.engine.DataBuilder} classes or instances to find out the {@link com.flipkart.databuilderframework.model.ExecutionGraph}.
+ * The execution graph is generated based on the "produces" and "consumes" spec on a builder. This information can be
+ * extracted from the {@link com.flipkart.databuilderframework.annotations.DataBuilderInfo} or {@link com.flipkart.databuilderframework.annotations.DataBuilderClassInfo} annotations
+ * on the builder class, or can be passed directly while registering the builders. <br>
+ * Please note that the consumes and produces information is used to validate the output and scope the inputs to the builders respectively.
+ *
+ * <br>An object of this type should not be re-used.
  */
 public class DataFlowBuilder {
-    private static final Logger logger = LoggerFactory.getLogger(DataFlowBuilder.class.getSimpleName());
+    private DataBuilderMetadataManager dataBuilderMetadataManager = new DataBuilderMetadataManager();
+    private DataFlow dataFlow = new DataFlow();
+    private MixedDataBuilderFactory dataBuilderFactory = new MixedDataBuilderFactory();
 
-    private DataBuilderMetadataManager dataBuilderMetadataManager;
-
-    public DataFlowBuilder(DataBuilderMetadataManager dataBuilderMetadataManager) {
-        this.dataBuilderMetadataManager = dataBuilderMetadataManager;
+    public DataFlowBuilder() {
+        dataFlow.setTransients(Sets.<String>newHashSet());
     }
 
     /**
-     * Generates an {@link com.flipkart.databuilderframework.model.ExecutionGraph} for the given graph.
-     * An exception is thrown if not target is specified, or there are multiple builders for the same data, but no
-     * resolution is provided for the same(conflict).
-     * @param dataFlow The {@link com.flipkart.databuilderframework.model.DataFlow} object to be analyzed
-     * @return Returns the ExecutionGraph
-     * @throws DataFrameworkException
+     * Set name for the data flow. This is optional but recommended.
+     * @param name Name for the dataflow
+     * @return
      */
-    public ExecutionGraph generateGraph(final DataFlow dataFlow) throws DataFrameworkException {
-        if(dataFlow.getTargetData() == null || dataFlow.getTargetData().isEmpty()) {
-            throw new DataFrameworkException(DataFrameworkException.ErrorCode.NO_TARGET_DATA,
-                                                                    "No target data specified for flow");
-        }
-        DependencyInfoManager dependencyInfoManager = new DependencyInfoManager();
-
-        /**
-         * STEP 1:: GENERATE DEPENDENCY TREE {ROOT=>TARGET}
-         */
-        DependencyNode root = generateDependencyTree(dataFlow.getTargetData(), dataFlow, null,
-                new DependencyNodeManager(), dependencyInfoManager,
-                new FlattenedDataRoute());
-        /**
-         * STEP 2:: RANK NODES IN THE TREE ACCORDING TO DISTANCE FROM ROOT
-         */
-        int maxHeight = rankNodes(root, 0);
-
-        /**
-        STEP 3:: CREATE REPRESENTATION
-        Representation : Example of a three level tree:
-            A
-            |
-            +--B
-            |  |
-            |  +--C
-            |  |
-            |  +--D
-            +--E
-               |
-               +--F
-               |
-               +--G
-        Dependency Hierarchy:
-        [
-           0 : [C, D, F, G]
-           1 : [B, E]
-           2 : [A]
-        ]
-        */
-        Map<String, DependencyInfo> dependencyInfos = dependencyInfoManager.infos;
-
-        //Fill up array with nulls. Array size == max Rank
-        List<List<DataBuilderMeta>> dependencyHierarchy
-                                        = new ArrayList<List<DataBuilderMeta>>(
-                                                    Collections.<List<DataBuilderMeta>>nCopies(maxHeight + 1, null));
-
-        //For each dependency
-        for(Map.Entry<String, DependencyInfo> dependencyInfo : dependencyInfos.entrySet()) {
-            DataBuilderMeta tmpDataBuilderMeta
-                                = dataBuilderMetadataManager.get(dependencyInfo.getValue().getBuilder());
-            if(null == tmpDataBuilderMeta) {
-                //Data is user-input data
-                continue;
-            }
-            DataBuilderMeta dataBuilderMeta = tmpDataBuilderMeta.deepCopy();
-            int rank = dependencyInfo.getValue().getRank();
-            dataBuilderMeta.setRank(rank);
-
-            //Set builder in the appropriate rank slots
-            if(null == dependencyHierarchy.get(rank)) {
-                dependencyHierarchy.set(rank, Lists.<DataBuilderMeta>newArrayList());
-            }
-            dependencyHierarchy.get(rank).add(dataBuilderMeta);
-        }
-
-        //A few levels will be null as they are built exclusively of user-input data
-        //Remove these useless ranks
-        dependencyHierarchy.removeAll(Collections.singleton(null));
-
-        //Reverse the array for helping in bottom up traversal during execution
-        Collections.reverse(dependencyHierarchy);
-
-        //Return
-        return new ExecutionGraph(dependencyHierarchy);
+    public DataFlowBuilder withName(final String name) {
+        this.dataFlow.setName(name);
+        return this;
+    }
+    /**
+     * Register your own metadata manager. This comes in handy if you want to manage DataBuilder metadata yourself.
+     * @param dataBuilderMetadataManager
+     * @return
+     */
+    public DataFlowBuilder withMetaDataManager(DataBuilderMetadataManager dataBuilderMetadataManager) {
+        this.dataBuilderMetadataManager = dataBuilderMetadataManager;
+        return this;
     }
 
-    private int rankNodes(DependencyNode root, int currentNode) {
-        if(root.getData().getRank() < currentNode) {
-            root.getData().setRank(currentNode);
-        }
-        int childNode = currentNode + 1;
-        int returnValue = childNode;
-        for(DependencyNode child : root.getIncoming()) {
-            int val = rankNodes(child, childNode);
-            returnValue = (val > returnValue)?val:returnValue;
-        }
-        return returnValue;
+    /**
+     * Register an unnamed,  unannotated builder class.
+     * @param produces Name of the data that this builder produces.
+     * @param consumes Names of the data that this class consumes.
+     * @param dataBuilder Builder class to be used. Class must have a no-args constructor.
+     * @return
+     * @throws DataBuilderFrameworkException
+     */
+    public DataFlowBuilder withDataBuilder(String produces,
+                                           Set<String> consumes,
+                                           Class<? extends DataBuilder> dataBuilder) throws DataBuilderFrameworkException {
+        return withDataBuilder(dataBuilder.getSimpleName(), produces, consumes, dataBuilder);
     }
 
-    private DependencyNode generateDependencyTree(final String data, DataFlow dataFlow,
-                                                  DependencyInfo outgoing,
-                                                  DependencyNodeManager dependencyNodeManager,
-                                                  DependencyInfoManager dependencyInfoManager,
-                                                  FlattenedDataRoute routeMeta) throws DataFrameworkException {
-        logger.info("Generating for: " + data);
-        List<DependencyNode> incoming = Lists.newArrayList();
-        DataBuilderMeta dataBuilderMeta = findBuilder(data, dataFlow);
-        DependencyInfo info = dependencyInfoManager.get(data);
-        if(null == info.getData()) {
-            info.setData(data);
-        }
-        if(null != dataBuilderMeta) {
-            if(null == info.getBuilder()) {
-                info.setBuilder(dataBuilderMeta.getName());
-            }
-            for(String consumes : dataBuilderMeta.getConsumes()) {
-                if(routeMeta.isAlreadyOnOutgoingPath(data, consumes)) {
-                    logger.info(String.format("Loop detected: Path for %s already contains %s", consumes, data));
-                    continue;
-                }
-                routeMeta.addOutputData(consumes, data);
-                DependencyNode childnode = generateDependencyTree(consumes, dataFlow, info,
-                                                dependencyNodeManager, dependencyInfoManager, routeMeta);
-                if(null != childnode) {
-                    incoming.add(childnode);
-                }
-            }
-        }
-        DependencyNode root = dependencyNodeManager.get(data);
-        if(root.getData() == null ){
-            root.setData(info);
-            root.setIncoming(incoming);
-        }
-        if(null != outgoing) {
-            root.getOutgoing().add(outgoing);
-        }
-        return root;
+    /**
+     * Register a named, unannotated builder class.
+     * @param produces Name of the data that this builder produces.
+     * @param consumes Names of the data that this class consumes.
+     * @param dataBuilder Builder class to be used. Class must have a no-args constructor.
+     * @return
+     * @throws DataBuilderFrameworkException
+     */
+    public DataFlowBuilder withDataBuilder(String name,
+                                           String produces,
+                                           Set<String> consumes,
+                                           Class<? extends DataBuilder> dataBuilder) throws DataBuilderFrameworkException {
+        return withDataBuilder(name, produces, consumes, dataBuilder, false);
     }
 
-    private DataBuilderMeta findBuilder(String data, DataFlow dataFlow) throws DataFrameworkException {
-        Map<String, String> resolutionSpecs = dataFlow.getResolutionSpecs();
-        DataBuilderMeta producerMeta = null;
-        if(null != resolutionSpecs && resolutionSpecs.containsKey(data)) {
-            producerMeta = dataBuilderMetadataManager.get(resolutionSpecs.get(data));
-            if(null == producerMeta) {
-                //A resolution spec was specified but no builder was found
-                throw new DataFrameworkException(DataFrameworkException.ErrorCode.NO_BUILDER_FOR_DATA,
-                        "No builder found with name: " + resolutionSpecs.get(data));
-            }
-            //logger.info("Found builder for data " + data + ": " + resolutionSpecs.get(data));
+    /**
+     * Register a unannotated builder class.
+     * @param produces Name of the data that this builder produces.
+     * @param consumes Names of the data that this class consumes.
+     * @param dataBuilder Builder class to be used. Class must have a no-args constructor.
+     * @param isTransient Data produced by this class is transient and will not be a part of the data-set.
+     * @return
+     * @throws DataBuilderFrameworkException
+     */
+    public DataFlowBuilder withDataBuilder(String name,
+                                           String produces,
+                                           Set<String> consumes,
+                                           Class<? extends DataBuilder> dataBuilder,
+                                           boolean isTransient) throws DataBuilderFrameworkException {
+        dataBuilderMetadataManager.register(consumes, produces, name, dataBuilder);
+        if(isTransient) {
+            dataFlow.getTransients().add(name);
         }
-        if(null == producerMeta) {
-            List<DataBuilderMeta> producerMetaList = dataBuilderMetadataManager.getMetaForProducerOf(data);
-            if(producerMetaList == null) {
-                logger.info("Starting data point found: " + data);
-                return null;
-            }
-
-            if(producerMetaList.size() > 1) {
-                //No resolution spec was specified, but multiple builders were found
-                logger.error("Multiple builders found for data, but no resolution spec found. Cannot proceed. data: " + data);
-                throw new DataFrameworkException(DataFrameworkException.ErrorCode.BUILDER_RESOLUTION_CONFLICT_FOR_DATA,
-                        "Multiple builders found for data, but no resolution spec found. Cannot proceed. Data: " + data);
-            }
-            producerMeta = producerMetaList.get(0);
-        }
-        return producerMeta;
+        return this;
     }
 
-    private static class FlattenedDataRoute {
-        private Map<String, Set<String>> outgoingMap = Maps.newHashMap();
+    /**
+     * Register a builder class annotated with either {@link com.flipkart.databuilderframework.annotations.DataBuilderInfo} or {@link com.flipkart.databuilderframework.annotations.DataBuilderClassInfo}
+     * @return
+     * @throws DataBuilderFrameworkException
+     */
 
-        public void addOutputData(String input, String output) {
-            if(!outgoingMap.containsKey(input)) {
-                outgoingMap.put(input, Sets.<String>newHashSet());
-            }
-            outgoingMap.get(input).add(output);
-            if(outgoingMap.containsKey(output)) {
-                outgoingMap.get(input).addAll(outgoingMap.get(output)); //My output's outputs are my outputs also
-            }
-            //logger.info(String.format("Added %s in path for %s", input, output));
-        }
-
-        public boolean isAlreadyOnOutgoingPath(String input, String output) {
-            if(!outgoingMap.containsKey(input)) {
-                return false;
-            }
-            return outgoingMap.get(input).contains(output);
-        }
+    public DataFlowBuilder withAnnotatedDataBuilder(Class<? extends DataBuilder> annotatedDataBuilder) throws DataBuilderFrameworkException {
+        dataBuilderMetadataManager.register(annotatedDataBuilder);
+        return this;
     }
 
-    private static class DependencyInfo {
-        private String data;
-        private String builder;
-        private int rank = 0;
-
-        private DependencyInfo(String data, String builder) {
-            this.data = data;
-            this.builder = builder;
-        }
-
-        private DependencyInfo() {
-        }
-
-        public String getData() {
-            return data;
-        }
-
-        public void setData(String data) {
-            this.data = data;
-        }
-
-        public String getBuilder() {
-            return builder;
-        }
-
-        public void setBuilder(String builder) {
-            this.builder = builder;
-        }
-
-        public int getRank() {
-            return rank;
-        }
-
-        public void setRank(int rank) {
-            this.rank = rank;
-        }
+    /**
+     * Register an unnamed, unannotated builder instance.
+     * @param produces Name of the data that this builder produces.
+     * @param consumes Names of the data that this builder consumes.
+     * @param dataBuilder Builder class to be used.
+     * @return
+     * @throws DataBuilderFrameworkException
+     */
+    public DataFlowBuilder withDataBuilder(String produces,
+                                           Set<String> consumes,
+                                           DataBuilder dataBuilder) throws DataBuilderFrameworkException {
+        return withDataBuilder(dataBuilder.getClass().getSimpleName(), produces, consumes, dataBuilder);
     }
 
-    private static final class DependencyInfoManager {
-        private Map<String, DependencyInfo> infos = Maps.newHashMap();
-        DependencyInfo get(String data) {
-            if(!infos.containsKey(data)) {
-                infos.put(data,new DependencyInfo());
+    /**
+     * Register a named, unannotated builder instance.
+     * @param produces Name of the data that this builder produces.
+     * @param consumes Names of the data that this builder consumes.
+     * @param dataBuilder Builder class to be used.
+     * @return
+     * @throws DataBuilderFrameworkException
+     */
+    public DataFlowBuilder withDataBuilder(String name,
+                                           String produces,
+                                           Set<String> consumes,
+                                           DataBuilder dataBuilder) throws DataBuilderFrameworkException {
+        return withDataBuilder(name, produces, consumes, dataBuilder, false);
+    }
+
+    /**
+     * Register a unannotated builder instance.
+     * @param produces Name of the data that this builder produces.
+     * @param consumes Names of the data that this builder consumes.
+     * @param dataBuilder Builder class to be used.
+     * @param isTransient Data produced by this class is transient and will not be a part of the data-set.
+     * @return
+     * @throws DataBuilderFrameworkException
+     */
+    public DataFlowBuilder withDataBuilder(String name,
+                                           String produces,
+                                           Set<String> consumes,
+                                           DataBuilder dataBuilder,
+                                           boolean isTransient) throws DataBuilderFrameworkException {
+        DataBuilderMeta dataBuilderMeta = new DataBuilderMeta(consumes, produces, name);
+        if(isTransient) {
+            dataFlow.getTransients().add(name);
+        }
+        dataBuilderMetadataManager.register(dataBuilderMeta, dataBuilder.getClass());
+        dataBuilderFactory.register(new ProxyDataBuilder(dataBuilderMeta, dataBuilder));
+        return this;
+    }
+
+    /**
+     * Regsiter an instance of a builder annotated with either {@link com.flipkart.databuilderframework.annotations.DataBuilderInfo}
+     * or {@link com.flipkart.databuilderframework.annotations.DataBuilderClassInfo}
+     * @param dataBuilder Builder instance
+     * @return
+     * @throws DataBuilderFrameworkException
+     */
+    public DataFlowBuilder withDataBuilder(DataBuilder dataBuilder) throws DataBuilderFrameworkException {
+        Preconditions.checkNotNull(dataBuilder, "Null DataBuilder cannot be registered");
+        Class<? extends DataBuilder> annotatedDataBuilder = dataBuilder.getClass();
+        DataBuilderMeta dataBuilderMeta;
+        DataBuilderInfo info = annotatedDataBuilder.getAnnotation(DataBuilderInfo.class);
+        if(null != info) {
+            dataBuilderMeta = new DataBuilderMeta(
+                    ImmutableSet.copyOf(info.consumes()),
+                    info.produces(),
+                    info.name());
+        }
+        else {
+            DataBuilderClassInfo dataBuilderClassInfo = annotatedDataBuilder.getAnnotation(DataBuilderClassInfo.class);
+            Preconditions.checkNotNull(dataBuilderClassInfo,
+                    "No useful annotations found on class. Use DataBuilderInfo or DataBuilderClassInfo to annotate");
+            Set<String> consumes = Sets.newHashSet();
+            for(Class<? extends Data> data : dataBuilderClassInfo.consumes()) {
+                consumes.add(data.getCanonicalName());
             }
-            return infos.get(data);
+            dataBuilderMeta = new DataBuilderMeta(
+                    ImmutableSet.copyOf(consumes),
+                    dataBuilderClassInfo.produces().getCanonicalName(),
+                    Strings.isNullOrEmpty(dataBuilderClassInfo.name())
+                            ? annotatedDataBuilder.getCanonicalName()
+                            : dataBuilderClassInfo.name());
         }
+        dataBuilderMetadataManager.register(dataBuilderMeta, dataBuilder.getClass());
+        dataBuilderFactory.register(new ProxyDataBuilder(dataBuilderMeta, dataBuilder));
+        return this;
     }
 
-    private static class DependencyNode {
-
-        private DependencyInfo data;
-        private List<DependencyNode> incoming = Lists.newArrayList();
-        private Set<DependencyInfo> outgoing = Sets.newLinkedHashSet();
-
-        private DependencyNode() {
-        }
-
-        public DependencyInfo getData() {
-            return data;
-        }
-
-        public void setData(DependencyInfo data) {
-            this.data = data;
-        }
-
-        public List<DependencyNode> getIncoming() {
-            return incoming;
-        }
-
-        public void setIncoming(List<DependencyNode> incoming) {
-            this.incoming = incoming;
-        }
-
-        public Set<DependencyInfo> getOutgoing() {
-            return outgoing;
-        }
-
-        public void setOutgoing(Set<DependencyInfo> outgoing) {
-            this.outgoing = outgoing;
-        }
+    /**
+     * The data to be generated. The build method will use this to create the execution graph.
+     * @param targetDataClass Class name for the data to be generated.
+     * @return
+     */
+    public DataFlowBuilder withTargetData(Class<? extends DataAdapter> targetDataClass) {
+        this.dataFlow.setTargetData(targetDataClass.getCanonicalName());
+        return this;
     }
 
-    private static class DependencyNodeManager {
-        private Map<String, DependencyNode> dataList = Maps.newHashMap();
+    /**
+     * The data to be generated. The build method will use this to create the execution graph.
+     * @param data Logical name for the data to be generated.
+     * @return
+     */
+    public DataFlowBuilder withTargetData(String data) {
+        this.dataFlow.setTargetData(data);
+        return this;
+    }
 
-        DependencyNode get(String data) {
-            if(!dataList.containsKey(data)) {
-                dataList.put(data, new DependencyNode());
-            }
-            return dataList.get(data);
-        }
+    /**
+     * Register a resolution spec to resolve conflicts in scenarios when multiple builders known to the system can generate the same required data.
+     * @param data Data to be generated
+     * @param generatingBuilder Name of the builder that will generate this data in the context of the flow being built
+     * @return
+     */
+    public DataFlowBuilder withResolutionSpec(final String data, final String generatingBuilder) {
+        this.dataFlow.getResolutionSpecs().put(data, generatingBuilder);
+        return this;
+    }
 
+    /**
+     * Register a resolution spec to resolve conflicts in scenarios when multiple builders known to the system can generate the same required data.
+     * @param data Data to be generated
+     * @param generatingBuilder Name of the builder that will generate this data in the context of the flow being built
+     * @return
+     */
+    public DataFlowBuilder withResolutionSpec(final Class<? extends Data> data, final Class<? extends DataBuilder> generatingBuilder) {
+        this.dataFlow.getResolutionSpecs().put(data.getCanonicalName(), generatingBuilder.getCanonicalName());
+        return this;
+    }
+
+    /**
+     * Build the data flow.
+     */
+     public DataFlow build() throws DataBuilderFrameworkException {
+        Preconditions.checkArgument(!Strings.isNullOrEmpty(dataFlow.getTargetData()), "Specify target data");
+        dataBuilderFactory.setDataBuilderMetadataManager(dataBuilderMetadataManager);
+        dataFlow.setExecutionGraph(new ExecutionGraphGenerator(dataBuilderMetadataManager).generateGraph(dataFlow));
+        dataFlow.setDataBuilderFactory(dataBuilderFactory);
+        return dataFlow;
     }
 }

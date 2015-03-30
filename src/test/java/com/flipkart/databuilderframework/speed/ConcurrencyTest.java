@@ -1,9 +1,9 @@
 package com.flipkart.databuilderframework.speed;
 
-import com.flipkart.databuilderframework.*;
 import com.flipkart.databuilderframework.engine.*;
-import com.flipkart.databuilderframework.engine.impl.DataBuilderFactoryImpl;
+import com.flipkart.databuilderframework.engine.impl.InstantiatingDataBuilderFactory;
 import com.flipkart.databuilderframework.model.*;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import org.junit.Assert;
 import org.junit.Before;
@@ -14,22 +14,22 @@ import java.util.concurrent.Executors;
 public class ConcurrencyTest {
     private DataBuilderMetadataManager dataBuilderMetadataManager = new DataBuilderMetadataManager();
     private DataFlowExecutor executor = new MultiThreadedDataFlowExecutor(
-                                                new DataBuilderFactoryImpl(dataBuilderMetadataManager),
+                                                new InstantiatingDataBuilderFactory(dataBuilderMetadataManager),
                                                 Executors.newFixedThreadPool(10));
     private DataFlowExecutor simpleExecutor = new SimpleDataFlowExecutor(
-                                                new DataBuilderFactoryImpl(dataBuilderMetadataManager));
-    private DataFlowBuilder dataFlowBuilder = new DataFlowBuilder(dataBuilderMetadataManager);
+                                                new InstantiatingDataBuilderFactory(dataBuilderMetadataManager));
+    private ExecutionGraphGenerator executionGraphGenerator = new ExecutionGraphGenerator(dataBuilderMetadataManager);
 
     @Before
     public void setup() throws Exception {
-        dataBuilderMetadataManager.register(Lists.newArrayList("REQ"), "A", "BuilderA", ServiceCallerA.class );
-        dataBuilderMetadataManager.register(Lists.newArrayList("REQ"), "B", "BuilderB", ServiceCallerB.class );
-        dataBuilderMetadataManager.register(Lists.newArrayList("REQ"), "C", "BuilderC", ServiceCallerC.class );
-        dataBuilderMetadataManager.register(Lists.newArrayList("REQ"), "D", "BuilderD", ServiceCallerD.class );
-        dataBuilderMetadataManager.register(Lists.newArrayList("REQ"), "E", "BuilderE", ServiceCallerE.class );
-        dataBuilderMetadataManager.register(Lists.newArrayList("REQ"), "F", "BuilderF", ServiceCallerF.class );
-        dataBuilderMetadataManager.register(Lists.newArrayList("REQ"), "G", "BuilderG", ServiceCallerG.class );
-        dataBuilderMetadataManager.register(Lists.newArrayList("A", "B", "C", "D", "E", "F", "G"), "RES", "ResponseBuilder", DataCombiner.class );
+        dataBuilderMetadataManager.register(ImmutableSet.of("REQ"), "A", "BuilderA", ServiceCallerA.class );
+        dataBuilderMetadataManager.register(ImmutableSet.of("REQ"), "B", "BuilderB", ServiceCallerB.class );
+        dataBuilderMetadataManager.register(ImmutableSet.of("REQ"), "C", "BuilderC", ServiceCallerC.class );
+        dataBuilderMetadataManager.register(ImmutableSet.of("REQ"), "D", "BuilderD", ServiceCallerD.class );
+        dataBuilderMetadataManager.register(ImmutableSet.of("REQ"), "E", "BuilderE", ServiceCallerE.class );
+        dataBuilderMetadataManager.register(ImmutableSet.of("REQ"), "F", "BuilderF", ServiceCallerF.class );
+        dataBuilderMetadataManager.register(ImmutableSet.of("REQ"), "G", "BuilderG", ServiceCallerG.class );
+        dataBuilderMetadataManager.register(ImmutableSet.of("A", "B", "C", "D", "E", "F", "G"), "RES", "ResponseBuilder", DataCombiner.class );
 
     }
 
@@ -37,7 +37,7 @@ public class ConcurrencyTest {
     public void testFunctionality() throws Exception {
         DataFlow dataFlow = new DataFlow();
         dataFlow.setTargetData("RES");
-        dataFlow.setExecutionGraph(dataFlowBuilder.generateGraph(dataFlow).deepCopy());
+        dataFlow.setExecutionGraph(executionGraphGenerator.generateGraph(dataFlow).deepCopy());
         DataFlowInstance dataFlowInstance = new DataFlowInstance();
         dataFlowInstance.setId("testflow");
         dataFlowInstance.setDataFlow(dataFlow);
@@ -54,11 +54,13 @@ public class ConcurrencyTest {
     }
     @Test
     public void testSpeed() throws Exception {
+        DataFlow dataFlow = new DataFlow();
+        dataFlow.setTargetData("RES");
+        ExecutionGraph executionGraph = executionGraphGenerator.generateGraph(dataFlow);
+        dataFlow.setExecutionGraph(executionGraph);
+
         long mTime = 0 ;
         for(int i = 0; i < 1000; i++) {
-            DataFlow dataFlow = new DataFlow();
-            dataFlow.setTargetData("RES");
-            dataFlow.setExecutionGraph(dataFlowBuilder.generateGraph(dataFlow).deepCopy());
             DataFlowInstance dataFlowInstance = new DataFlowInstance();
             dataFlowInstance.setId("testflow");
             dataFlowInstance.setDataFlow(dataFlow);
@@ -67,13 +69,10 @@ public class ConcurrencyTest {
             DataExecutionResponse response = executor.run(dataFlowInstance, dataDelta);
             mTime += (System.currentTimeMillis() - startTime);
             Assert.assertEquals(8, response.getResponses().size());
-            System.out.println("MT:" + System.currentTimeMillis());
+            //System.out.println("MT:" + System.currentTimeMillis());
         }
         long sTime = 0;
         for(int i = 0; i < 1000; i++) {
-            DataFlow dataFlow = new DataFlow();
-            dataFlow.setTargetData("RES");
-            dataFlow.setExecutionGraph(dataFlowBuilder.generateGraph(dataFlow).deepCopy());
             DataFlowInstance dataFlowInstance = new DataFlowInstance();
             dataFlowInstance.setId("testflow");
             dataFlowInstance.setDataFlow(dataFlow);
@@ -82,7 +81,7 @@ public class ConcurrencyTest {
             DataExecutionResponse response = simpleExecutor.run(dataFlowInstance, dataDelta);
             sTime += (System.currentTimeMillis() - startTime);
             Assert.assertEquals(8, response.getResponses().size());
-            System.out.println("ST:" + System.currentTimeMillis());
+            //System.out.println("ST:" + System.currentTimeMillis());
         }
         System.out.println(String.format("MT: %d ST: %d", mTime, sTime));
     }

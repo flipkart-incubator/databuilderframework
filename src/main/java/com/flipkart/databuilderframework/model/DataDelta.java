@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.constraints.NotNull;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -20,6 +21,9 @@ public class DataDelta {
     @JsonProperty
     private List<Data> delta;
 
+    public DataDelta(Data... data) {
+        delta = Arrays.asList(data);
+    }
     public DataDelta() {
     }
 

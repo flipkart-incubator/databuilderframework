@@ -1,7 +1,7 @@
 package com.flipkart.databuilderframework.engine;
 
 import com.flipkart.databuilderframework.model.*;
-import com.flipkart.databuilderframework.util.DataSetAccessor;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -18,6 +18,10 @@ public class MultiThreadedDataFlowExecutor extends DataFlowExecutor {
     private static final Logger logger = LoggerFactory.getLogger(MultiThreadedDataFlowExecutor.class.getSimpleName());
     private final ExecutorService executorService;
 
+    public MultiThreadedDataFlowExecutor(ExecutorService executorService) {
+        this.executorService = executorService;
+    }
+
     public MultiThreadedDataFlowExecutor(DataBuilderFactory dataBuilderFactory, ExecutorService executorService) {
         super(dataBuilderFactory);
         this.executorService = executorService;
@@ -26,14 +30,17 @@ public class MultiThreadedDataFlowExecutor extends DataFlowExecutor {
     /**
      * {@inheritDoc}
      */
-    public DataExecutionResponse run(DataBuilderContext dataBuilderContext, DataFlowInstance dataFlowInstance, DataDelta dataDelta) throws DataFrameworkException {
+    @Override
+    protected DataExecutionResponse run(DataBuilderContext dataBuilderContext,
+                                        DataFlowInstance dataFlowInstance,
+                                        DataDelta dataDelta,
+                                        DataFlow dataFlow,
+                                        DataBuilderFactory builderFactory) throws DataBuilderFrameworkException {
         CompletionService<DataContainer> completionExecutor = new ExecutorCompletionService<DataContainer>(executorService);
-        DataFlow dataFlow = dataFlowInstance.getDataFlow();
         ExecutionGraph executionGraph = dataFlow.getExecutionGraph();
         DataSet dataSet = dataFlowInstance.getDataSet().accessor().copy(); //Create own copy to work with
         DataSetAccessor dataSetAccessor = DataSet.accessor(dataSet);
         dataSetAccessor.merge(dataDelta);
-        dataBuilderContext.setDataSet(dataSet);
         Map<String, Data> responseData = Maps.newTreeMap();
         Set<String> activeDataSet = Sets.newHashSet();
 
@@ -42,32 +49,32 @@ public class MultiThreadedDataFlowExecutor extends DataFlowExecutor {
         }
         List<List<DataBuilderMeta>> dependencyHierarchy = executionGraph.getDependencyHierarchy();
         Set<String> newlyGeneratedData = Sets.newHashSet();
+        Set<DataBuilderMeta> processedBuilders = Collections.synchronizedSet(Sets.<DataBuilderMeta>newHashSet());
         while(true) {
             for (List<DataBuilderMeta> levelBuilders : dependencyHierarchy) {
                 List<Future<DataContainer>> dataFutures = Lists.newArrayList();
                 for (DataBuilderMeta builderMeta : levelBuilders) {
-                    if (builderMeta.isProcessed()) {
+                    if (processedBuilders.contains(builderMeta)) {
                         continue;
                     }
-                    Set<String> intersection = new HashSet<String>(builderMeta.getConsumes());
-                    intersection.retainAll(activeDataSet);
                     //If there is an intersection, means some of it's inputs have changed. Reevaluate
-                    if (intersection.isEmpty()) {
+                    if (Sets.intersection(builderMeta.getConsumes(), activeDataSet).isEmpty()) {
                         continue;
                     }
-                    DataBuilder builder = dataBuilderFactory.create(builderMeta.getName());
+                    DataBuilder builder = builderFactory.create(builderMeta.getName());
                     if (!dataSetAccessor.checkForData(builder.getDataBuilderMeta().getConsumes())) {
                         break; //No need to run others, list is topo sorted
                     }
                     BuilderRunner builderRunner = new BuilderRunner(dataBuilderExecutionListener, dataFlowInstance,
                                                                         builderMeta, dataDelta, responseData,
-                                                                        builder, dataBuilderContext);
+                                                                        builder, dataBuilderContext, processedBuilders, dataSet);
                     Future<DataContainer> future = completionExecutor.submit(builderRunner);
                     dataFutures.add(future);
                 }
 
                 //Now wait for something to complete.
-                for(int i = 0; i < dataFutures.size(); i++) {
+                int listSize = dataFutures.size();
+                for(int i = 0; i < listSize; i++) {
                     try {
                         DataContainer responseContainer = completionExecutor.take().get();
                         Data response = responseContainer.getGeneratedData();
@@ -83,20 +90,20 @@ public class MultiThreadedDataFlowExecutor extends DataFlowExecutor {
                             }
                         }
                     } catch (InterruptedException e) {
-                        throw new DataFrameworkException(DataFrameworkException.ErrorCode.BUILDER_EXECUTION_ERROR,
+                        throw new DataBuilderFrameworkException(DataBuilderFrameworkException.ErrorCode.BUILDER_EXECUTION_ERROR,
                                 "Error while waiting for error ", e);
                     } catch (ExecutionException e) {
-                        throw new DataFrameworkException(DataFrameworkException.ErrorCode.BUILDER_EXECUTION_ERROR,
+                        throw new DataBuilderFrameworkException(DataBuilderFrameworkException.ErrorCode.BUILDER_EXECUTION_ERROR,
                                 "Error while waiting for error ", e.getCause());
                     }
                 }
             }
             if(newlyGeneratedData.contains(dataFlow.getTargetData())) {
-                logger.debug("Finished running this instance of the flow. Exiting.");
+                //logger.debug("Finished running this instance of the flow. Exiting.");
                 break;
             }
             if(newlyGeneratedData.isEmpty()) {
-                logger.debug("Nothing happened in this loop, exiting..");
+                //logger.debug("Nothing happened in this loop, exiting..");
                 break;
             }
 //            StringBuilder stringBuilder = new StringBuilder();
@@ -111,7 +118,7 @@ public class MultiThreadedDataFlowExecutor extends DataFlowExecutor {
                 break;
             }
         }
-        DataSet finalDataSet = dataSetAccessor.copy(dataFlowInstance.getDataFlow().getTransients());
+        DataSet finalDataSet = dataSetAccessor.copy(dataFlow.getTransients());
         dataFlowInstance.setDataSet(finalDataSet);
         return new DataExecutionResponse(responseData);
     }
@@ -120,7 +127,7 @@ public class MultiThreadedDataFlowExecutor extends DataFlowExecutor {
         private final DataBuilderMeta builderMeta;
         private final Data generatedData;
         private boolean hasError = false;
-        private final DataFrameworkException exception;
+        private final DataBuilderFrameworkException exception;
 
         private DataContainer(DataBuilderMeta builderMeta, Data generatedData) {
             this.builderMeta = builderMeta;
@@ -128,7 +135,7 @@ public class MultiThreadedDataFlowExecutor extends DataFlowExecutor {
             this.exception = null;
         }
 
-        private DataContainer(DataBuilderMeta builderMeta, DataFrameworkException exception) {
+        private DataContainer(DataBuilderMeta builderMeta, DataBuilderFrameworkException exception) {
             this.builderMeta = builderMeta;
             this.generatedData = null;
             this.hasError = true;
@@ -143,7 +150,7 @@ public class MultiThreadedDataFlowExecutor extends DataFlowExecutor {
             return generatedData;
         }
 
-        public DataFrameworkException getException() {
+        public DataBuilderFrameworkException getException() {
             return exception;
         }
 
@@ -160,6 +167,8 @@ public class MultiThreadedDataFlowExecutor extends DataFlowExecutor {
         private Map<String,Data> responseData;
         private DataBuilder builder;
         private DataBuilderContext dataBuilderContext;
+        private final Set<DataBuilderMeta> procesedBuilders;
+        private DataSet dataSet;
 
         private BuilderRunner(List<DataBuilderExecutionListener> dataBuilderExecutionListener,
                               DataFlowInstance dataFlowInstance,
@@ -167,7 +176,9 @@ public class MultiThreadedDataFlowExecutor extends DataFlowExecutor {
                               DataDelta dataDelta,
                               Map<String, Data> responseData,
                               DataBuilder builder,
-                              DataBuilderContext dataBuilderContext) {
+                              DataBuilderContext dataBuilderContext,
+                              Set<DataBuilderMeta> procesedBuilders,
+                              DataSet dataSet) {
             this.dataBuilderExecutionListener = dataBuilderExecutionListener;
             this.dataFlowInstance = dataFlowInstance;
             this.builderMeta = builderMeta;
@@ -175,6 +186,8 @@ public class MultiThreadedDataFlowExecutor extends DataFlowExecutor {
             this.responseData = responseData;
             this.builder = builder;
             this.dataBuilderContext = dataBuilderContext;
+            this.procesedBuilders = procesedBuilders;
+            this.dataSet = dataSet;
         }
 
         @Override
@@ -188,9 +201,10 @@ public class MultiThreadedDataFlowExecutor extends DataFlowExecutor {
                 }
             }
             try {
-                Data response = builder.process(dataBuilderContext);
-                logger.debug("Ran " + builderMeta.getName());
-                builderMeta.setProcessed(true);
+                Data response = builder.process(dataBuilderContext.immutableCopy(
+                                            dataSet.accessor().getAccesibleDataSetFor(builder)));
+                //logger.debug("Ran " + builderMeta.getName());
+                procesedBuilders.add(builderMeta);
                 for (DataBuilderExecutionListener listener : dataBuilderExecutionListener) {
                     try {
                         listener.afterExecute(dataFlowInstance, builderMeta, dataDelta, responseData, response);
@@ -199,6 +213,9 @@ public class MultiThreadedDataFlowExecutor extends DataFlowExecutor {
                     }
                 }
                 if(null != response) {
+                    Preconditions.checkArgument(response.getData().equalsIgnoreCase(builderMeta.getProduces()),
+                            String.format("Builder is supposed to produce %s but produces %s",
+                                    builderMeta.getProduces(), response.getData()));
                     response.setGeneratedBy(builderMeta.getName());
                 }
                 return new DataContainer(builderMeta, response);
@@ -212,7 +229,7 @@ public class MultiThreadedDataFlowExecutor extends DataFlowExecutor {
                         logger.error("Error running post-execution listener: ", error);
                     }
                 }
-                return new DataContainer(builderMeta, new DataFrameworkException(DataFrameworkException.ErrorCode.BUILDER_EXECUTION_ERROR,
+                return new DataContainer(builderMeta, new DataBuilderFrameworkException(DataBuilderFrameworkException.ErrorCode.BUILDER_EXECUTION_ERROR,
                         "Error running builder: " + builderMeta.getName(), e.getDetails(), e));
 
             } catch (Throwable t) {
@@ -227,7 +244,7 @@ public class MultiThreadedDataFlowExecutor extends DataFlowExecutor {
                 }
                 Map<String, Object> objectMap = new HashMap<String, Object>();
                 objectMap.put("MESSAGE", t.getMessage());
-                return new DataContainer(builderMeta, new DataFrameworkException(DataFrameworkException.ErrorCode.BUILDER_EXECUTION_ERROR,
+                return new DataContainer(builderMeta, new DataBuilderFrameworkException(DataBuilderFrameworkException.ErrorCode.BUILDER_EXECUTION_ERROR,
                         "Error running builder: " + builderMeta.getName() + t.getMessage(), objectMap, t));
             }
         }

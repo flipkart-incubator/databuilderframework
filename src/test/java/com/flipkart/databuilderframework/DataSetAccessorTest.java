@@ -1,8 +1,9 @@
 package com.flipkart.databuilderframework;
 
+import com.flipkart.databuilderframework.engine.DataSetAccessor;
 import com.flipkart.databuilderframework.model.DataDelta;
 import com.flipkart.databuilderframework.model.DataSet;
-import com.flipkart.databuilderframework.util.DataSetAccessor;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import org.junit.Assert;
 import org.junit.Test;
@@ -50,9 +51,9 @@ public class DataSetAccessorTest {
         dataSetAccessor.merge(dataDelta);
         Assert.assertTrue(dataSetAccessor.checkForData("A"));
         Assert.assertFalse(dataSetAccessor.checkForData("X"));
-        Assert.assertTrue(dataSetAccessor.checkForData(Lists.newArrayList("A", "B")));
-        Assert.assertFalse(dataSetAccessor.checkForData(Lists.newArrayList("A", "X")));
-        Assert.assertFalse(dataSetAccessor.checkForData(Lists.newArrayList("X", "A")));
-        Assert.assertFalse(dataSetAccessor.checkForData(Lists.newArrayList("X", "Ys")));
+        Assert.assertTrue(dataSetAccessor.checkForData(ImmutableSet.of("A", "B")));
+        Assert.assertFalse(dataSetAccessor.checkForData(ImmutableSet.of("A", "X")));
+        Assert.assertFalse(dataSetAccessor.checkForData(ImmutableSet.of("X", "A")));
+        Assert.assertFalse(dataSetAccessor.checkForData(ImmutableSet.of("X", "Ys")));
     }
 }

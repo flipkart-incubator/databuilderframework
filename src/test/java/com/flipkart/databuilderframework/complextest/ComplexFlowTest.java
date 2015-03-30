@@ -2,24 +2,25 @@ package com.flipkart.databuilderframework.complextest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkart.databuilderframework.engine.DataBuilderMetadataManager;
-import com.flipkart.databuilderframework.engine.DataFlowBuilder;
 import com.flipkart.databuilderframework.engine.DataFlowExecutor;
+import com.flipkart.databuilderframework.engine.ExecutionGraphGenerator;
 import com.flipkart.databuilderframework.engine.SimpleDataFlowExecutor;
-import com.flipkart.databuilderframework.engine.impl.DataBuilderFactoryImpl;
+import com.flipkart.databuilderframework.engine.impl.InstantiatingDataBuilderFactory;
 import com.flipkart.databuilderframework.model.*;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import org.junit.Test;
 
 public class ComplexFlowTest {
     private DataBuilderMetadataManager dataBuilderMetadataManager = new DataBuilderMetadataManager();
-    private DataFlowExecutor executor = new SimpleDataFlowExecutor(new DataBuilderFactoryImpl(dataBuilderMetadataManager));
-    private DataFlowBuilder dataFlowBuilder = new DataFlowBuilder(dataBuilderMetadataManager);
+    private DataFlowExecutor executor = new SimpleDataFlowExecutor(new InstantiatingDataBuilderFactory(dataBuilderMetadataManager));
+    private ExecutionGraphGenerator executionGraphGenerator = new ExecutionGraphGenerator(dataBuilderMetadataManager);
     public ComplexFlowTest() throws Exception {
-        dataBuilderMetadataManager.register(Lists.newArrayList("CR", "CAID", "VAS"), "OO", "SB", SummaryBuilderTest.class);
-        dataBuilderMetadataManager.register(Lists.newArrayList("OO"), "POD", "POB", PaymentOptionBuilderTest.class);
-        dataBuilderMetadataManager.register(Lists.newArrayList("OO", "POD", "SPD"), "ILD", "PRB", PaymentRequestBuilderTest.class);
-        dataBuilderMetadataManager.register(Lists.newArrayList("ILD", "EPD"), "OSD", "PPB", PaymentProcessorBuilderTest.class);
-        dataBuilderMetadataManager.register(Lists.newArrayList("OO", "OSD"), "OCD", "COB", CompleteOrderBuilderTest.class);
+        dataBuilderMetadataManager.register(ImmutableSet.of("CR", "CAID", "VAS"), "OO", "SB", SB.class);
+        dataBuilderMetadataManager.register(ImmutableSet.of("OO"), "POD", "POB", POB.class);
+        dataBuilderMetadataManager.register(ImmutableSet.of("OO", "POD", "SPD"), "ILD", "PRB", PRB.class);
+        dataBuilderMetadataManager.register(ImmutableSet.of("ILD", "EPD"), "OSD", "PPB", PPB.class);
+        dataBuilderMetadataManager.register(ImmutableSet.of("OO", "OSD"), "OCD", "COB", COB.class);
     }
 
     @Test
@@ -29,22 +30,22 @@ public class ComplexFlowTest {
         dataFlow.setName("TestFlow");
         dataFlow.setTargetData("OCD");
 
-        ExecutionGraph e = dataFlowBuilder.generateGraph(dataFlow);
+        ExecutionGraph e = executionGraphGenerator.generateGraph(dataFlow);
         dataFlow.setExecutionGraph(e);
 
         DataFlowInstance complexFlowIntsnace = new DataFlowInstance("Test", dataFlow, new DataSet());
         {
-            DataDelta dataDelta = new DataDelta(Lists.newArrayList(new CartRefTest(), new CartAccountIDTest(), new ValueAddedServiceTest()));
+            DataDelta dataDelta = new DataDelta(Lists.newArrayList(new CR(), new CAID(), new VAS()));
             DataExecutionResponse response = executor.run(complexFlowIntsnace, dataDelta);
             System.out.println(new ObjectMapper().writeValueAsString(response));
         }
         {
-            DataDelta dataDelta = new DataDelta(Lists.<Data>newArrayList(new SelectedPaymentOptionTest()));
+            DataDelta dataDelta = new DataDelta(Lists.<Data>newArrayList(new SPD()));
             DataExecutionResponse response = executor.run(complexFlowIntsnace, dataDelta);
             System.out.println(new ObjectMapper().writeValueAsString(response));
         }
         {
-            DataDelta dataDelta = new DataDelta(Lists.<Data>newArrayList(new EncryptedPaymentDataTest()));
+            DataDelta dataDelta = new DataDelta(Lists.<Data>newArrayList(new EPD()));
             DataExecutionResponse response = executor.run(complexFlowIntsnace, dataDelta);
             System.out.println(new ObjectMapper().writeValueAsString(response));
         }
@@ -58,17 +59,17 @@ public class ComplexFlowTest {
         dataFlow.setName("TestFlow");
         dataFlow.setTargetData("OCD");
 
-        ExecutionGraph e = dataFlowBuilder.generateGraph(dataFlow);
+        ExecutionGraph e = executionGraphGenerator.generateGraph(dataFlow);
         dataFlow.setExecutionGraph(e);
 
         DataFlowInstance complexFlowIntsnace = new DataFlowInstance("Test", dataFlow, new DataSet());
         {
-            DataDelta dataDelta = new DataDelta(Lists.newArrayList(new CartRefTest(), new CartAccountIDTest(), new ValueAddedServiceTest(), new SelectedPaymentOptionTest()));
+            DataDelta dataDelta = new DataDelta(Lists.newArrayList(new CR(), new CAID(), new VAS(), new SPD()));
             DataExecutionResponse response = executor.run(complexFlowIntsnace, dataDelta);
             System.out.println(new ObjectMapper().writeValueAsString(response));
         }
         {
-            DataDelta dataDelta = new DataDelta(Lists.<Data>newArrayList(new EncryptedPaymentDataTest()));
+            DataDelta dataDelta = new DataDelta(Lists.<Data>newArrayList(new EPD()));
             DataExecutionResponse response = executor.run(complexFlowIntsnace, dataDelta);
             System.out.println(new ObjectMapper().writeValueAsString(response));
         }
@@ -82,12 +83,12 @@ public class ComplexFlowTest {
         dataFlow.setName("TestFlow");
         dataFlow.setTargetData("OCD");
 
-        ExecutionGraph e = dataFlowBuilder.generateGraph(dataFlow);
+        ExecutionGraph e = executionGraphGenerator.generateGraph(dataFlow);
         dataFlow.setExecutionGraph(e);
 
         DataFlowInstance complexFlowIntsnace = new DataFlowInstance("Test", dataFlow, new DataSet());
         {
-            DataDelta dataDelta = new DataDelta(Lists.newArrayList(new CartRefTest(), new CartAccountIDTest(), new ValueAddedServiceTest(), new SelectedPaymentOptionTest(), new EncryptedPaymentDataTest()));
+            DataDelta dataDelta = new DataDelta(Lists.newArrayList(new CR(), new CAID(), new VAS(), new SPD(), new EPD()));
             DataExecutionResponse response = executor.run(complexFlowIntsnace, dataDelta);
             System.out.println(new ObjectMapper().writeValueAsString(response));
         }

@@ -1,13 +1,12 @@
 package com.flipkart.databuilderframework.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.collect.ImmutableSet;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Set;
 
 /**
  * Metadata about {@link com.flipkart.databuilderframework.engine.DataBuilder}.
@@ -22,7 +21,7 @@ public class DataBuilderMeta implements Comparable<DataBuilderMeta>, Serializabl
     @NotNull
     @NotEmpty
     @JsonProperty
-    private List<String> consumes;
+    private Set<String> consumes;
 
     /**
      * {@link com.flipkart.databuilderframework.model.Data} this {@link com.flipkart.databuilderframework.engine.DataBuilder} generates.
@@ -40,31 +39,18 @@ public class DataBuilderMeta implements Comparable<DataBuilderMeta>, Serializabl
     @JsonProperty
     private String name;
 
-    /**
-     * Whether this builder has run once or not.
-     */
-    @JsonIgnore
-    private boolean processed = false;
-
     private int rank;
 
-    public DataBuilderMeta(List<String> consumes, String produces, String name) {
+    public DataBuilderMeta(Set<String> consumes, String produces, String name) {
         this.consumes = consumes;
         this.produces = produces;
         this.name = name;
-    }
-
-    public DataBuilderMeta(List<String> consumes, String produces, String name, boolean processed) {
-        this.consumes = consumes;
-        this.produces = produces;
-        this.name = name;
-        this.processed = processed;
     }
 
     public DataBuilderMeta() {
     }
 
-    public List<String> getConsumes() {
+    public Set<String> getConsumes() {
         return consumes;
     }
 
@@ -74,14 +60,6 @@ public class DataBuilderMeta implements Comparable<DataBuilderMeta>, Serializabl
 
     public String getName() {
         return name;
-    }
-
-    public boolean isProcessed() {
-        return processed;
-    }
-
-    public void setProcessed(boolean processed) {
-        this.processed = processed;
     }
 
     public int compareTo(DataBuilderMeta rhs) {
@@ -95,7 +73,6 @@ public class DataBuilderMeta implements Comparable<DataBuilderMeta>, Serializabl
 
         DataBuilderMeta that = (DataBuilderMeta) o;
 
-        if (processed != that.processed) return false;
         if (!consumes.equals(that.consumes)) return false;
         if (!name.equals(that.name)) return false;
         if (!produces.equals(that.produces)) return false;
@@ -108,15 +85,14 @@ public class DataBuilderMeta implements Comparable<DataBuilderMeta>, Serializabl
         int result = consumes.hashCode();
         result = 31 * result + produces.hashCode();
         result = 31 * result + name.hashCode();
-        result = 31 * result + (processed ? 1 : 0);
         return result;
     }
 
     public DataBuilderMeta deepCopy() {
-        return new DataBuilderMeta(new ArrayList<String>(consumes), produces, name, processed);
+        return new DataBuilderMeta(ImmutableSet.copyOf(consumes), produces, name);
     }
 
-    public void setConsumes(List<String> consumes) {
+    public void setConsumes(Set<String> consumes) {
         this.consumes = consumes;
     }
 

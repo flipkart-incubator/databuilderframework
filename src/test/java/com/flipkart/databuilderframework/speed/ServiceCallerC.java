@@ -1,6 +1,5 @@
 package com.flipkart.databuilderframework.speed;
 
-import com.flipkart.databuilderframework.TestDataB;
 import com.flipkart.databuilderframework.TestDataC;
 import com.flipkart.databuilderframework.engine.DataBuilder;
 import com.flipkart.databuilderframework.engine.DataBuilderContext;
@@ -11,7 +10,7 @@ public class ServiceCallerC extends DataBuilder {
     @Override
     public Data process(DataBuilderContext context) throws DataBuilderException {
         try {
-            Thread.sleep(10);
+            Thread.sleep(1);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

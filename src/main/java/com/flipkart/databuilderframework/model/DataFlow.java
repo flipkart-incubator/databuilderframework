@@ -1,6 +1,9 @@
 package com.flipkart.databuilderframework.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.flipkart.databuilderframework.engine.DataBuilderFactory;
+import com.google.common.collect.Maps;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.constraints.NotNull;
@@ -64,7 +67,34 @@ public class DataFlow implements Serializable {
      */
     private boolean loopingEnabled = true;
 
+    /**
+     * Factory to be used to build data for this flow. This is set by the framework generally.
+     */
+    @JsonIgnore
+    private DataBuilderFactory dataBuilderFactory;
+
     public DataFlow() {
+        this.resolutionSpecs = Maps.newHashMap();
+    }
+
+    DataFlow(String name,
+                    String description,
+                    String targetData,
+                    Map<String, String> resolutionSpecs,
+                    ExecutionGraph executionGraph,
+                    Set<String> transients,
+                    boolean enabled,
+                    boolean loopingEnabled,
+                    DataBuilderFactory dataBuilderFactory) {
+        this.name = name;
+        this.description = description;
+        this.targetData = targetData;
+        this.resolutionSpecs = resolutionSpecs;
+        this.executionGraph = executionGraph;
+        this.transients = transients;
+        this.enabled = enabled;
+        this.loopingEnabled = loopingEnabled;
+        this.dataBuilderFactory = dataBuilderFactory;
     }
 
     public String getName() {
@@ -129,5 +159,25 @@ public class DataFlow implements Serializable {
 
     public void setLoopingEnabled(boolean loopingEnabled) {
         this.loopingEnabled = loopingEnabled;
+    }
+
+    public DataBuilderFactory getDataBuilderFactory() {
+        return dataBuilderFactory;
+    }
+
+    public void setDataBuilderFactory(DataBuilderFactory dataBuilderFactory) {
+        this.dataBuilderFactory = dataBuilderFactory;
+    }
+
+    public DataFlow deepCopy() {
+        return new DataFlow(name,
+                            description,
+                            targetData,
+                            resolutionSpecs,
+                            executionGraph.deepCopy(),
+                            transients,
+                            enabled,
+                            loopingEnabled,
+                            dataBuilderFactory);
     }
 }

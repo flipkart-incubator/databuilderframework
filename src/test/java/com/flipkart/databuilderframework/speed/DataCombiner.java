@@ -9,7 +9,7 @@ public class DataCombiner extends DataBuilder {
     @Override
     public Data process(DataBuilderContext context) throws DataBuilderException {
         try {
-            Thread.sleep(20);
+            Thread.sleep(1);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

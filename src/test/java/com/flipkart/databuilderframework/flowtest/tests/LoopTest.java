@@ -2,11 +2,15 @@ package com.flipkart.databuilderframework.flowtest.tests;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.flipkart.databuilderframework.engine.*;
-import com.flipkart.databuilderframework.engine.impl.DataBuilderFactoryImpl;
+import com.flipkart.databuilderframework.engine.DataBuilderMetadataManager;
+import com.flipkart.databuilderframework.engine.DataFlowExecutor;
+import com.flipkart.databuilderframework.engine.ExecutionGraphGenerator;
+import com.flipkart.databuilderframework.engine.MultiThreadedDataFlowExecutor;
+import com.flipkart.databuilderframework.engine.impl.InstantiatingDataBuilderFactory;
 import com.flipkart.databuilderframework.flowtest.builders.*;
 import com.flipkart.databuilderframework.flowtest.data.*;
 import com.flipkart.databuilderframework.model.*;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.junit.Assert;
@@ -21,21 +25,21 @@ import static org.junit.Assert.assertNotNull;
 
 public class LoopTest {
     private DataBuilderMetadataManager dataBuilderMetadataManager = new DataBuilderMetadataManager();
-    private DataFlowExecutor executor = new MultiThreadedDataFlowExecutor(new DataBuilderFactoryImpl(dataBuilderMetadataManager), Executors.newFixedThreadPool(10));
-    private DataFlowBuilder dataFlowBuilder = new DataFlowBuilder(dataBuilderMetadataManager);
+    private DataFlowExecutor executor = new MultiThreadedDataFlowExecutor(new InstantiatingDataBuilderFactory(dataBuilderMetadataManager), Executors.newFixedThreadPool(10));
+    private ExecutionGraphGenerator executionGraphGenerator = new ExecutionGraphGenerator(dataBuilderMetadataManager);
     private ObjectMapper mapper = new ObjectMapper();
 
     public LoopTest() throws Exception {
-        dataBuilderMetadataManager.register(Lists.newArrayList("CR", "CAID"), "OO", "OOB", OOBuilderTest.class);
-        dataBuilderMetadataManager.register(Lists.newArrayList("OO", "OMSP"), "OCRD", "OCRDB", OCOBuilder.class);
-        dataBuilderMetadataManager.register(Lists.newArrayList("OO", "CAID", "OMSP", "OCRD"), "POD", "PODB", POBuilder.class);
-        dataBuilderMetadataManager.register(Lists.newArrayList("SPD", "OO", "OCRD", "POD"), "ILD", "ILDB", ILBuilder.class);
-        dataBuilderMetadataManager.register(Lists.newArrayList("SPD", "ILD", "OO", "OCRD"), "IPD", "IPDB", IPBuilder.class);
-        dataBuilderMetadataManager.register(Lists.newArrayList("IPD", "EPD", "OO"), "DPD", "DPDB", DPBuilder.class);
-        dataBuilderMetadataManager.register(Lists.newArrayList("DPD", "IPD", "OO"), "OMSP", "OMSPD", OPBuilder.class);
-        dataBuilderMetadataManager.register(Lists.newArrayList("OMSP", "OO", "DPD"), "PSD", "PSDB", PSBuilder.class);
-        dataBuilderMetadataManager.register(Lists.newArrayList("PSD", "OMSP", "OO"), "PPD", "PPDB", PPBuilder.class);
-        dataBuilderMetadataManager.register(Lists.newArrayList("PPD", "PSD"), "OCD", "OCDB", CountingOCBuilder.class);
+        dataBuilderMetadataManager.register(ImmutableSet.of("CR", "CAID"), "OO", "OOB", OOBuilderTest.class);
+        dataBuilderMetadataManager.register(ImmutableSet.of("OO", "OMSP"), "OCRD", "OCRDB", OCOBuilder.class);
+        dataBuilderMetadataManager.register(ImmutableSet.of("OO", "CAID", "OMSP", "OCRD"), "POD", "PODB", POBuilder.class);
+        dataBuilderMetadataManager.register(ImmutableSet.of("SPD", "OO", "OCRD", "POD"), "ILD", "ILDB", ILBuilder.class);
+        dataBuilderMetadataManager.register(ImmutableSet.of("SPD", "ILD", "OO", "OCRD"), "IPD", "IPDB", IPBuilder.class);
+        dataBuilderMetadataManager.register(ImmutableSet.of("IPD", "EPD", "OO"), "DPD", "DPDB", DPBuilder.class);
+        dataBuilderMetadataManager.register(ImmutableSet.of("DPD", "IPD", "OO"), "OMSP", "OMSPD", OPBuilder.class);
+        dataBuilderMetadataManager.register(ImmutableSet.of("OMSP", "OO", "DPD"), "PSD", "PSDB", PSBuilder.class);
+        dataBuilderMetadataManager.register(ImmutableSet.of("PSD", "OMSP", "OO"), "PPD", "PPDB", PPBuilder.class);
+        dataBuilderMetadataManager.register(ImmutableSet.of("PPD", "PSD"), "OCD", "OCDB", CountingOCBuilder.class);
 
         mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         mapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
@@ -48,7 +52,7 @@ public class LoopTest {
         dataFlow.setName("TestFlow");
         dataFlow.setTargetData("OCD");
         dataFlow.setTransients(Sets.newHashSet("SPD", "EPD", "DPD"));
-        ExecutionGraph e = dataFlowBuilder.generateGraph(dataFlow);
+        ExecutionGraph e = executionGraphGenerator.generateGraph(dataFlow);
         dataFlow.setExecutionGraph(e);
 
         DataFlowInstance dataFlowInstance = new DataFlowInstance("Test", dataFlow, new DataSet());
@@ -64,21 +68,11 @@ public class LoopTest {
             System.out.println(listPrint(response.getResponses().keySet()));
             Assert.assertEquals(9, response.getResponses().size());
         }
-        for(List<DataBuilderMeta> metas : dataFlowInstance.getDataFlow().getExecutionGraph().getDependencyHierarchy()) {
-            for(DataBuilderMeta meta : metas) {
-                meta.setProcessed(false);
-            }
-        }
         {
             DataDelta dataDelta = new DataDelta(Lists.newArrayList(new SPO(), new EPD()));
             DataExecutionResponse response = executor.run(dataFlowInstance, dataDelta);
             System.out.println(listPrint(response.getResponses().keySet()));
             Assert.assertEquals(8, response.getResponses().size());
-        }
-        for(List<DataBuilderMeta> metas : dataFlowInstance.getDataFlow().getExecutionGraph().getDependencyHierarchy()) {
-            for(DataBuilderMeta meta : metas) {
-                meta.setProcessed(false);
-            }
         }
         {
             DataDelta dataDelta = new DataDelta(Lists.newArrayList(new SPO(), new EPD()));

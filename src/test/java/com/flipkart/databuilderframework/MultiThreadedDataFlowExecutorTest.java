@@ -1,7 +1,7 @@
 package com.flipkart.databuilderframework;
 
 import com.flipkart.databuilderframework.engine.*;
-import com.flipkart.databuilderframework.engine.impl.DataBuilderFactoryImpl;
+import com.flipkart.databuilderframework.engine.impl.InstantiatingDataBuilderFactory;
 import com.flipkart.databuilderframework.model.*;
 import com.google.common.collect.Lists;
 import org.junit.Assert;
@@ -119,25 +119,25 @@ public class MultiThreadedDataFlowExecutorTest {
 
     private DataBuilderMetadataManager dataBuilderMetadataManager = new DataBuilderMetadataManager();
     private DataFlowExecutor executor = new MultiThreadedDataFlowExecutor(
-                                                new DataBuilderFactoryImpl(dataBuilderMetadataManager),
+                                                new InstantiatingDataBuilderFactory(dataBuilderMetadataManager),
                                                 Executors.newFixedThreadPool(2));
-    private DataFlowBuilder dataFlowBuilder = new DataFlowBuilder(dataBuilderMetadataManager);
+    private ExecutionGraphGenerator executionGraphGenerator = new ExecutionGraphGenerator(dataBuilderMetadataManager);
     private DataFlow dataFlow = new DataFlow();
     private DataFlow dataFlowError = new DataFlow();
 
     @Before
     public void setup() throws Exception {
-        dataBuilderMetadataManager.register(Lists.newArrayList("A", "B"), "C", "BuilderA", TestBuilderA.class );
-        dataBuilderMetadataManager.register(Lists.newArrayList("C", "D"), "E", "BuilderB", TestBuilderB.class );
-        dataBuilderMetadataManager.register(Lists.newArrayList("C", "E"), "F", "BuilderC", TestBuilderC.class );
-        dataBuilderMetadataManager.register(Lists.newArrayList("X"), "Y", "BuilderX", TestBuilderError.class );
-        //dataBuilderMetadataManager.register(Lists.newArrayList("F"),      "G", "BuilderD", TestBuilderD.class );
-        //dataBuilderMetadataManager.register(Lists.newArrayList("E", "C"), "G", "BuilderE", TestBuilderE.class );
+        dataFlow = new DataFlowBuilder()
+                .withAnnotatedDataBuilder(TestBuilderA.class)
+                .withAnnotatedDataBuilder(TestBuilderB.class)
+                .withAnnotatedDataBuilder(TestBuilderC.class)
+                .withTargetData("F")
+                .build();
 
-        dataFlow.setTargetData("F");
-        dataFlow.setExecutionGraph(dataFlowBuilder.generateGraph(dataFlow).deepCopy());
-        dataFlowError.setTargetData("Y");
-        dataFlowError.setExecutionGraph(dataFlowBuilder.generateGraph(dataFlowError).deepCopy());
+        dataFlowError = new DataFlowBuilder()
+                .withAnnotatedDataBuilder(TestBuilderError.class)
+                .withTargetData("Y")
+                .build();
         executor.registerExecutionListener(new TestListener());
         executor.registerExecutionListener(new TestListenerBeforeExecutionError());
         executor.registerExecutionListener(new TestListenerAfterExecutionError());

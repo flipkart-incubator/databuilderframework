@@ -42,6 +42,10 @@ public class DataFlowInstance {
         this.dataSet = dataSet;
     }
 
+    public DataFlowInstance(String id, DataFlow dataFlow) {
+        this(id, dataFlow, new DataSet());
+    }
+
     public DataFlow getDataFlow() {
         return dataFlow;
     }

@@ -6,7 +6,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Annotation to mark a sub-class od {@link com.flipkart.databuilderframework.model.Data} class to become
+ * Annotation to mark a sub-class of {@link com.flipkart.databuilderframework.model.Data} class to become
  * usable in a {@link com.flipkart.databuilderframework.model.DataFlow}
  */
 @Retention(RetentionPolicy.RUNTIME)
