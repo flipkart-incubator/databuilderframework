@@ -34,7 +34,7 @@ public abstract class DataFlowExecutor {
      * @return A response containing responses from every {@link DataBuilder}
      * @throws DataBuilderFrameworkException
      */
-    public DataExecutionResponse run(final DataFlow dataFlow, Data... data) throws DataBuilderFrameworkException {
+    public DataExecutionResponse run(final DataFlow dataFlow, Data... data) throws DataBuilderFrameworkException, DataValidationException {
         return run(dataFlow, new DataDelta(data));
     }
 
@@ -47,7 +47,7 @@ public abstract class DataFlowExecutor {
      * @throws DataBuilderFrameworkException
      */
     public DataExecutionResponse run(final DataFlow dataFlow,
-                                     DataDelta dataDelta) throws DataBuilderFrameworkException {
+                                     DataDelta dataDelta) throws DataBuilderFrameworkException, DataValidationException {
         Preconditions.checkNotNull(dataFlow);
         Preconditions.checkArgument(null != dataFlow.getDataBuilderFactory() || null != dataBuilderFactory);
 
@@ -67,7 +67,7 @@ public abstract class DataFlowExecutor {
      * that was invoked in this stage. Note that these have already been added to the DataSet before returning.
      * @throws DataBuilderFrameworkException
      */
-    public DataExecutionResponse run(DataFlowInstance dataFlowInstance, Data... data) throws DataBuilderFrameworkException {
+    public DataExecutionResponse run(DataFlowInstance dataFlowInstance, Data... data) throws DataBuilderFrameworkException, DataValidationException {
         return run(dataFlowInstance, new DataDelta(data));
     }
 
@@ -84,7 +84,7 @@ public abstract class DataFlowExecutor {
      * that was invoked in this stage. Note that these have already been added to the DataSet before returning.
      * @throws DataBuilderFrameworkException
      */
-    public DataExecutionResponse run(DataFlowInstance dataFlowInstance, DataDelta dataDelta) throws DataBuilderFrameworkException {
+    public DataExecutionResponse run(DataFlowInstance dataFlowInstance, DataDelta dataDelta) throws DataBuilderFrameworkException,DataValidationException {
         DataBuilderContext dataBuilderContext = new DataBuilderContext();
         return run(dataBuilderContext, dataFlowInstance, dataDelta);
     }
@@ -105,7 +105,7 @@ public abstract class DataFlowExecutor {
      */
     public DataExecutionResponse run(DataBuilderContext dataBuilderContext,
                                               DataFlowInstance dataFlowInstance,
-                                              DataDelta dataDelta) throws DataBuilderFrameworkException {
+                                              DataDelta dataDelta) throws DataBuilderFrameworkException, DataValidationException {
         DataFlow dataFlow = dataFlowInstance.getDataFlow();
         Preconditions.checkArgument(null != dataFlow.getDataBuilderFactory()
                 || null != dataBuilderFactory);
@@ -124,7 +124,7 @@ public abstract class DataFlowExecutor {
                                               DataFlowInstance dataFlowInstance,
                                               DataDelta dataDelta,
                                               DataFlow dataFlow,
-                                              DataBuilderFactory builderFactory) throws DataBuilderFrameworkException;
+                                              DataBuilderFactory builderFactory) throws DataBuilderFrameworkException, DataValidationException;
 
     /**
      * A instance of {@link com.flipkart.databuilderframework.engine.DataBuilderExecutionListener}
