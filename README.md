@@ -31,7 +31,7 @@ Before we get into the nitty-gritty details, lets go over the basic terminology:
     * **Data** - Name of the data
 * _**DataBuilder**_ - An actor that consumes a bunch of data and produces another data. It has the following meta associated with it:
     * **Name** - Name of the builder
-    * **Consumes** - A set of name of Data that the builder consumes
+    * **Consumes** - A set of Data that the builder consumes
     * **Prodcues** - Data that the builder produces
 * _**DataFlow**_ - A specification and container for a topology of connected builders that generate a final data. It has the following meta:
     * **Name** - Name of the dataflow
@@ -306,7 +306,7 @@ Version
 0.5-SNAPSHOT
 
 # Contribution, Bugs and Feedback
-For bugs, questions and discussions please use the [Github Issues](https://github.com/flipkart-incubator/ranger/issues).
+For bugs, questions and discussions please use the [Github Issues](https://github.com/flipkart-incubator/databuilderframework/issues).
 
 If you would like to contribute code you can do so through GitHub by forking the repository and sending a pull request.
 
