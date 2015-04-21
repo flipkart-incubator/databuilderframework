@@ -46,7 +46,7 @@ Before we get into the nitty-gritty details, lets go over the basic terminology:
 * _**DataSetAccessor**_ - A typesafe utility for accesing data present in a DataSet. This is used inside the builders to generate data.
 
 ## Sample DataFlows
-![Image upload](https://drive.google.com/a/flipkart.com/file/d/0B0Gc6zAVx9eVbEFGaWQzVi1kaTA/view?usp=sharing)
+![Image upload](https://cloud.githubusercontent.com/assets/1121806/7247112/609e4682-e823-11e4-8fb3-ebfcb3900b1f.png)
 
 ## Usage
 The library can be used directly from maven, or from local.
