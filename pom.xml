@@ -12,6 +12,53 @@
     <name>The Data Builder Framework</name>
     <url>http://maven.apache.org</url>
 
+    <distributionManagement>
+        <repository>
+            <id>clojars</id>
+            <name>Clojars repository</name>
+            <url>https://clojars.org/repo</url>
+        </repository>
+    </distributionManagement>
+
+    <scm>
+        <connection>scm:git:https://github.com/flipkart-incubator/databuilderframework.git</connection>
+        <developerConnection>scm:git:https://github.com/flipkart-incubator/databuilderframework.git</developerConnection>
+        <tag>HEAD</tag>
+        <url>https://github.com/flipkart-incubator/databuilderframework</url>
+    </scm>
+
+    <licenses>
+        <license>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+            <comments>A business-friendly OSS license</comments>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <id>santanusinha</id>
+            <name>Santanu Sinha</name>
+            <email>santanu.sinha@gmail.com</email>
+        </developer>
+        <developer>
+            <id>ajayrsingh</id>
+            <name>Ajay</name>
+            <email>ajaysingh@flipkart.com</email>
+        </developer>
+        <developer>
+            <id>ToOnlyGaurav</id>
+            <name>Gaurav Prasad</name>
+            <email>gaurav.gau@gmail.com</email>
+        </developer>
+        <developer>
+            <id>vvarma</id>
+            <name>Vinay Varma</name>
+            <email>vinay.varma@flipkart.com</email>
+        </developer>
+    </developers>
+
     <dependencies>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
