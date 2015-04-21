@@ -33,7 +33,7 @@ public class SimpleDataFlowExecutor extends DataFlowExecutor {
                                      DataFlowInstance dataFlowInstance,
                                      DataDelta dataDelta,
                                      DataFlow dataFlow,
-                                     DataBuilderFactory builderFactory) throws DataBuilderFrameworkException {
+                                     DataBuilderFactory builderFactory) throws DataBuilderFrameworkException, DataValidationException {
         ExecutionGraph executionGraph = dataFlow.getExecutionGraph();
         DataSet dataSet = dataFlowInstance.getDataSet().accessor().copy(); //Create own copy to work with
         DataSetAccessor dataSetAccessor = DataSet.accessor(dataSet);
@@ -107,7 +107,23 @@ public class SimpleDataFlowExecutor extends DataFlowExecutor {
                         throw new DataBuilderFrameworkException(DataBuilderFrameworkException.ErrorCode.BUILDER_EXECUTION_ERROR,
                                 "Error running builder: " + builderMeta.getName(), e.getDetails(), e);
 
-                    } catch (Throwable t) {
+                    } catch (DataValidationException e) {
+                        logger.error("Validation error in data produced by builder" +builderMeta.getName());
+                        for (DataBuilderExecutionListener listener : dataBuilderExecutionListener) {
+                            try {
+                                listener.afterException(dataFlowInstance, builderMeta, dataDelta, responseData, e);
+
+                            } catch (Throwable error) {
+                                logger.error("Error running post-execution listener: ", error);
+                            }
+                        }
+                        // Sending Execution response in exception object
+
+                        throw new DataValidationException(DataValidationException.ErrorCode.DATA_VALIDATION_EXCEPTION, "Data validation error" +builderMeta.getName(), new DataExecutionResponse(responseData),e.getDetails(), e);
+
+
+                    }
+                    catch (Throwable t) {
                         logger.error("Error running builder: " + builderMeta.getName());
                         for (DataBuilderExecutionListener listener : dataBuilderExecutionListener) {
                             try {

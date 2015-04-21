@@ -35,7 +35,7 @@ public class MultiThreadedDataFlowExecutor extends DataFlowExecutor {
                                         DataFlowInstance dataFlowInstance,
                                         DataDelta dataDelta,
                                         DataFlow dataFlow,
-                                        DataBuilderFactory builderFactory) throws DataBuilderFrameworkException {
+                                        DataBuilderFactory builderFactory) throws DataBuilderFrameworkException, DataValidationException {
         CompletionService<DataContainer> completionExecutor = new ExecutorCompletionService<DataContainer>(executorService);
         ExecutionGraph executionGraph = dataFlow.getExecutionGraph();
         DataSet dataSet = dataFlowInstance.getDataSet().accessor().copy(); //Create own copy to work with
@@ -79,6 +79,11 @@ public class MultiThreadedDataFlowExecutor extends DataFlowExecutor {
                         DataContainer responseContainer = completionExecutor.take().get();
                         Data response = responseContainer.getGeneratedData();
                         if(responseContainer.isHasError()) {
+                            if(null != responseContainer.getValidationException()) {
+                                throw responseContainer.getValidationException();
+
+                            }
+
                             throw responseContainer.getException();
                         }
                         if (null != response) {
@@ -89,7 +94,8 @@ public class MultiThreadedDataFlowExecutor extends DataFlowExecutor {
                                 newlyGeneratedData.add(response.getData());
                             }
                         }
-                    } catch (InterruptedException e) {
+                    }
+                    catch (InterruptedException e) {
                         throw new DataBuilderFrameworkException(DataBuilderFrameworkException.ErrorCode.BUILDER_EXECUTION_ERROR,
                                 "Error while waiting for error ", e);
                     } catch (ExecutionException e) {
@@ -128,11 +134,13 @@ public class MultiThreadedDataFlowExecutor extends DataFlowExecutor {
         private final Data generatedData;
         private boolean hasError = false;
         private final DataBuilderFrameworkException exception;
+        private final DataValidationException validationException;
 
         private DataContainer(DataBuilderMeta builderMeta, Data generatedData) {
             this.builderMeta = builderMeta;
             this.generatedData = generatedData;
             this.exception = null;
+            this.validationException = null;
         }
 
         private DataContainer(DataBuilderMeta builderMeta, DataBuilderFrameworkException exception) {
@@ -140,7 +148,18 @@ public class MultiThreadedDataFlowExecutor extends DataFlowExecutor {
             this.generatedData = null;
             this.hasError = true;
             this.exception = exception;
+            this.validationException = null;
         }
+
+        private DataContainer(DataBuilderMeta builderMeta, DataValidationException validationException) {
+            this.builderMeta = builderMeta;
+            this.generatedData = null;
+            this.hasError = true;
+            this.exception = null;
+            this.validationException = validationException;
+        }
+
+
 
         public DataBuilderMeta getBuilderMeta() {
             return builderMeta;
@@ -152,6 +171,10 @@ public class MultiThreadedDataFlowExecutor extends DataFlowExecutor {
 
         public DataBuilderFrameworkException getException() {
             return exception;
+        }
+
+        public DataValidationException getValidationException() {
+            return validationException;
         }
 
         public boolean isHasError() {
@@ -232,7 +255,22 @@ public class MultiThreadedDataFlowExecutor extends DataFlowExecutor {
                 return new DataContainer(builderMeta, new DataBuilderFrameworkException(DataBuilderFrameworkException.ErrorCode.BUILDER_EXECUTION_ERROR,
                         "Error running builder: " + builderMeta.getName(), e.getDetails(), e));
 
-            } catch (Throwable t) {
+            } catch (DataValidationException e) {
+                logger.error("Validation error in data produced by builder" +builderMeta.getName());
+                for (DataBuilderExecutionListener listener : dataBuilderExecutionListener) {
+                    try {
+                        listener.afterException(dataFlowInstance, builderMeta, dataDelta, responseData, e);
+
+                    } catch (Throwable error) {
+                        logger.error("Error running post-execution listener: ", error);
+                    }
+                }
+                return new DataContainer(builderMeta, new DataValidationException(DataValidationException.ErrorCode.DATA_VALIDATION_EXCEPTION,
+                        "Error running builder: " + builderMeta.getName(), new DataExecutionResponse(responseData), e.getDetails(), e));
+
+
+            }
+            catch (Throwable t) {
                 logger.error("Error running builder: " + builderMeta.getName());
                 for (DataBuilderExecutionListener listener : dataBuilderExecutionListener) {
                     try {
