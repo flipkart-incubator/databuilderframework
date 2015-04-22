@@ -10,6 +10,7 @@ public class DataFlowBuilderTest {
 
     private static final class TestDataA extends DataAdapter<TestDataA> {
         private final String value;
+
         public TestDataA(final String value) {
             super(TestDataA.class);
             this.value = value;
@@ -22,6 +23,7 @@ public class DataFlowBuilderTest {
 
     private static final class TestDataB extends DataAdapter<TestDataB> {
         private final String value;
+
         public TestDataB(final String value) {
             super(TestDataB.class);
             this.value = value;
@@ -34,6 +36,7 @@ public class DataFlowBuilderTest {
 
     private static final class TestDataC extends DataAdapter<TestDataC> {
         private final String value;
+
         public TestDataC(final String value) {
             super(TestDataC.class);
             this.value = value;
@@ -49,25 +52,25 @@ public class DataFlowBuilderTest {
         @Override
         public Data process(DataBuilderContext context) throws DataBuilderException {
             DataSetAccessor dataSetAccessor = context.getDataSet().accessor();
-            return new TestDataC(dataSetAccessor.get(TestDataA.class).getValue()
-                                + " "
-                                + dataSetAccessor.get(TestDataB.class).getValue());
+            return new TestDataC(dataSetAccessor.get(TestDataA.class).get().getValue()
+                    + " "
+                    + dataSetAccessor.get(TestDataB.class).get().getValue());
         }
     }
 
     @Test
     public void testInstantiatingBuilder() throws Exception {
         DataFlow dataFlow = new DataFlowBuilder()
-                                        .withDataBuilder(new BuilderA())
-                                        .withTargetData(TestDataC.class)
-                                        .build();
+                .withDataBuilder(new BuilderA())
+                .withTargetData(TestDataC.class)
+                .build();
         DataFlowExecutor executor = new SimpleDataFlowExecutor();
         DataFlowInstance instance = new DataFlowInstance();
         instance.setDataFlow(dataFlow);
         DataExecutionResponse response = executor.run(instance,
-                                                      new DataDelta(
-                                                          new TestDataA("Hello"),
-                                                          new TestDataB("Santanu")));
+                new DataDelta(
+                        new TestDataA("Hello"),
+                        new TestDataB("Santanu")));
         Assert.assertTrue(response.getResponses().containsKey(TestDataC.class.getCanonicalName()));
     }
 

@@ -12,7 +12,7 @@ import examples.bloghomepagebuilder.data.PostList;
 public class LatestBlogSelector extends DataBuilder{
     @Override
     public Data process(DataBuilderContext context) throws DataBuilderException {
-        PostList postList = context.getDataSet().accessor().get(PostList.class);
+        PostList postList = context.getDataSet().accessor().get(PostList.class).get();
         //Select the appropriate blog
         return new BlogId("blog-123");
     }

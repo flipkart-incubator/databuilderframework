@@ -2,6 +2,7 @@ package com.flipkart.databuilderframework.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Sets;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.constraints.NotNull;
@@ -32,6 +33,15 @@ public class DataBuilderMeta implements Comparable<DataBuilderMeta>, Serializabl
     private String produces;
 
     /**
+     * Set of {@link com.flipkart.databuilderframework.model.Data} this {@link com.flipkart.databuilderframework.engine.DataBuilder} accesses.
+     * These are optional for the running of the builder itself.
+     * Any change in these <b>will not trigger</b> execution of the builder.
+     */
+    @NotNull
+    @JsonProperty
+    private Set<String> accesses;
+
+    /**
      * Name for this builder
      */
     @NotNull
@@ -45,6 +55,14 @@ public class DataBuilderMeta implements Comparable<DataBuilderMeta>, Serializabl
         this.consumes = consumes;
         this.produces = produces;
         this.name = name;
+        this.accesses = Sets.newHashSet();
+    }
+
+    public DataBuilderMeta(Set<String> consumes, Set<String> accesses, String produces, String name) {
+        this.consumes = consumes;
+        this.produces = produces;
+        this.name = name;
+        this.accesses = accesses;
     }
 
     public DataBuilderMeta() {
@@ -56,6 +74,10 @@ public class DataBuilderMeta implements Comparable<DataBuilderMeta>, Serializabl
 
     public String getProduces() {
         return produces;
+    }
+
+    public Set<String> getAccesses() {
+        return accesses;
     }
 
     public String getName() {
@@ -73,11 +95,11 @@ public class DataBuilderMeta implements Comparable<DataBuilderMeta>, Serializabl
 
         DataBuilderMeta that = (DataBuilderMeta) o;
 
-        if (!consumes.equals(that.consumes)) return false;
-        if (!name.equals(that.name)) return false;
-        if (!produces.equals(that.produces)) return false;
+        return consumes.equals(that.consumes)
+                && name.equals(that.name)
+                && produces.equals(that.produces)
+                && accesses.equals(that.accesses);
 
-        return true;
     }
 
     @Override
@@ -85,15 +107,20 @@ public class DataBuilderMeta implements Comparable<DataBuilderMeta>, Serializabl
         int result = consumes.hashCode();
         result = 31 * result + produces.hashCode();
         result = 31 * result + name.hashCode();
+        result = 31 * result + accesses.hashCode();
         return result;
     }
 
     public DataBuilderMeta deepCopy() {
-        return new DataBuilderMeta(ImmutableSet.copyOf(consumes), produces, name);
+        return new DataBuilderMeta(ImmutableSet.copyOf(consumes), accesses, produces, name);
     }
 
     public void setConsumes(Set<String> consumes) {
         this.consumes = consumes;
+    }
+
+    public void setAccesses(Set<String> accesses) {
+        this.accesses = accesses;
     }
 
     public void setProduces(String produces) {

@@ -21,9 +21,9 @@ public class ConditionalFlowTest {
         @Override
         public Data process(DataBuilderContext context) throws DataBuilderException {
             DataSetAccessor accessor = new DataSetAccessor(context.getDataSet());
-            TestDataC dataC = accessor.get("C", TestDataC.class);
-            TestDataD dataD = accessor.get("D", TestDataD.class);
-            if(dataC.getValue().equals("Hello World")
+            TestDataC dataC = accessor.get("C", TestDataC.class).get();
+            TestDataD dataD = accessor.get("D", TestDataD.class).get();
+            if (dataC.getValue().equals("Hello World")
                     && dataD.getValue().equalsIgnoreCase("this")) {
                 return new TestDataE("Wah wah!!");
             }
@@ -33,19 +33,19 @@ public class ConditionalFlowTest {
 
     @Before
     public void setup() throws Exception {
-        dataBuilderMetadataManager.register(ImmutableSet.of("A", "B"), "C", "BuilderA", TestBuilderA.class );
-        dataBuilderMetadataManager.register(ImmutableSet.of("C", "D"), "E", "BuilderB", ConditionalBuilder.class );
-        dataBuilderMetadataManager.register(ImmutableSet.of("A", "E"), "F", "BuilderC", TestBuilderC.class );
+        dataBuilderMetadataManager.register(ImmutableSet.of("A", "B"), "C", "BuilderA", TestBuilderA.class);
+        dataBuilderMetadataManager.register(ImmutableSet.of("C", "D"), "E", "BuilderB", ConditionalBuilder.class);
+        dataBuilderMetadataManager.register(ImmutableSet.of("A", "E"), "F", "BuilderC", TestBuilderC.class);
 
         dataFlow = new DataFlowBuilder()
-                        .withMetaDataManager(dataBuilderMetadataManager)
-                        .withTargetData("F")
-                        .build();
+                .withMetaDataManager(dataBuilderMetadataManager)
+                .withTargetData("F")
+                .build();
 
         dataFlowError = new DataFlowBuilder()
-                        .withMetaDataManager(dataBuilderMetadataManager)
-                        .withTargetData("Y")
-                        .build();
+                .withMetaDataManager(dataBuilderMetadataManager)
+                .withTargetData("Y")
+                .build();
 
     }
 

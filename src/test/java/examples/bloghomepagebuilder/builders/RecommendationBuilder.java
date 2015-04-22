@@ -15,7 +15,7 @@ import java.util.List;
 public class RecommendationBuilder extends DataBuilder{
     @Override
     public Data process(DataBuilderContext context) throws DataBuilderException {
-        return new RecommendedTags(getFollowersForUser(context.getDataSet().accessor().get(UserDetails.class).getUserName()));
+        return new RecommendedTags(getFollowersForUser(context.getDataSet().accessor().get(UserDetails.class).get().getUserName()));
     }
 
     private List<String> getFollowersForUser(final String userId) {

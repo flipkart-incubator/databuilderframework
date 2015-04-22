@@ -8,8 +8,11 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.List;
 import java.util.Map;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 public class DataFlowExecutorTest {
@@ -37,6 +40,7 @@ public class DataFlowExecutorTest {
             System.out.println(builderToBeApplied.getName() + " called for: " + dataFlowInstance.getId());
         }
     }
+
     private static class TestListenerBeforeExecutionError implements DataBuilderExecutionListener {
 
         @Override
@@ -62,6 +66,7 @@ public class DataFlowExecutorTest {
             System.out.println(builderToBeApplied.getName() + " called for: " + dataFlowInstance.getId());
         }
     }
+
     private static class TestListenerAfterExecutionError implements DataBuilderExecutionListener {
 
         @Override
@@ -122,6 +127,7 @@ public class DataFlowExecutorTest {
     private DataFlow dataFlowError = new DataFlow();
     private DataFlow dataFlowValidationError = new DataFlow();
     private DataFlow dataFlowValidationErrorWithPartialData = new DataFlow();
+    private DataFlow dataFlowWithAccessOnlyData = new DataFlow();
 
     @Before
     public void setup() throws Exception {
@@ -159,6 +165,13 @@ public class DataFlowExecutorTest {
         executor.registerExecutionListener(new TestListenerBeforeExecutionError());
         executor.registerExecutionListener(new TestListenerAfterExecutionError());
         executor.registerExecutionListener(new TestListenerAfterExceptionError());
+
+        dataFlowWithAccessOnlyData = new DataFlowBuilder()
+                .withAnnotatedDataBuilder(TestBuilderE.class)
+                .withAnnotatedDataBuilder(TestBuilderOp1.class)
+                .withAnnotatedDataBuilder(TestBuilderZ.class)
+                .withTargetData("Z")
+                .build();
 
     }
 
@@ -206,6 +219,7 @@ public class DataFlowExecutorTest {
             Assert.assertTrue(response.getResponses().containsKey("F"));
         }
     }
+
     @Test
     public void testRunSingleStep() throws Exception {
         DataFlowInstance dataFlowInstance = new DataFlowInstance();
@@ -213,8 +227,8 @@ public class DataFlowExecutorTest {
         dataFlowInstance.setDataFlow(dataFlow);
         {
             DataDelta dataDelta = new DataDelta(Lists.newArrayList(
-                                            new TestDataA("Hello"), new TestDataB("World"),
-                                            new TestDataD("this"), new TestDataG("Hmmm")));
+                    new TestDataA("Hello"), new TestDataB("World"),
+                    new TestDataD("this"), new TestDataG("Hmmm")));
             DataExecutionResponse response = executor.run(dataFlowInstance, dataDelta);
             Assert.assertEquals(3, response.getResponses().size());
             Assert.assertTrue(response.getResponses().containsKey("C"));
@@ -282,7 +296,7 @@ public class DataFlowExecutorTest {
         {
             DataDelta dataDelta = new DataDelta(Lists.<Data>newArrayList(new TestDataA("Hello"), new TestDataB("World")));
             try {
-                 response = executor.run(dataFlowInstance, dataDelta);
+                response = executor.run(dataFlowInstance, dataDelta);
             } catch (DataValidationException e) {
                 DataExecutionResponse dataExecutionResponse = e.getResponse();
                 Assert.assertTrue(dataExecutionResponse.getResponses().containsKey("C"));
@@ -290,5 +304,40 @@ public class DataFlowExecutorTest {
             }
             fail("Should have thrown exception");
         }
+    }
+
+    @Test
+    public void testExecutionGraphWithAccessData() {
+        ExecutionGraph executionGraph = dataFlowWithAccessOnlyData.getExecutionGraph();
+        List<String> builderNames = Lists.newArrayList();
+        for (List<DataBuilderMeta> dataBuilderMetas : executionGraph.getDependencyHierarchy()) {
+            for (DataBuilderMeta dataBuilderMeta : dataBuilderMetas) {
+                builderNames.add(dataBuilderMeta.getName());
+            }
+        }
+        assertFalse(builderNames.contains("BuilderOp1"));
+        assertTrue(builderNames.contains("BuilderZ"));
+        assertTrue(builderNames.contains("BuilderE"));
+    }
+
+    @Test
+    public void testExecutionForAccessData(){
+        DataDelta dataDelta=new DataDelta(Lists.<Data>newArrayList(new TestDataA("Hello"), new TestDataB("World")));
+        DataFlowInstance dataFlowInstance = new DataFlowInstance();
+        dataFlowInstance.setId("testflow");
+        dataFlowInstance.setDataFlow(dataFlowWithAccessOnlyData);
+        try {
+            DataExecutionResponse executionResponse = executor.run(dataFlowInstance, dataDelta);
+            TestDataZ testDataZ = (TestDataZ) executionResponse.getResponses().get("Z");
+            assertFalse(testDataZ.isDataOp1Present);
+            assertTrue(testDataZ.isDataAPresent);
+        } catch (DataBuilderFrameworkException e) {
+            e.printStackTrace();
+            fail();
+        } catch (DataValidationException e) {
+            e.printStackTrace();
+            fail();
+        }
+
     }
 }

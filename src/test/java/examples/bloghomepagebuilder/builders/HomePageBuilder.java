@@ -19,12 +19,12 @@ public class HomePageBuilder extends DataBuilder {
     public Data process(DataBuilderContext context) throws DataBuilderException {
         final DataSetAccessor dataSetAccessor = context.getDataSet().accessor();
         return new HomePageResponse(
-                        dataSetAccessor.get(UserDetails.class).getUserName(),
-                        dataSetAccessor.get(BlogPost.class).getTitle(),
-                        dataSetAccessor.get(BlogPost.class).getBody(),
-                        dataSetAccessor.get(FollowerList.class).getFollower(),
-                        dataSetAccessor.get(PostList.class).getPostTitles(),
-                        dataSetAccessor.get(RecommendedTags.class).getTags()
-                    );
+                dataSetAccessor.get(UserDetails.class).get().getUserName(),
+                dataSetAccessor.get(BlogPost.class).get().getTitle(),
+                dataSetAccessor.get(BlogPost.class).get().getBody(),
+                dataSetAccessor.get(FollowerList.class).get().getFollower(),
+                dataSetAccessor.get(PostList.class).get().getPostTitles(),
+                dataSetAccessor.get(RecommendedTags.class).get().getTags()
+        );
     }
 }

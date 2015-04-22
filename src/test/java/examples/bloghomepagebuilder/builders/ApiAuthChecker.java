@@ -12,7 +12,7 @@ import examples.bloghomepagebuilder.data.HomePageRequest;
 public class ApiAuthChecker extends DataBuilder {
     @Override
     public Data process(DataBuilderContext context) throws DataBuilderException {
-        HomePageRequest request = context.getDataSet().accessor().get(HomePageRequest.class);
+        HomePageRequest request = context.getDataSet().accessor().get(HomePageRequest.class).get();
         //Do actual validation....
         return new ApiAuthValid(true, request.getUserAuthToken());
     }

@@ -3,6 +3,7 @@ package com.flipkart.databuilderframework;
 import com.flipkart.databuilderframework.engine.DataSetAccessor;
 import com.flipkart.databuilderframework.model.DataDelta;
 import com.flipkart.databuilderframework.model.DataSet;
+import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import org.junit.Assert;
@@ -17,12 +18,12 @@ public class DataSetAccessorTest {
         DataSet dataSet = new DataSet();
         DataSetAccessor dataSetAccessor = DataSet.accessor(dataSet);
         dataSetAccessor.merge(new TestDataA("RandomValue"));
-        TestDataA testDataA = dataSetAccessor.get("A", TestDataA.class);
+        TestDataA testDataA = dataSetAccessor.get("A", TestDataA.class).get();
         Assert.assertEquals("RandomValue", testDataA.getValue());
-        Assert.assertNull(dataSetAccessor.get("X", TestDataA.class));
+        Assert.assertEquals(dataSetAccessor.get("X", TestDataA.class), Optional.<TestDataA>absent());
 
         try {
-            TestDataB testDataB = dataSetAccessor.get("A", TestDataB.class);
+            TestDataB testDataB = dataSetAccessor.get("A", TestDataB.class).get();
         } catch (ClassCastException e) {
             return;
         }
@@ -34,11 +35,11 @@ public class DataSetAccessorTest {
         DataSet dataSet = new DataSet();
         DataSetAccessor dataSetAccessor = DataSet.accessor(dataSet);
         DataDelta dataDelta = new DataDelta(Lists.newArrayList(new TestDataA("Hello"),
-                                                                new TestDataB("World")));
+                new TestDataB("World")));
         dataSetAccessor.merge(dataDelta);
-        TestDataA testDataA = dataSetAccessor.get("A", TestDataA.class);
+        TestDataA testDataA = dataSetAccessor.get("A", TestDataA.class).get();
         Assert.assertEquals("Hello", testDataA.getValue());
-        TestDataB testDataB = dataSetAccessor.get("B", TestDataB.class);
+        TestDataB testDataB = dataSetAccessor.get("B", TestDataB.class).get();
         Assert.assertEquals("World", testDataB.getValue());
     }
 

@@ -13,8 +13,8 @@ public class TestBuilderA extends DataBuilder {
     @Override
     public Data process(DataBuilderContext context) {
         DataSetAccessor dataSetAccessor = context.getDataSet().accessor();
-        TestDataA a = dataSetAccessor.get("A", TestDataA.class);
-        TestDataB b = dataSetAccessor.get("B", TestDataB.class);
+        TestDataA a = dataSetAccessor.get("A", TestDataA.class).get();
+        TestDataB b = dataSetAccessor.get("B", TestDataB.class).get();
         return new TestDataC(a.getValue() + " " + b.getValue());
     }
 }

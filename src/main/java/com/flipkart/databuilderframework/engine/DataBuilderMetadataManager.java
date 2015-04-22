@@ -38,23 +38,28 @@ public class DataBuilderMetadataManager {
 
     public DataBuilderMetadataManager register(Class<? extends DataBuilder> annotatedDataBuilder) throws DataBuilderFrameworkException {
         DataBuilderInfo info = annotatedDataBuilder.getAnnotation(DataBuilderInfo.class);
-        if(null != info) {
+        if (null != info) {
             register(
                     ImmutableSet.copyOf(info.consumes()),
+                    ImmutableSet.copyOf(info.accesses()),
                     info.produces(),
                     info.name(),
                     annotatedDataBuilder);
-        }
-        else {
+        } else {
             DataBuilderClassInfo dataBuilderClassInfo = annotatedDataBuilder.getAnnotation(DataBuilderClassInfo.class);
             Preconditions.checkNotNull(dataBuilderClassInfo,
                     "No useful annotations found on class. Use DataBuilderInfo or DataBuilderClassInfo to annotate");
             Set<String> consumes = Sets.newHashSet();
-            for(Class<? extends Data> data : dataBuilderClassInfo.consumes()) {
+            for (Class<? extends Data> data : dataBuilderClassInfo.consumes()) {
                 consumes.add(data.getCanonicalName());
+            }
+            Set<String> accesses = Sets.newHashSet();
+            for (Class<? extends Data> data : dataBuilderClassInfo.accesses()) {
+                accesses.add(data.getCanonicalName());
             }
             register(
                     ImmutableSet.copyOf(consumes),
+                    ImmutableSet.copyOf(accesses),
                     dataBuilderClassInfo.produces().getCanonicalName(),
                     Strings.isNullOrEmpty(dataBuilderClassInfo.name())
                             ? annotatedDataBuilder.getCanonicalName()
@@ -68,36 +73,52 @@ public class DataBuilderMetadataManager {
      * Register builder by using meta directly.
      *
      * @param dataBuilderMeta Meta about the builder
-     * @param dataBuilder The actual databuilder class
+     * @param dataBuilder     The actual databuilder class
      * @return this
      * @throws DataBuilderFrameworkException
      */
     public DataBuilderMetadataManager register(DataBuilderMeta dataBuilderMeta, Class<? extends DataBuilder> dataBuilder) throws DataBuilderFrameworkException {
-        return register(dataBuilderMeta.getConsumes(), dataBuilderMeta.getProduces(), dataBuilderMeta.getName(), dataBuilder);
+        return register(dataBuilderMeta.getConsumes(), dataBuilderMeta.getAccesses(), dataBuilderMeta.getProduces(), dataBuilderMeta.getName(), dataBuilder);
     }
 
     /**
      * Register metadata for a {@link DataBuilder} implementation.
-     * @param consumes List of {@link com.flipkart.databuilderframework.model.Data} this builder consumes
-     * @param produces {@link com.flipkart.databuilderframework.model.Data} produced by this builder
-     * @param builder Name for this builder. there is no namespacing. Name needs to be unique
+     *
+     * @param consumes    List of {@link com.flipkart.databuilderframework.model.Data} this builder consumes
+     * @param produces    {@link com.flipkart.databuilderframework.model.Data} produced by this builder
+     * @param builder     Name for this builder. there is no namespacing. Name needs to be unique
      * @param dataBuilder The class of the builder to be created
      * @throws DataBuilderFrameworkException In case of name conflict
      */
     public DataBuilderMetadataManager register(Set<String> consumes, String produces,
-                         String builder, Class<? extends DataBuilder> dataBuilder) throws DataBuilderFrameworkException {
-        DataBuilderMeta metadata = new DataBuilderMeta(consumes, produces, builder);
-        if(meta.containsKey(builder)) {
+                                               String builder, Class<? extends DataBuilder> dataBuilder) throws DataBuilderFrameworkException {
+        return register(consumes, Sets.<String>newHashSet(), produces, builder, dataBuilder);
+    }
+
+    /**
+     * Register metadata for a {@link DataBuilder} implementation.
+     *
+     * @param consumes    List of {@link com.flipkart.databuilderframework.model.Data} this builder consumes
+     * @param accesses    List of {@link com.flipkart.databuilderframework.model.Data} this builder can access
+     * @param produces    {@link com.flipkart.databuilderframework.model.Data} produced by this builder
+     * @param builder     Name for this builder. there is no namespacing. Name needs to be unique
+     * @param dataBuilder The class of the builder to be created
+     * @throws DataBuilderFrameworkException In case of name conflict
+     */
+    public DataBuilderMetadataManager register(Set<String> consumes, Set<String> accesses, String produces,
+                                               String builder, Class<? extends DataBuilder> dataBuilder) throws DataBuilderFrameworkException {
+        DataBuilderMeta metadata = new DataBuilderMeta(consumes, accesses, produces, builder);
+        if (meta.containsKey(builder)) {
             throw new DataBuilderFrameworkException(DataBuilderFrameworkException.ErrorCode.BUILDER_EXISTS,
-                            "A builder with name " + builder + " already exists");
+                    "A builder with name " + builder + " already exists");
         }
         meta.put(builder, metadata);
-        if(!producedToProducerMap.containsKey(produces)) {
+        if (!producedToProducerMap.containsKey(produces)) {
             producedToProducerMap.put(produces, Lists.<DataBuilderMeta>newArrayList());
         }
         producedToProducerMap.get(produces).add(metadata);
-        for(String consumesData : consumes) {
-            if(!consumesMeta.containsKey(consumesData)) {
+        for (String consumesData : consumes) {
+            if (!consumesMeta.containsKey(consumesData)) {
                 consumesMeta.put(consumesData, Sets.<DataBuilderMeta>newTreeSet());
             }
             consumesMeta.get(consumesData).add(metadata);
@@ -108,6 +129,7 @@ public class DataBuilderMetadataManager {
 
     /**
      * Get {@link com.flipkart.databuilderframework.model.DataBuilderMeta} meta for all builders that consume this data.
+     *
      * @param data Name of the data to be consumed
      * @return Set of {@link com.flipkart.databuilderframework.model.DataBuilderMeta} for matching builders
      *         or null if none found
@@ -118,6 +140,7 @@ public class DataBuilderMetadataManager {
 
     /**
      * Get {@link com.flipkart.databuilderframework.model.DataBuilderMeta} for builder that produces this data
+     *
      * @param data Data being produced
      * @return List of {@link com.flipkart.databuilderframework.model.DataBuilderMeta} that are capable of
      *         producing this data or null if not found.
@@ -128,6 +151,7 @@ public class DataBuilderMetadataManager {
 
     /**
      * Get {@link com.flipkart.databuilderframework.model.DataBuilderMeta} for a particular builder.
+     *
      * @param builderName Name of the builder
      * @return Meta if found, null otherwise
      */
@@ -137,6 +161,7 @@ public class DataBuilderMetadataManager {
 
     /**
      * Get all {@link com.flipkart.databuilderframework.model.DataBuilderMeta} for the for the provided names.
+     *
      * @param builderNames List of data builder names
      * @return List of builder metadata
      */
@@ -150,6 +175,7 @@ public class DataBuilderMetadataManager {
 
     /**
      * Get a derived class of {@link DataBuilder} for the given name.
+     *
      * @param builderName Name of the builder
      * @return Class if found, null otherwise
      */
