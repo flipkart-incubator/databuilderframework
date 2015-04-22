@@ -17,8 +17,8 @@ public class TestBuilderC extends DataBuilder {
             return null;
         }
         DataSetAccessor dataSetAccessor = DataSet.accessor(dataSet);
-        TestDataA c = dataSetAccessor.get("A", TestDataA.class);
-        TestDataE d = dataSetAccessor.get("E", TestDataE.class);
+        TestDataA c = dataSetAccessor.get("A", TestDataA.class).get();
+        TestDataE d = dataSetAccessor.get("E", TestDataE.class).get();
         return new TestDataF(c.getValue() + " " + d.getValue());
     }
 }

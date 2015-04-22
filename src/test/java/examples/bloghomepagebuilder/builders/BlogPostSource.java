@@ -16,8 +16,8 @@ public class BlogPostSource extends DataBuilder {
     @Override
     public Data process(DataBuilderContext context) throws DataBuilderException {
         final DataSetAccessor accessor = context.getDataSet().accessor();
-        UserDetails userDetails = accessor.get(UserDetails.class);
-        BlogId blogId = accessor.get(BlogId.class);
+        UserDetails userDetails = accessor.get(UserDetails.class).get();
+        BlogId blogId = accessor.get(BlogId.class).get();
         //Get blog for this user and id
         return new BlogPost("A data depndent frame work",
                 "Blah .. blah and some more blah".getBytes());

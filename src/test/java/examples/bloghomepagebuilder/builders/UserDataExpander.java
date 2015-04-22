@@ -13,7 +13,7 @@ public class UserDataExpander extends DataBuilder {
 
     @Override
     public Data process(DataBuilderContext context) throws DataBuilderException {
-        ApiAuthValid apiAuthValid = context.getDataSet().accessor().get(ApiAuthValid.class);
+        ApiAuthValid apiAuthValid = context.getDataSet().accessor().get(ApiAuthValid.class).get();
         final String userId = apiAuthValid.getDecryptedUserId();
         //Make a DB call and get user details
         return new UserDetails("Santanu Sinha", 777, 0);

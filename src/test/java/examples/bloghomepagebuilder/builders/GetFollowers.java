@@ -14,7 +14,7 @@ import examples.bloghomepagebuilder.data.UserDetails;
 public class GetFollowers extends DataBuilder {
     @Override
     public Data process(DataBuilderContext context) throws DataBuilderException {
-        UserDetails userDetails = context.getDataSet().accessor().get(UserDetails.class);
+        UserDetails userDetails = context.getDataSet().accessor().get(UserDetails.class).get();
         //Do something and get follower list
         return new FollowerList(ImmutableList.of("Gaurav Prasad", "Ajay Singh", "Gokulvanan Velan"));
     }

@@ -14,12 +14,13 @@ public class TestBuilderError extends DataBuilder {
     @Override
     public Data process(DataBuilderContext context) throws DataBuilderException {
         DataSet dataSet = context.getDataSet();
-        if(dataSet == null) {
+        if (dataSet == null) {
             return null;
         }
         DataSetAccessor dataSetAccessor = DataSet.accessor(dataSet);
-        TestDataA a = dataSetAccessor.get("A", TestDataA.class);
-        TestDataB b = dataSetAccessor.get("B", TestDataB.class);
-        throw new DataBuilderException("TestError");
+        if (!dataSetAccessor.get("A", TestDataA.class).isPresent() && !dataSetAccessor.get("B", TestDataB.class).isPresent()) {
+            throw new DataBuilderException("TestError");
+        }
+        return null;
     }
 }
