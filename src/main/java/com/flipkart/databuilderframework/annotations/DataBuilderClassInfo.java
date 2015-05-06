@@ -13,4 +13,5 @@ public @interface DataBuilderClassInfo {
     public String name() default "";
     public Class<? extends Data> produces();
     public Class<? extends Data>[] consumes();
+    public Class<? extends Data>[] optionals() default {};
 }

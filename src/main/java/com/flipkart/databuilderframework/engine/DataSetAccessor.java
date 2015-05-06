@@ -3,9 +3,11 @@ package com.flipkart.databuilderframework.engine;
 import com.flipkart.databuilderframework.model.Data;
 import com.flipkart.databuilderframework.model.DataDelta;
 import com.flipkart.databuilderframework.model.DataSet;
+import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicates;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 
 import java.util.Map;
 import java.util.Set;
@@ -25,6 +27,11 @@ public class DataSetAccessor {
     public <T extends Data> T get(Class<T> tClass) {
         return get(tClass.getCanonicalName(), tClass);
     }
+    
+    public <T extends Data> Optional<T> getOptional(Class<T> tClass) {
+        return getOptional(tClass.getCanonicalName(), tClass);
+    }
+    
     /**
      * Get a data from {@link com.flipkart.databuilderframework.model.DataSet}.
      * @param key Key for the data
@@ -40,6 +47,22 @@ public class DataSetAccessor {
         }
         return null;
     }
+    
+    /**
+     * Get a optional data from {@link com.flipkart.databuilderframework.model.DataSet}.
+     * @param key Key for the data
+     * @param tClass Class to cast the data to. Should inherit from {@link com.flipkart.databuilderframework.model.Data}
+     * @param <T> Sub-Type for {@link com.flipkart.databuilderframework.model.Data}. Should be same as <i>tClass</i>
+     * @return data
+     */
+    public <T extends Data> Optional<T> getOptional(String key, Class<T> tClass) {
+        Map<String, Data> availableData = dataSet.getAvailableData();
+        if(availableData.containsKey(key)) {
+            Data data = availableData.get(key);
+            return Optional.of(tClass.cast(data));
+        }
+        return Optional.absent();
+    }
 
     /**
      * Get data from {@link com.flipkart.databuilderframework.model.DataSet}, with accessibility checks.
@@ -51,10 +74,10 @@ public class DataSetAccessor {
      * @return data
      */
     public <B extends DataBuilder, T extends Data> T getAccessibleData(String key, B builder, Class<T> tClass) {
-        Preconditions.checkArgument(!builder.getDataBuilderMeta().getConsumes().contains(key),
+    	Preconditions.checkArgument(!builder.getDataBuilderMeta().getCumilativeConsumes().contains(key),
                             String.format("Builder %s can access only %s",
                                             builder.getDataBuilderMeta().getName(),
-                                            builder.getDataBuilderMeta().getConsumes()));
+                                            builder.getDataBuilderMeta().getCumilativeConsumes()));
         return get(key, tClass);
     }
 
@@ -65,7 +88,7 @@ public class DataSetAccessor {
      */
     public DataSet getAccesibleDataSetFor(DataBuilder builder) {
         return new DataSet(Maps.filterKeys(dataSet.getAvailableData(),
-                                    Predicates.in(builder.getDataBuilderMeta().getConsumes())));
+                                    Predicates.in(builder.getDataBuilderMeta().getCumilativeConsumes())));
     }
 
     /**

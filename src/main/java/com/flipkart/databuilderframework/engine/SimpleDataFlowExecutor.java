@@ -54,11 +54,11 @@ public class SimpleDataFlowExecutor extends DataFlowExecutor {
                         continue;
                     }
                     //If there is an intersection, means some of it's inputs have changed. Reevaluate
-                    if (Sets.intersection(builderMeta.getConsumes(), activeDataSet).isEmpty()) {
+                    if (Sets.intersection(builderMeta.getCumilativeConsumes(), activeDataSet).isEmpty()) {
                         continue;
                     }
                     DataBuilder builder = builderFactory.create(builderMeta.getName());
-                    if (!dataSetAccessor.checkForData(builder.getDataBuilderMeta().getConsumes())) {
+                    if (!dataSetAccessor.checkForData(builder.getDataBuilderMeta().getCumilativeConsumes())) {
                         break; //No need to run others, list is topo sorted
                     }
                     for (DataBuilderExecutionListener listener : dataBuilderExecutionListener) {

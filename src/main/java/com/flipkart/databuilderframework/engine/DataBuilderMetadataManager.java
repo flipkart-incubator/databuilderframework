@@ -22,15 +22,19 @@ public class DataBuilderMetadataManager {
     private Map<String, DataBuilderMeta> meta = Maps.newHashMap();
     private Map<String, List<DataBuilderMeta>> producedToProducerMap = Maps.newHashMap();
     private Map<String, TreeSet<DataBuilderMeta>> consumesMeta = Maps.newHashMap();
+    private Map<String, TreeSet<DataBuilderMeta>> optionalsMeta = Maps.newHashMap();
 
+    
     private DataBuilderMetadataManager(Map<String, Class<? extends DataBuilder>> dataBuilders,
                                        Map<String, DataBuilderMeta> meta,
                                        Map<String, List<DataBuilderMeta>> producedToProducerMap,
-                                       Map<String, TreeSet<DataBuilderMeta>> consumesMeta) {
+                                       Map<String, TreeSet<DataBuilderMeta>> consumesMeta,
+                                       Map<String, TreeSet<DataBuilderMeta>> optionalsMeta) {
         this.dataBuilders = dataBuilders;
         this.meta = meta;
         this.producedToProducerMap = producedToProducerMap;
         this.consumesMeta = consumesMeta;
+        this.optionalsMeta = optionalsMeta;
     }
 
     public DataBuilderMetadataManager() {
@@ -41,6 +45,7 @@ public class DataBuilderMetadataManager {
         if(null != info) {
             register(
                     ImmutableSet.copyOf(info.consumes()),
+                    ImmutableSet.copyOf(info.optionals()),
                     info.produces(),
                     info.name(),
                     annotatedDataBuilder);
@@ -53,8 +58,13 @@ public class DataBuilderMetadataManager {
             for(Class<? extends Data> data : dataBuilderClassInfo.consumes()) {
                 consumes.add(data.getCanonicalName());
             }
+            Set<String> optionals = Sets.newHashSet();
+            for(Class<? extends Data> data : dataBuilderClassInfo.optionals()) {
+                optionals.add(data.getCanonicalName());
+            }
             register(
                     ImmutableSet.copyOf(consumes),
+                    ImmutableSet.copyOf(optionals),
                     dataBuilderClassInfo.produces().getCanonicalName(),
                     Strings.isNullOrEmpty(dataBuilderClassInfo.name())
                             ? annotatedDataBuilder.getCanonicalName()
@@ -63,19 +73,6 @@ public class DataBuilderMetadataManager {
         }
         return this;
     }
-
-    /**
-     * Register builder by using meta directly.
-     *
-     * @param dataBuilderMeta Meta about the builder
-     * @param dataBuilder The actual databuilder class
-     * @return this
-     * @throws DataBuilderFrameworkException
-     */
-    public DataBuilderMetadataManager register(DataBuilderMeta dataBuilderMeta, Class<? extends DataBuilder> dataBuilder) throws DataBuilderFrameworkException {
-        return register(dataBuilderMeta.getConsumes(), dataBuilderMeta.getProduces(), dataBuilderMeta.getName(), dataBuilder);
-    }
-
     /**
      * Register metadata for a {@link DataBuilder} implementation.
      * @param consumes List of {@link com.flipkart.databuilderframework.model.Data} this builder consumes
@@ -86,7 +83,34 @@ public class DataBuilderMetadataManager {
      */
     public DataBuilderMetadataManager register(Set<String> consumes, String produces,
                          String builder, Class<? extends DataBuilder> dataBuilder) throws DataBuilderFrameworkException {
-        DataBuilderMeta metadata = new DataBuilderMeta(consumes, produces, builder);
+    	Set<String> optionals = Sets.newHashSet();//no optional
+        return register(consumes,optionals,produces,builder,dataBuilder);
+    }
+    
+    /**
+     * Register builder by using meta directly.
+     *
+     * @param dataBuilderMeta Meta about the builder
+     * @param dataBuilder The actual databuilder class
+     * @return this
+     * @throws DataBuilderFrameworkException
+     */
+    public DataBuilderMetadataManager register(DataBuilderMeta dataBuilderMeta, Class<? extends DataBuilder> dataBuilder) throws DataBuilderFrameworkException {
+        return register(dataBuilderMeta.getConsumes(), dataBuilderMeta.getOptionals(), dataBuilderMeta.getProduces(), dataBuilderMeta.getName(), dataBuilder);
+    }
+
+    /**
+     * Register metadata for a {@link DataBuilder} implementation.
+     * @param consumes List of {@link com.flipkart.databuilderframework.model.Data} this builder consumes
+     * @param optionals List of {@link com.flipkart.databuilderframework.model.Data} this builder optionals
+     * @param produces {@link com.flipkart.databuilderframework.model.Data} produced by this builder
+     * @param builder Name for this builder. there is no namespacing. Name needs to be unique
+     * @param dataBuilder The class of the builder to be created
+     * @throws DataBuilderFrameworkException In case of name conflict
+     */
+    public DataBuilderMetadataManager register(Set<String> consumes,Set<String> optionals, String produces,
+                         String builder, Class<? extends DataBuilder> dataBuilder) throws DataBuilderFrameworkException {
+        DataBuilderMeta metadata = new DataBuilderMeta(consumes,optionals, produces, builder);
         if(meta.containsKey(builder)) {
             throw new DataBuilderFrameworkException(DataBuilderFrameworkException.ErrorCode.BUILDER_EXISTS,
                             "A builder with name " + builder + " already exists");
@@ -102,8 +126,26 @@ public class DataBuilderMetadataManager {
             }
             consumesMeta.get(consumesData).add(metadata);
         }
+        for(String optionalsData : optionals) {
+            if(!optionalsMeta.containsKey(optionalsData)) {
+                optionalsMeta.put(optionalsData, Sets.<DataBuilderMeta>newTreeSet());
+            }
+            optionalsMeta.get(optionalsData).add(metadata);
+        }
         dataBuilders.put(builder, dataBuilder);
         return this;
+    }
+    
+    
+
+    /**
+     * Get {@link com.flipkart.databuilderframework.model.DataBuilderMeta} meta for all builders that optionally consume this data.
+     * @param data Name of the data to be optionally consumed
+     * @return Set of {@link com.flipkart.databuilderframework.model.DataBuilderMeta} for matching builders
+     *         or null if none found
+     */
+    public Set<DataBuilderMeta> getOptionalsSetFor(final String data) {
+        return optionalsMeta.get(data);
     }
 
     /**
@@ -161,6 +203,7 @@ public class DataBuilderMetadataManager {
         return new DataBuilderMetadataManager(ImmutableMap.copyOf(dataBuilders),
                 ImmutableMap.copyOf(meta),
                 ImmutableMap.copyOf(producedToProducerMap),
-                ImmutableMap.copyOf(consumesMeta));
+                ImmutableMap.copyOf(consumesMeta),
+                ImmutableMap.copyOf(optionalsMeta));
     }
 }

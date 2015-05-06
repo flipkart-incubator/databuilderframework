@@ -19,7 +19,7 @@ public class ExecutionGraphTest {
     @Test
     public void testDeepCopy() throws Exception {
         List<DataBuilderMeta> builders = Lists.newArrayList(
-                                            new DataBuilderMeta(ImmutableSet.of("A", "B"), "C", "test"));
+                                            new DataBuilderMeta(ImmutableSet.of("A", "B"), ImmutableSet.of("O"), "C", "test"));
         ExecutionGraph executionGraph = new ExecutionGraph(Collections.singletonList(builders));
         ExecutionGraph executionGraph1 = executionGraph.deepCopy();
         Assert.assertArrayEquals(executionGraph.getDependencyHierarchy().get(0).toArray(new DataBuilderMeta[executionGraph.getDependencyHierarchy().size()]),

@@ -66,8 +66,9 @@ public class DataFlowBuilder {
      */
     public DataFlowBuilder withDataBuilder(String produces,
                                            Set<String> consumes,
+                                           Set<String> optionals,
                                            Class<? extends DataBuilder> dataBuilder) throws DataBuilderFrameworkException {
-        return withDataBuilder(dataBuilder.getSimpleName(), produces, consumes, dataBuilder);
+        return withDataBuilder(dataBuilder.getSimpleName(), produces, consumes, optionals, dataBuilder);
     }
 
     /**
@@ -81,8 +82,9 @@ public class DataFlowBuilder {
     public DataFlowBuilder withDataBuilder(String name,
                                            String produces,
                                            Set<String> consumes,
+                                           Set<String> optionals,
                                            Class<? extends DataBuilder> dataBuilder) throws DataBuilderFrameworkException {
-        return withDataBuilder(name, produces, consumes, dataBuilder, false);
+        return withDataBuilder(name, produces,optionals, consumes, dataBuilder, false);
     }
 
     /**
@@ -97,9 +99,10 @@ public class DataFlowBuilder {
     public DataFlowBuilder withDataBuilder(String name,
                                            String produces,
                                            Set<String> consumes,
+                                           Set<String> optionals,
                                            Class<? extends DataBuilder> dataBuilder,
                                            boolean isTransient) throws DataBuilderFrameworkException {
-        dataBuilderMetadataManager.register(consumes, produces, name, dataBuilder);
+        dataBuilderMetadataManager.register(consumes,optionals, produces, name, dataBuilder);
         if(isTransient) {
             dataFlow.getTransients().add(name);
         }
@@ -127,8 +130,9 @@ public class DataFlowBuilder {
      */
     public DataFlowBuilder withDataBuilder(String produces,
                                            Set<String> consumes,
+                                           Set<String> optionals,
                                            DataBuilder dataBuilder) throws DataBuilderFrameworkException {
-        return withDataBuilder(dataBuilder.getClass().getSimpleName(), produces, consumes, dataBuilder);
+        return withDataBuilder(dataBuilder.getClass().getSimpleName(), produces, consumes, optionals, dataBuilder);
     }
 
     /**
@@ -142,8 +146,9 @@ public class DataFlowBuilder {
     public DataFlowBuilder withDataBuilder(String name,
                                            String produces,
                                            Set<String> consumes,
+                                           Set<String> optionals,
                                            DataBuilder dataBuilder) throws DataBuilderFrameworkException {
-        return withDataBuilder(name, produces, consumes, dataBuilder, false);
+        return withDataBuilder(name, produces, consumes, optionals, dataBuilder, false);
     }
 
     /**
@@ -158,9 +163,10 @@ public class DataFlowBuilder {
     public DataFlowBuilder withDataBuilder(String name,
                                            String produces,
                                            Set<String> consumes,
+                                           Set<String> optionals,
                                            DataBuilder dataBuilder,
                                            boolean isTransient) throws DataBuilderFrameworkException {
-        DataBuilderMeta dataBuilderMeta = new DataBuilderMeta(consumes, produces, name);
+        DataBuilderMeta dataBuilderMeta = new DataBuilderMeta(consumes, optionals, produces, name);
         if(isTransient) {
             dataFlow.getTransients().add(name);
         }
@@ -184,6 +190,7 @@ public class DataFlowBuilder {
         if(null != info) {
             dataBuilderMeta = new DataBuilderMeta(
                     ImmutableSet.copyOf(info.consumes()),
+                    ImmutableSet.copyOf(info.optionals()),
                     info.produces(),
                     info.name());
         }
@@ -195,8 +202,13 @@ public class DataFlowBuilder {
             for(Class<? extends Data> data : dataBuilderClassInfo.consumes()) {
                 consumes.add(data.getCanonicalName());
             }
+            Set<String> optionals = Sets.newHashSet();
+            for(Class<? extends Data> data : dataBuilderClassInfo.optionals()) {
+                optionals.add(data.getCanonicalName());
+            }
             dataBuilderMeta = new DataBuilderMeta(
                     ImmutableSet.copyOf(consumes),
+                    ImmutableSet.copyOf(optionals),
                     dataBuilderClassInfo.produces().getCanonicalName(),
                     Strings.isNullOrEmpty(dataBuilderClassInfo.name())
                             ? annotatedDataBuilder.getCanonicalName()
