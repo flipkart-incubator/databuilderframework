@@ -6,9 +6,6 @@ import com.flipkart.databuilderframework.engine.DataBuilder;
 import com.flipkart.databuilderframework.engine.DataBuilderContext;
 import com.flipkart.databuilderframework.engine.DataSetAccessor;
 import com.flipkart.databuilderframework.model.Data;
-import com.flipkart.databuilderframework.optionaltest.TestDataA;
-import com.flipkart.databuilderframework.optionaltest.TestDataB;
-import com.flipkart.databuilderframework.optionaltest.TestDataC;
 import com.google.common.base.Optional;
 
 @DataBuilderInfo(name = "BuilderOptional", consumes = {"A"}, optionals= {"B"}, produces = "C")
