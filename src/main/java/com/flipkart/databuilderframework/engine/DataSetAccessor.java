@@ -28,9 +28,6 @@ public class DataSetAccessor {
         return get(tClass.getCanonicalName(), tClass);
     }
     
-    public <T extends Data> Optional<T> getOptional(Class<T> tClass) {
-        return getOptional(tClass.getCanonicalName(), tClass);
-    }
     
     /**
      * Get a data from {@link com.flipkart.databuilderframework.model.DataSet}.
@@ -48,21 +45,6 @@ public class DataSetAccessor {
         return null;
     }
     
-    /**
-     * Get a optional data from {@link com.flipkart.databuilderframework.model.DataSet}.
-     * @param key Key for the data
-     * @param tClass Class to cast the data to. Should inherit from {@link com.flipkart.databuilderframework.model.Data}
-     * @param <T> Sub-Type for {@link com.flipkart.databuilderframework.model.Data}. Should be same as <i>tClass</i>
-     * @return data
-     */
-    public <T extends Data> Optional<T> getOptional(String key, Class<T> tClass) {
-        Map<String, Data> availableData = dataSet.getAvailableData();
-        if(availableData.containsKey(key)) {
-            Data data = availableData.get(key);
-            return Optional.of(tClass.cast(data));
-        }
-        return Optional.absent();
-    }
 
     /**
      * Get data from {@link com.flipkart.databuilderframework.model.DataSet}, with accessibility checks.
@@ -131,6 +113,15 @@ public class DataSetAccessor {
      */
     public boolean checkForData(String data) {
         return dataSet.getAvailableData().containsKey(data);
+    }
+    
+    /**
+     * Check if a specified data is present in the {@link com.flipkart.databuilderframework.model.DataSet}
+     * @param Class of data expected (defaults to cannonical name when DataAdapter is in use
+     * @return <i>true</i> if all elements are present. <i>false</i> otherwise.
+     */
+    public boolean checkForData(Class<? extends Data> dataClass) {
+        return dataSet.getAvailableData().containsKey(dataClass.getCanonicalName());
     }
 
     /**

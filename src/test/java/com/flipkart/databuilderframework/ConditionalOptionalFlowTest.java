@@ -29,13 +29,13 @@ public class ConditionalOptionalFlowTest {
 			DataSetAccessor accessor = new DataSetAccessor(context.getDataSet());
 			TestDataC dataC = accessor.get("C", TestDataC.class);
 			TestDataD dataD = accessor.get("D", TestDataD.class);
-			Optional<TestDataG> dataGOptional = accessor.getOptional("G",TestDataG.class);
+			Boolean isGPresent = accessor.checkForData("G");
 
 			if(dataC.getValue().equals("Hello World")){
 				if( dataD.getValue().equalsIgnoreCase("this")) {
 					return new TestDataE("Wah wah!!");
-				}else if(dataGOptional.isPresent()){
-					TestDataG dataG = dataGOptional.get();
+				}else if(isGPresent){
+					TestDataG dataG = accessor.get("G",TestDataG.class);
 					if(dataG.getValue().equalsIgnoreCase("this")){
 						return new TestDataE("Wah wah!!");
 					}

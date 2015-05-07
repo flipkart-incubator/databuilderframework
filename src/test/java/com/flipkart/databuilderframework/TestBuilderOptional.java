@@ -15,12 +15,12 @@ public class TestBuilderOptional extends DataBuilder {
     public Data process(DataBuilderContext context) {
         DataSetAccessor dataSetAccessor = context.getDataSet().accessor();
         TestDataA a = dataSetAccessor.get("A", TestDataA.class);
-        Optional<TestDataB> b = dataSetAccessor.getOptional("B", TestDataB.class);
+        boolean bIsPresent = dataSetAccessor.checkForData("B");
         if(a.getValue().contains(" ")){
         	return new TestDataC(a.getValue());
         }else{
-        	if(b.isPresent()){
-        		TestDataB bData = b.get();
+        	if(bIsPresent){
+        		TestDataB bData = dataSetAccessor.get("B",TestDataB.class);
         		return new TestDataC(a.getValue()+"_"+bData.getValue());
         	}
         }
