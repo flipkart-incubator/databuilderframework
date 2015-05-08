@@ -13,5 +13,6 @@ import java.lang.annotation.Target;
 public @interface DataBuilderInfo {
     public String name();
     public String[] consumes();
+    public String[] optionals() default {}; //optionally consumer
     public String produces();
 }
