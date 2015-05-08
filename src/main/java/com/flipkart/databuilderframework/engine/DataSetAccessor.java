@@ -1,6 +1,7 @@
 package com.flipkart.databuilderframework.engine;
 
 import com.flipkart.databuilderframework.model.Data;
+import com.flipkart.databuilderframework.model.DataBuilderMeta;
 import com.flipkart.databuilderframework.model.DataDelta;
 import com.flipkart.databuilderframework.model.DataSet;
 import com.google.common.base.Optional;
@@ -56,10 +57,11 @@ public class DataSetAccessor {
      * @return data
      */
     public <B extends DataBuilder, T extends Data> T getAccessibleData(String key, B builder, Class<T> tClass) {
-    	Preconditions.checkArgument(!builder.getDataBuilderMeta().getCumilativeConsumes().contains(key),
+    	DataBuilderMeta meta  = builder.getDataBuilderMeta();
+    	Preconditions.checkArgument(!meta.getEffectiveConsumes().contains(key),
                             String.format("Builder %s can access only %s",
                                             builder.getDataBuilderMeta().getName(),
-                                            builder.getDataBuilderMeta().getCumilativeConsumes()));
+                                            meta.getEffectiveConsumes()));
         return get(key, tClass);
     }
 
@@ -69,8 +71,9 @@ public class DataSetAccessor {
      * @return
      */
     public DataSet getAccesibleDataSetFor(DataBuilder builder) {
+    	DataBuilderMeta meta  = builder.getDataBuilderMeta();
         return new DataSet(Maps.filterKeys(dataSet.getAvailableData(),
-                                    Predicates.in(builder.getDataBuilderMeta().getCumilativeConsumes())));
+                                    Predicates.in(meta.getEffectiveConsumes())));
     }
 
     /**

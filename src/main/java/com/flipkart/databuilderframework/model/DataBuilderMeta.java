@@ -35,12 +35,6 @@ public class DataBuilderMeta implements Comparable<DataBuilderMeta>, Serializabl
     @JsonProperty
     private Set<String> optionals;
     
-    /**
-     * List of {@link com.flipkart.databuilderframework.model.Data} this {@link com.flipkart.databuilderframework.engine.DataBuilder}
-     * that is union of consumes and optional.
-     */
-    private Set<String> cumilativeConsumes;
-
     
     /**
      * {@link com.flipkart.databuilderframework.model.Data} this {@link com.flipkart.databuilderframework.engine.DataBuilder} generates.
@@ -66,18 +60,11 @@ public class DataBuilderMeta implements Comparable<DataBuilderMeta>, Serializabl
         this.optionals = optionals;
         this.produces = produces;
         this.name = name;
-        this.cumilativeConsumes = Sets.union(consumes, optionals);
     }
 
     public DataBuilderMeta() {
     }
 
-    public Set<String> getCumilativeConsumes() {
-    	if(cumilativeConsumes == null){ //for case when it not initialized from constrcutor
-    		cumilativeConsumes = Sets.union(consumes, optionals);
-    	}
-        return cumilativeConsumes;
-    }
 
     public Set<String> getConsumes() {
         return consumes;
@@ -85,6 +72,14 @@ public class DataBuilderMeta implements Comparable<DataBuilderMeta>, Serializabl
 
     public Set<String> getOptionals() {
         return optionals;
+    }
+    
+    public Set<String> getEffectiveConsumes(){
+    	if(null == optionals && optionals.isEmpty()){
+    		return consumes;
+    	}else{
+    		return Sets.union(consumes, optionals);
+    	}
     }
 
     public String getProduces() {

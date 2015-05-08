@@ -66,6 +66,21 @@ public class DataFlowBuilder {
      */
     public DataFlowBuilder withDataBuilder(String produces,
                                            Set<String> consumes,
+                                           Class<? extends DataBuilder> dataBuilder) throws DataBuilderFrameworkException {
+        return withDataBuilder(dataBuilder.getSimpleName(), produces, consumes,dataBuilder);
+    }
+
+    /**
+     * Register an unnamed,  unannotated builder class.
+     * @param produces Name of the data that this builder produces.
+     * @param consumes Names of the data that this class consumes.
+     * @param optionals Names of the data that this class optionally consumes
+     * @param dataBuilder Builder class to be used. Class must have a no-args constructor.
+     * @return
+     * @throws DataBuilderFrameworkException
+     */
+    public DataFlowBuilder withDataBuilder(String produces,
+                                           Set<String> consumes,
                                            Set<String> optionals,
                                            Class<? extends DataBuilder> dataBuilder) throws DataBuilderFrameworkException {
         return withDataBuilder(dataBuilder.getSimpleName(), produces, consumes, optionals, dataBuilder);
@@ -82,6 +97,22 @@ public class DataFlowBuilder {
     public DataFlowBuilder withDataBuilder(String name,
                                            String produces,
                                            Set<String> consumes,
+                                           Class<? extends DataBuilder> dataBuilder) throws DataBuilderFrameworkException {
+        return withDataBuilder(name, produces, consumes, dataBuilder, false);
+    }
+    
+    /**
+     * Register a named, unannotated builder class.
+     * @param produces Name of the data that this builder produces.
+     * @param consumes Names of the data that this class consumes.
+     * @param optionals Names of the data that this class optionaly consumes.
+     * @param dataBuilder Builder class to be used. Class must have a no-args constructor.
+     * @return
+     * @throws DataBuilderFrameworkException
+     */
+    public DataFlowBuilder withDataBuilder(String name,
+                                           String produces,
+                                           Set<String> consumes,
                                            Set<String> optionals,
                                            Class<? extends DataBuilder> dataBuilder) throws DataBuilderFrameworkException {
         return withDataBuilder(name, produces,optionals, consumes, dataBuilder, false);
@@ -91,6 +122,28 @@ public class DataFlowBuilder {
      * Register a unannotated builder class.
      * @param produces Name of the data that this builder produces.
      * @param consumes Names of the data that this class consumes.
+     * @param dataBuilder Builder class to be used. Class must have a no-args constructor.
+     * @param isTransient Data produced by this class is transient and will not be a part of the data-set.
+     * @return
+     * @throws DataBuilderFrameworkException
+     */
+    public DataFlowBuilder withDataBuilder(String name,
+                                           String produces,
+                                           Set<String> consumes,
+                                           Class<? extends DataBuilder> dataBuilder,
+                                           boolean isTransient) throws DataBuilderFrameworkException {
+        dataBuilderMetadataManager.register(consumes, produces, name, dataBuilder);
+        if(isTransient) {
+            dataFlow.getTransients().add(name);
+        }
+        return this;
+    }
+
+    /**
+     * Register a unannotated builder class.
+     * @param produces  Name of the data that this builder produces.
+     * @param consumes  Names of the data that this class consumes.
+     * @param optionals Names of the data that this class optionaly consumes. 
      * @param dataBuilder Builder class to be used. Class must have a no-args constructor.
      * @param isTransient Data produced by this class is transient and will not be a part of the data-set.
      * @return

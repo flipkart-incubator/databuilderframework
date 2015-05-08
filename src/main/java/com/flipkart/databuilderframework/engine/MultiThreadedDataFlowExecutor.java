@@ -58,11 +58,12 @@ public class MultiThreadedDataFlowExecutor extends DataFlowExecutor {
                         continue;
                     }
                     //If there is an intersection, means some of it's inputs have changed. Reevaluate
-                    if (Sets.intersection(builderMeta.getCumilativeConsumes(), activeDataSet).isEmpty()) {
+                    Set<String> effectiveConsumes = builderMeta.getEffectiveConsumes();
+                    if (Sets.intersection(effectiveConsumes, activeDataSet).isEmpty()) {
                         continue;
                     }
                     DataBuilder builder = builderFactory.create(builderMeta.getName());
-                    if (!dataSetAccessor.checkForData(builder.getDataBuilderMeta().getCumilativeConsumes())) {
+                    if (!dataSetAccessor.checkForData(effectiveConsumes)) {
                         break; //No need to run others, list is topo sorted
                     }
                     BuilderRunner builderRunner = new BuilderRunner(dataBuilderExecutionListener, dataFlowInstance,
