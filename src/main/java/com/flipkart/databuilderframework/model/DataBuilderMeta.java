@@ -73,14 +73,6 @@ public class DataBuilderMeta implements Comparable<DataBuilderMeta>, Serializabl
     public Set<String> getOptionals() {
         return optionals;
     }
-    
-    public Set<String> getEffectiveConsumes(){
-    	if(null == optionals && optionals.isEmpty()){
-    		return consumes;
-    	}else{
-    		return Sets.union(consumes, optionals);
-    	}
-    }
 
     public String getProduces() {
         return produces;
