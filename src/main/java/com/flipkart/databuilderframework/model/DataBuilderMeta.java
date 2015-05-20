@@ -2,9 +2,12 @@ package com.flipkart.databuilderframework.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Sets;
+
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.constraints.NotNull;
+
 import java.io.Serializable;
 import java.util.Set;
 
@@ -24,6 +27,16 @@ public class DataBuilderMeta implements Comparable<DataBuilderMeta>, Serializabl
     private Set<String> consumes;
 
     /**
+     * List of {@link com.flipkart.databuilderframework.model.Data} this {@link com.flipkart.databuilderframework.engine.DataBuilder}
+     * optional.
+     */
+    @NotNull
+    @NotEmpty
+    @JsonProperty
+    private Set<String> optionals;
+    
+    
+    /**
      * {@link com.flipkart.databuilderframework.model.Data} this {@link com.flipkart.databuilderframework.engine.DataBuilder} generates.
      */
     @NotNull
@@ -41,8 +54,10 @@ public class DataBuilderMeta implements Comparable<DataBuilderMeta>, Serializabl
 
     private int rank;
 
-    public DataBuilderMeta(Set<String> consumes, String produces, String name) {
+    public DataBuilderMeta(Set<String> consumes, Set<String> optionals,
+    		String produces, String name) {
         this.consumes = consumes;
+        this.optionals = optionals;
         this.produces = produces;
         this.name = name;
     }
@@ -50,8 +65,13 @@ public class DataBuilderMeta implements Comparable<DataBuilderMeta>, Serializabl
     public DataBuilderMeta() {
     }
 
+
     public Set<String> getConsumes() {
         return consumes;
+    }
+
+    public Set<String> getOptionals() {
+        return optionals;
     }
 
     public String getProduces() {
@@ -76,6 +96,7 @@ public class DataBuilderMeta implements Comparable<DataBuilderMeta>, Serializabl
         if (!consumes.equals(that.consumes)) return false;
         if (!name.equals(that.name)) return false;
         if (!produces.equals(that.produces)) return false;
+        if(!optionals.equals(that.optionals)) return false;
 
         return true;
     }
@@ -84,18 +105,24 @@ public class DataBuilderMeta implements Comparable<DataBuilderMeta>, Serializabl
     public int hashCode() {
         int result = consumes.hashCode();
         result = 31 * result + produces.hashCode();
+        result = 31 * result + optionals.hashCode();
         result = 31 * result + name.hashCode();
         return result;
     }
 
     public DataBuilderMeta deepCopy() {
-        return new DataBuilderMeta(ImmutableSet.copyOf(consumes), produces, name);
+        return new DataBuilderMeta(ImmutableSet.copyOf(consumes),
+        		ImmutableSet.copyOf(optionals),produces, name);
     }
 
+    
     public void setConsumes(Set<String> consumes) {
         this.consumes = consumes;
     }
-
+    
+    public void setOptionals(Set<String> optionals) {
+        this.optionals = optionals;
+    }
     public void setProduces(String produces) {
         this.produces = produces;
     }

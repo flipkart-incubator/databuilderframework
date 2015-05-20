@@ -1,11 +1,14 @@
 package com.flipkart.databuilderframework.engine;
 
 import com.flipkart.databuilderframework.model.Data;
+import com.flipkart.databuilderframework.model.DataBuilderMeta;
 import com.flipkart.databuilderframework.model.DataDelta;
 import com.flipkart.databuilderframework.model.DataSet;
+import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicates;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 
 import java.util.Map;
 import java.util.Set;
@@ -25,6 +28,8 @@ public class DataSetAccessor {
     public <T extends Data> T get(Class<T> tClass) {
         return get(tClass.getCanonicalName(), tClass);
     }
+    
+    
     /**
      * Get a data from {@link com.flipkart.databuilderframework.model.DataSet}.
      * @param key Key for the data
@@ -40,6 +45,7 @@ public class DataSetAccessor {
         }
         return null;
     }
+    
 
     /**
      * Get data from {@link com.flipkart.databuilderframework.model.DataSet}, with accessibility checks.
@@ -51,10 +57,11 @@ public class DataSetAccessor {
      * @return data
      */
     public <B extends DataBuilder, T extends Data> T getAccessibleData(String key, B builder, Class<T> tClass) {
-        Preconditions.checkArgument(!builder.getDataBuilderMeta().getConsumes().contains(key),
+    	Set<String> effectiveConsumes = DataBuilderMetaUtil.getEffectiveConsumes(builder.getDataBuilderMeta());
+    	Preconditions.checkArgument(!effectiveConsumes.contains(key),
                             String.format("Builder %s can access only %s",
                                             builder.getDataBuilderMeta().getName(),
-                                            builder.getDataBuilderMeta().getConsumes()));
+                                           effectiveConsumes));
         return get(key, tClass);
     }
 
@@ -64,8 +71,9 @@ public class DataSetAccessor {
      * @return
      */
     public DataSet getAccesibleDataSetFor(DataBuilder builder) {
-        return new DataSet(Maps.filterKeys(dataSet.getAvailableData(),
-                                    Predicates.in(builder.getDataBuilderMeta().getConsumes())));
+    	Set<String> effectiveConsumes = DataBuilderMetaUtil.getEffectiveConsumes(builder.getDataBuilderMeta());
+    	return new DataSet(Maps.filterKeys(dataSet.getAvailableData(),
+                                    Predicates.in(effectiveConsumes)));
     }
 
     /**
@@ -108,6 +116,15 @@ public class DataSetAccessor {
      */
     public boolean checkForData(String data) {
         return dataSet.getAvailableData().containsKey(data);
+    }
+    
+    /**
+     * Check if a specified data is present in the {@link com.flipkart.databuilderframework.model.DataSet}
+     * @param Class of data expected (defaults to cannonical name when DataAdapter is in use
+     * @return <i>true</i> if all elements are present. <i>false</i> otherwise.
+     */
+    public boolean checkForData(Class<? extends Data> dataClass) {
+        return dataSet.getAvailableData().containsKey(dataClass.getCanonicalName());
     }
 
     /**
