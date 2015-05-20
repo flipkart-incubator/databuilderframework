@@ -14,7 +14,7 @@ public class DataBuilderMetaUtil {
 
 
 	public  static Set<String> getEffectiveConsumes(DataBuilderMeta builderMeta){
-		if(null == builderMeta.getOptionals() && builderMeta.getOptionals().isEmpty()){
+		if(null == builderMeta.getOptionals() || builderMeta.getOptionals().isEmpty()){
 			return builderMeta.getConsumes();
 		}else{
 			return Sets.union(builderMeta.getConsumes(), builderMeta.getOptionals());
