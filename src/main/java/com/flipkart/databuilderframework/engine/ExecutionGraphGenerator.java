@@ -140,9 +140,9 @@ public class ExecutionGraphGenerator {
             if(null == info.getBuilder()) {
                 info.setBuilder(dataBuilderMeta.getName());
             }
-            for(String consumes : dataBuilderMeta.getConsumes()) {
+            for(String consumes : dataBuilderMeta.getEffectiveConsumes()) {
                 if(routeMeta.isAlreadyOnOutgoingPath(data, consumes)) {
-                    logger.info(String.format("Loop detected: Path for %s already contains %s", consumes, data));
+                    logger.debug(String.format("Loop detected: Path for %s already contains %s", consumes, data));
                     continue;
                 }
                 routeMeta.addOutputData(consumes, data);

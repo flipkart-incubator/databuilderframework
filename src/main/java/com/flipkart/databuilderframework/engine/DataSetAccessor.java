@@ -51,7 +51,7 @@ public class DataSetAccessor {
      * @return data
      */
     public <B extends DataBuilder, T extends Data> T getAccessibleData(String key, B builder, Class<T> tClass) {
-        Preconditions.checkArgument(!builder.getDataBuilderMeta().getConsumes().contains(key),
+        Preconditions.checkArgument(!builder.getDataBuilderMeta().getAccessibleDataSet().contains(key),
                             String.format("Builder %s can access only %s",
                                             builder.getDataBuilderMeta().getName(),
                                             builder.getDataBuilderMeta().getConsumes()));
@@ -65,7 +65,7 @@ public class DataSetAccessor {
      */
     public DataSet getAccesibleDataSetFor(DataBuilder builder) {
         return new DataSet(Maps.filterKeys(dataSet.getAvailableData(),
-                                    Predicates.in(builder.getDataBuilderMeta().getConsumes())));
+                                    Predicates.in(builder.getDataBuilderMeta().getAccessibleDataSet())));
     }
 
     /**
