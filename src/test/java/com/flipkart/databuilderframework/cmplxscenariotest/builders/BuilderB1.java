@@ -17,7 +17,11 @@ public class BuilderB1 extends DataBuilder{
 	public Data process(DataBuilderContext context)
 			throws DataBuilderException, DataValidationException {
 		DataSetAccessor dataSetAccessor = DataSet.accessor(context.getDataSet());
-		
+		try {
+			Thread.sleep(200); //simulate work being done
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 		return new DataB1();
 	}
 

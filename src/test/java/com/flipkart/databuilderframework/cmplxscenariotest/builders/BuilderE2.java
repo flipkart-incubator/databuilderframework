@@ -18,6 +18,11 @@ public class BuilderE2 extends DataBuilder{
 	public Data process(DataBuilderContext context)
 			throws DataBuilderException, DataValidationException {
 		DataSetAccessor dataSetAccessor = DataSet.accessor(context.getDataSet());
+		try {
+			Thread.sleep(200); //simulate work being done
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 		DataD dataD = dataSetAccessor.get("D", DataD.class);
 		if(dataD.val <= 2){ // RUN FOR 2 VAL
 			return new DataE2();

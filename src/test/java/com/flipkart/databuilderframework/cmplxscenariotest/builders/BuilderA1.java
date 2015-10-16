@@ -19,6 +19,11 @@ public class BuilderA1 extends DataBuilder{
 			throws DataBuilderException, DataValidationException {
 		DataSetAccessor dataSetAccessor = DataSet.accessor(context.getDataSet());
 		DataA dataA = dataSetAccessor.get("A", DataA.class);
+		try {
+			Thread.sleep(200); //simulate work being done
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 		if(dataA.val <= 7){ //70% of case this builder will run and genrate data
 			return new DataA1();
 		}

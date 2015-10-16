@@ -16,6 +16,11 @@ public class BuilderB4 extends DataBuilder{
 	@Override
 	public Data process(DataBuilderContext context)
 			throws DataBuilderException, DataValidationException {
+		try {
+			Thread.sleep(200); //simulate work being done
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 		return new DataB4();
 	}
 

@@ -18,6 +18,11 @@ public class BuilderC extends DataBuilder{
 	public Data process(DataBuilderContext context)
 			throws DataBuilderException, DataValidationException {
 		DataSetAccessor accessor = DataSet.accessor(context.getDataSet());
+		try {
+			Thread.sleep(200); //simulate work being done
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 		if(accessor.checkForData("A1")){
 			if(accessor.checkForData("B1") &&
 					accessor.checkForData("B2") &&

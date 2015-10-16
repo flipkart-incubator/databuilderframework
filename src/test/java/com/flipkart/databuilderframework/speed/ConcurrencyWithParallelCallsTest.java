@@ -11,7 +11,7 @@ import org.junit.Test;
 
 import java.util.concurrent.Executors;
 
-public class ConcurrencyWithOptionalsTest {
+public class ConcurrencyWithParallelCallsTest {
     private DataBuilderMetadataManager dataBuilderMetadataManager = new DataBuilderMetadataManager();
     private DataFlowExecutor executor = new MultiThreadedDataFlowExecutor(
                                                 new InstantiatingDataBuilderFactory(dataBuilderMetadataManager),
@@ -22,26 +22,47 @@ public class ConcurrencyWithOptionalsTest {
 
     @Before
     public void setup() throws Exception {
-        dataBuilderMetadataManager.registerWithOptionals(ImmutableSet.of("REQ"),ImmutableSet.of("ADD_REQ"), "A", "BuilderA", ServiceCallerA.class );
-        dataBuilderMetadataManager.registerWithOptionals(ImmutableSet.of("REQ"),ImmutableSet.of("ADD_REQ"),  "B", "BuilderB", ServiceCallerB.class );
-        dataBuilderMetadataManager.registerWithOptionals(ImmutableSet.of("REQ"),ImmutableSet.of("ADD_REQ"),  "C", "BuilderC", ServiceCallerC.class );
-        dataBuilderMetadataManager.registerWithOptionals(ImmutableSet.of("REQ"),ImmutableSet.of("ADD_REQ"),  "D", "BuilderD", ServiceCallerD.class );
-        dataBuilderMetadataManager.registerWithOptionals(ImmutableSet.of("ADD_REQ"),ImmutableSet.of("REQ"),  "E", "BuilderE", ServiceCallerE.class );
-        dataBuilderMetadataManager.registerWithOptionals(ImmutableSet.of("REQ"),ImmutableSet.of("ADD_REQ"), "F", "BuilderF", ServiceCallerF.class );
-        dataBuilderMetadataManager.registerWithOptionals(ImmutableSet.of("ADD_REQ"),ImmutableSet.of("REQ)"), "G", "BuilderG", ServiceCallerG.class );
-        dataBuilderMetadataManager.registerWithOptionals(ImmutableSet.of("A", "B", "C", "D"), ImmutableSet.of("E","F","G"), "RES", "ResponseBuilder", DataCombiner.class );
+        dataBuilderMetadataManager.register(ImmutableSet.of("REQ"), "A", "BuilderA", ServiceCallerA.class );
+        dataBuilderMetadataManager.register(ImmutableSet.of("REQ"), "B", "BuilderB", ServiceCallerB.class );
+        dataBuilderMetadataManager.register(ImmutableSet.of("REQ"), "C", "BuilderC", ServiceCallerC.class );
+        dataBuilderMetadataManager.register(ImmutableSet.of("REQ"), "D", "BuilderD", ServiceCallerD.class );
+        dataBuilderMetadataManager.register(ImmutableSet.of("REQ"), "E", "BuilderE", ServiceCallerE.class );
+        dataBuilderMetadataManager.register(ImmutableSet.of("REQ"), "F", "BuilderF", ServiceCallerF.class );
+        dataBuilderMetadataManager.register(ImmutableSet.of("REQ"), "G", "BuilderG", ServiceCallerG.class );
+        dataBuilderMetadataManager.register(ImmutableSet.of("A", "B", "C", "D", "E", "F", "G"), "RES", "ResponseBuilder", DataCombiner.class );
 
     }
 
+    @Test
+    public void testFunctionality() throws Exception {
+        DataFlow dataFlow = new DataFlow();
+        dataFlow.setTargetData("RES");
+        dataFlow.setExecutionGraph(executionGraphGenerator.generateGraph(dataFlow).deepCopy());
+        DataFlowInstance dataFlowInstance = new DataFlowInstance();
+        dataFlowInstance.setId("testflow");
+        dataFlowInstance.setDataFlow(dataFlow);
+        long startTime = System.currentTimeMillis();
+
+        {
+            DataDelta dataDelta = new DataDelta(Lists.<Data>newArrayList(new RequestData()));
+            DataExecutionResponse response = executor.run(dataFlowInstance, dataDelta);
+            Assert.assertEquals(8, response.getResponses().size());
+            Assert.assertTrue(response.getResponses().containsKey("RES"));
+        }
+        System.out.println(System.currentTimeMillis() - startTime);
+
+    }
     @Test
     public void testSpeed() throws Exception {
         DataFlow dataFlow = new DataFlow();
         dataFlow.setTargetData("RES");
         ExecutionGraph executionGraph = executionGraphGenerator.generateGraph(dataFlow);
         dataFlow.setExecutionGraph(executionGraph);
-
+        
+        Executors exec = (Executors) Executors.newFixedThreadPool(100);// 100 concurrent users
         long mTime = 0 ;
         for(int i = 0; i < 1000; i++) {
+        	
             DataFlowInstance dataFlowInstance = new DataFlowInstance();
             dataFlowInstance.setId("testflow");
             dataFlowInstance.setDataFlow(dataFlow);
@@ -49,8 +70,7 @@ public class ConcurrencyWithOptionalsTest {
             long startTime = System.currentTimeMillis();
             DataExecutionResponse response = executor.run(dataFlowInstance, dataDelta);
             mTime += (System.currentTimeMillis() - startTime);
-            System.out.println(response.getResponses().keySet());
-            Assert.assertEquals(5, response.getResponses().size());
+            Assert.assertEquals(8, response.getResponses().size());
             //System.out.println("MT:" + System.currentTimeMillis());
         }
         long sTime = 0;
@@ -62,8 +82,7 @@ public class ConcurrencyWithOptionalsTest {
             long startTime = System.currentTimeMillis();
             DataExecutionResponse response = simpleExecutor.run(dataFlowInstance, dataDelta);
             sTime += (System.currentTimeMillis() - startTime);
-            System.out.println(response.getResponses().keySet());
-            Assert.assertEquals(5, response.getResponses().size());
+            Assert.assertEquals(8, response.getResponses().size());
             //System.out.println("ST:" + System.currentTimeMillis());
         }
         System.out.println(String.format("MT: %d ST: %d", mTime, sTime));
