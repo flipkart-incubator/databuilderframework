@@ -59,7 +59,7 @@ public class SimpleDataFlowExecutor extends DataFlowExecutor {
                     }
                     DataBuilder builder = builderFactory.create(builderMeta.getName());
                     if (!dataSetAccessor.checkForData(builder.getDataBuilderMeta().getConsumes())) {
-                        break; //No need to run others, list is topo sorted
+                        continue; //No need to run others, list is topo sorted
                     }
                     for (DataBuilderExecutionListener listener : dataBuilderExecutionListener) {
                         try {
