@@ -1,6 +1,7 @@
 package com.flipkart.databuilderframework.cmplxscenariotest;
 
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -48,7 +49,8 @@ public class TestBuilderOfSameRankNotBreakingInBetween {
 
 	private final DataBuilderMetadataManager dataBuilderMetadataManager = new DataBuilderMetadataManager();
 	private final SimpleDataFlowExecutor se = new SimpleDataFlowExecutor(new InstantiatingDataBuilderFactory(dataBuilderMetadataManager));
-	private final BuilderExecutor builderExecutor = new BuilderExecutor(200, 250);
+//	private final ProfileExecutor builderExecutor = new ProfileExecutor(200, 250);
+	private final ExecutorService builderExecutor  = Executors.newFixedThreadPool(200);
 	private final MultiThreadedDataFlowExecutor me =  new MultiThreadedDataFlowExecutor(new InstantiatingDataBuilderFactory(dataBuilderMetadataManager),builderExecutor);;
 
 	@Before

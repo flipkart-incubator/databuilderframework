@@ -7,21 +7,47 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicInteger;
 
 //wrapper to measure context switch time
-public class BuilderExecutor implements ExecutorService {
+public class ProfileExecutor implements ExecutorService {
 
 	private final  ExecutorService exec;
-	private volatile int rejectionCounter = 0;
-
-	public BuilderExecutor(int size, int queueSize) {
+	private final int threshold;
+	private final AtomicInteger rejectionCounter = new AtomicInteger(0);
+	private final AtomicInteger maxLatency = new AtomicInteger(0);
+	private final AtomicInteger contextSwitchCounter = new AtomicInteger(0);
+	
+	
+	public synchronized void resetStats(){
+		this.rejectionCounter.set(0);
+		this.maxLatency.set(0);
+		this.contextSwitchCounter.set(0);
+	}
+	
+	public int getRejectedCount(){
+		return this.rejectionCounter.get();
+	}
+	
+	public int getNumberOfContextSwitchesOverThresHold(){
+		return this.contextSwitchCounter.get();
+	}
+	
+	public int getMaxContextSwitchLatency(){
+		return this.maxLatency.get();
+	}
+	
+	public ProfileExecutor(int size, int queueSize,int ctxSwitchTheshold) {
+		this.threshold = ctxSwitchTheshold;
+		LinkedBlockingQueue<Runnable> queue = (queueSize == -1) ?  new LinkedBlockingQueue<Runnable>() : new LinkedBlockingQueue<Runnable>(queueSize);
 		this.exec = new ThreadPoolExecutor(size, size, 0, TimeUnit.SECONDS, 
-				new ArrayBlockingQueue<Runnable>(100),
+				queue,
 				new ThreadFactory() {
 			int i=0;
 			@Override
@@ -33,7 +59,7 @@ public class BuilderExecutor implements ExecutorService {
 
 			@Override
 			public void rejectedExecution(Runnable r, ThreadPoolExecutor executor) {
-				rejectionCounter++; // not the safest but will give some idea
+				rejectionCounter.incrementAndGet(); // not the safest but will give some idea
 			}
 		});
 	}
@@ -45,9 +71,18 @@ public class BuilderExecutor implements ExecutorService {
 		exec.execute(new Runnable() {
 			@Override
 			public void run() {
-				long duration = System.currentTimeMillis()-start;
-				if(duration > 250){
-					System.out.println("context switch time "+duration);
+				final int duration = (int) (System.currentTimeMillis()-start);
+				if(duration > threshold){
+					contextSwitchCounter.incrementAndGet();
+					int oldVal,newVal;
+					do{
+						 oldVal = maxLatency.get();
+						if(duration > oldVal){
+							newVal = duration;
+						}else{
+							newVal = oldVal;
+						}
+					}while(!maxLatency.compareAndSet(oldVal, newVal));
 				}
 				runnableRef.run();
 			}
