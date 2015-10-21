@@ -63,7 +63,7 @@ public class SimpleDataFlowExecutor extends DataFlowExecutor {
                     }
                     for (DataBuilderExecutionListener listener : dataBuilderExecutionListener) {
                         try {
-                            listener.beforeExecute(dataFlowInstance, builderMeta, dataDelta, responseData);
+                            listener.beforeExecute(dataBuilderContext, dataFlowInstance, builderMeta, dataDelta, responseData);
                         } catch (Throwable t) {
                             logger.error("Error running pre-execution execution listener: ", t);
                         }
@@ -88,7 +88,7 @@ public class SimpleDataFlowExecutor extends DataFlowExecutor {
                         processedBuilders.add(builderMeta);
                         for (DataBuilderExecutionListener listener : dataBuilderExecutionListener) {
                             try {
-                                listener.afterExecute(dataFlowInstance, builderMeta, dataDelta, responseData, response);
+                                listener.afterExecute(dataBuilderContext, dataFlowInstance, builderMeta, dataDelta, responseData, response);
                             } catch (Throwable t) {
                                 logger.error("Error running post-execution listener: ", t);
                             }
@@ -98,7 +98,7 @@ public class SimpleDataFlowExecutor extends DataFlowExecutor {
                         logger.error("Error running builder: " + builderMeta.getName());
                         for (DataBuilderExecutionListener listener : dataBuilderExecutionListener) {
                             try {
-                                listener.afterException(dataFlowInstance, builderMeta, dataDelta, responseData, e);
+                                listener.afterException(dataBuilderContext, dataFlowInstance, builderMeta, dataDelta, responseData, e);
 
                             } catch (Throwable error) {
                                 logger.error("Error running post-execution listener: ", error);
@@ -111,7 +111,7 @@ public class SimpleDataFlowExecutor extends DataFlowExecutor {
                         logger.error("Validation error in data produced by builder" +builderMeta.getName());
                         for (DataBuilderExecutionListener listener : dataBuilderExecutionListener) {
                             try {
-                                listener.afterException(dataFlowInstance, builderMeta, dataDelta, responseData, e);
+                                listener.afterException(dataBuilderContext, dataFlowInstance, builderMeta, dataDelta, responseData, e);
 
                             } catch (Throwable error) {
                                 logger.error("Error running post-execution listener: ", error);
@@ -127,7 +127,7 @@ public class SimpleDataFlowExecutor extends DataFlowExecutor {
                         logger.error("Error running builder: " + builderMeta.getName());
                         for (DataBuilderExecutionListener listener : dataBuilderExecutionListener) {
                             try {
-                                listener.afterException(dataFlowInstance, builderMeta, dataDelta, responseData, t);
+                                listener.afterException(dataBuilderContext, dataFlowInstance, builderMeta, dataDelta, responseData, t);
 
                             } catch (Throwable error) {
                                 logger.error("Error running post-execution listener: ", error);

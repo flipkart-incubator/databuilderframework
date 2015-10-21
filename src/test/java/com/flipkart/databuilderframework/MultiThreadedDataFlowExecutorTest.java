@@ -17,21 +17,24 @@ public class MultiThreadedDataFlowExecutorTest {
     private static class TestListener implements DataBuilderExecutionListener {
 
         @Override
-        public void beforeExecute(DataFlowInstance dataFlowInstance,
+        public void beforeExecute(DataBuilderContext builderContext,
+        						  DataFlowInstance dataFlowInstance,
                                   DataBuilderMeta builderToBeApplied,
                                   DataDelta dataDelta, Map<String, Data> prevResponses) throws Exception {
             System.out.println(builderToBeApplied.getName() + " being called for: " + dataFlowInstance.getId());
         }
 
         @Override
-        public void afterExecute(DataFlowInstance dataFlowInstance,
+        public void afterExecute(DataBuilderContext builderContext,
+        						 DataFlowInstance dataFlowInstance,
                                  DataBuilderMeta builderToBeApplied,
                                  DataDelta dataDelta, Map<String, Data> prevResponses, Data currentResponse) throws Exception {
             System.out.println(builderToBeApplied.getName() + " called for: " + dataFlowInstance.getId());
         }
 
         @Override
-        public void afterException(DataFlowInstance dataFlowInstance,
+        public void afterException(DataBuilderContext builderContext,
+        						   DataFlowInstance dataFlowInstance,
                                    DataBuilderMeta builderToBeApplied,
                                    DataDelta dataDelta,
                                    Map<String, Data> prevResponses, Throwable frameworkException) throws Exception {
@@ -41,7 +44,8 @@ public class MultiThreadedDataFlowExecutorTest {
     private static class TestListenerBeforeExecutionError implements DataBuilderExecutionListener {
 
         @Override
-        public void beforeExecute(DataFlowInstance dataFlowInstance,
+        public void beforeExecute(DataBuilderContext builderContext,
+        						  DataFlowInstance dataFlowInstance,
                                   DataBuilderMeta builderToBeApplied,
                                   DataDelta dataDelta, Map<String, Data> prevResponses) throws Exception {
             //System.out.println(builderToBeApplied.getName() + " being called for: " + dataFlowInstance.getId());
@@ -49,14 +53,16 @@ public class MultiThreadedDataFlowExecutorTest {
         }
 
         @Override
-        public void afterExecute(DataFlowInstance dataFlowInstance,
+        public void afterExecute(DataBuilderContext builderContext,
+        						 DataFlowInstance dataFlowInstance,
                                  DataBuilderMeta builderToBeApplied,
                                  DataDelta dataDelta, Map<String, Data> prevResponses, Data currentResponse) throws Exception {
             System.out.println(builderToBeApplied.getName() + " called for: " + dataFlowInstance.getId());
         }
 
         @Override
-        public void afterException(DataFlowInstance dataFlowInstance,
+        public void afterException(DataBuilderContext builderContext,
+        						   DataFlowInstance dataFlowInstance,
                                    DataBuilderMeta builderToBeApplied,
                                    DataDelta dataDelta,
                                    Map<String, Data> prevResponses, Throwable frameworkException) throws Exception {
@@ -66,14 +72,16 @@ public class MultiThreadedDataFlowExecutorTest {
     private static class TestListenerAfterExecutionError implements DataBuilderExecutionListener {
 
         @Override
-        public void beforeExecute(DataFlowInstance dataFlowInstance,
+        public void beforeExecute(DataBuilderContext builderContext,
+        						  DataFlowInstance dataFlowInstance,
                                   DataBuilderMeta builderToBeApplied,
                                   DataDelta dataDelta, Map<String, Data> prevResponses) throws Exception {
             System.out.println(builderToBeApplied.getName() + " being called for: " + dataFlowInstance.getId());
         }
 
         @Override
-        public void afterExecute(DataFlowInstance dataFlowInstance,
+        public void afterExecute(DataBuilderContext builderContext,
+        						 DataFlowInstance dataFlowInstance,
                                  DataBuilderMeta builderToBeApplied,
                                  DataDelta dataDelta, Map<String, Data> prevResponses, Data currentResponse) throws Exception {
             //System.out.println(builderToBeApplied.getName() + " called for: " + dataFlowInstance.getId());
@@ -82,7 +90,8 @@ public class MultiThreadedDataFlowExecutorTest {
         }
 
         @Override
-        public void afterException(DataFlowInstance dataFlowInstance,
+        public void afterException(DataBuilderContext builderContext,
+        						   DataFlowInstance dataFlowInstance,
                                    DataBuilderMeta builderToBeApplied,
                                    DataDelta dataDelta,
                                    Map<String, Data> prevResponses, Throwable frameworkException) throws Exception {
@@ -93,14 +102,16 @@ public class MultiThreadedDataFlowExecutorTest {
     private static class TestListenerAfterExceptionError implements DataBuilderExecutionListener {
 
         @Override
-        public void beforeExecute(DataFlowInstance dataFlowInstance,
+        public void beforeExecute(DataBuilderContext builderContext,
+        						  DataFlowInstance dataFlowInstance,
                                   DataBuilderMeta builderToBeApplied,
                                   DataDelta dataDelta, Map<String, Data> prevResponses) throws Exception {
             System.out.println(builderToBeApplied.getName() + " being called for: " + dataFlowInstance.getId());
         }
 
         @Override
-        public void afterExecute(DataFlowInstance dataFlowInstance,
+        public void afterExecute(DataBuilderContext builderContext,
+        						 DataFlowInstance dataFlowInstance,
                                  DataBuilderMeta builderToBeApplied,
                                  DataDelta dataDelta, Map<String, Data> prevResponses, Data currentResponse) throws Exception {
             System.out.println(builderToBeApplied.getName() + " called for: " + dataFlowInstance.getId());
@@ -108,7 +119,8 @@ public class MultiThreadedDataFlowExecutorTest {
         }
 
         @Override
-        public void afterException(DataFlowInstance dataFlowInstance,
+        public void afterException(DataBuilderContext builderContext,
+        						   DataFlowInstance dataFlowInstance,
                                    DataBuilderMeta builderToBeApplied,
                                    DataDelta dataDelta,
                                    Map<String, Data> prevResponses, Throwable frameworkException) throws Exception {
