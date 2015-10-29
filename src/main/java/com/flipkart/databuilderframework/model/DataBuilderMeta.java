@@ -1,5 +1,6 @@
 package com.flipkart.databuilderframework.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
@@ -107,6 +108,7 @@ public class DataBuilderMeta implements Comparable<DataBuilderMeta>, Serializabl
         return access;
     }
 
+    @JsonIgnore
     public Set<String> getEffectiveConsumes(){
     	if(optionals != null && !optionals.isEmpty()){
     		return Sets.union(optionals, consumes);
@@ -115,6 +117,7 @@ public class DataBuilderMeta implements Comparable<DataBuilderMeta>, Serializabl
     	}
     }
     
+    @JsonIgnore
     public Set<String> getAccessibleDataSet(){
     	Set<String> output = consumes;
     	if(optionals != null && !optionals.isEmpty()){
