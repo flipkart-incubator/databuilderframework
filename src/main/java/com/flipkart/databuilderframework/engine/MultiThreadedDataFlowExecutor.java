@@ -63,7 +63,7 @@ public class MultiThreadedDataFlowExecutor extends DataFlowExecutor {
                     }
                     DataBuilder builder = builderFactory.create(builderMeta.getName());
                     if (!dataSetAccessor.checkForData(builder.getDataBuilderMeta().getConsumes())) {
-                        break; //No need to run others, list is topo sorted
+                        continue;
                     }
                     BuilderRunner builderRunner = new BuilderRunner(dataBuilderExecutionListener, dataFlowInstance,
                                                                         builderMeta, dataDelta, responseData,
