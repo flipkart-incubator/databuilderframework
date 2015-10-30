@@ -13,5 +13,7 @@ import java.lang.annotation.Target;
 public @interface DataBuilderInfo {
     public String name();
     public String[] consumes();
+    public String[] optionals() default {}; //enable builder to trigger on this data but unlike consumers these are not mandatory for builder to run
+    public String[] accesses() default {};//enable builder to access these data - plays no role in triggering builder flow
     public String produces();
 }

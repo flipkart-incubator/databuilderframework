@@ -22,15 +22,22 @@ public class DataBuilderMetadataManager {
     private Map<String, DataBuilderMeta> meta = Maps.newHashMap();
     private Map<String, List<DataBuilderMeta>> producedToProducerMap = Maps.newHashMap();
     private Map<String, TreeSet<DataBuilderMeta>> consumesMeta = Maps.newHashMap();
-
+    private Map<String, TreeSet<DataBuilderMeta>> optionalsMeta = Maps.newHashMap();
+    private Map<String, TreeSet<DataBuilderMeta>> accessesMeta = Maps.newHashMap();
+    
+    
     private DataBuilderMetadataManager(Map<String, Class<? extends DataBuilder>> dataBuilders,
                                        Map<String, DataBuilderMeta> meta,
                                        Map<String, List<DataBuilderMeta>> producedToProducerMap,
-                                       Map<String, TreeSet<DataBuilderMeta>> consumesMeta) {
+                                       Map<String, TreeSet<DataBuilderMeta>> consumesMeta,
+                                       Map<String, TreeSet<DataBuilderMeta>> optionalsMeta,
+                                       Map<String, TreeSet<DataBuilderMeta>> accessesMeta) {
         this.dataBuilders = dataBuilders;
         this.meta = meta;
         this.producedToProducerMap = producedToProducerMap;
         this.consumesMeta = consumesMeta;
+        this.optionalsMeta = optionalsMeta;
+        this.accessesMeta = accessesMeta;
     }
 
     public DataBuilderMetadataManager() {
@@ -41,6 +48,8 @@ public class DataBuilderMetadataManager {
         if(null != info) {
             register(
                     ImmutableSet.copyOf(info.consumes()),
+                    ImmutableSet.copyOf(info.optionals()),
+                    ImmutableSet.copyOf(info.accesses()),
                     info.produces(),
                     info.name(),
                     annotatedDataBuilder);
@@ -50,11 +59,26 @@ public class DataBuilderMetadataManager {
             Preconditions.checkNotNull(dataBuilderClassInfo,
                     "No useful annotations found on class. Use DataBuilderInfo or DataBuilderClassInfo to annotate");
             Set<String> consumes = Sets.newHashSet();
+            Set<String> optionals = Sets.newHashSet();
+            Set<String> access = Sets.newHashSet();
+            //TODO (gokul) remove getCannonicalName() and inject a Handler for client to customize this
+
             for(Class<? extends Data> data : dataBuilderClassInfo.consumes()) {
                 consumes.add(data.getCanonicalName());
             }
+            
+            for(Class<? extends Data> data : dataBuilderClassInfo.optionals()) {
+                optionals.add(data.getCanonicalName());
+            }
+            
+            for(Class<? extends Data> data : dataBuilderClassInfo.accesses()) {
+                access.add(data.getCanonicalName());
+            }
+
             register(
                     ImmutableSet.copyOf(consumes),
+                    ImmutableSet.copyOf(optionals),
+                    ImmutableSet.copyOf(access),
                     dataBuilderClassInfo.produces().getCanonicalName(),
                     Strings.isNullOrEmpty(dataBuilderClassInfo.name())
                             ? annotatedDataBuilder.getCanonicalName()
@@ -73,7 +97,7 @@ public class DataBuilderMetadataManager {
      * @throws DataBuilderFrameworkException
      */
     public DataBuilderMetadataManager register(DataBuilderMeta dataBuilderMeta, Class<? extends DataBuilder> dataBuilder) throws DataBuilderFrameworkException {
-        return register(dataBuilderMeta.getConsumes(), dataBuilderMeta.getProduces(), dataBuilderMeta.getName(), dataBuilder);
+        return register(dataBuilderMeta.getConsumes(), dataBuilderMeta.getOptionals(), dataBuilderMeta.getAccess(), dataBuilderMeta.getProduces(), dataBuilderMeta.getName(), dataBuilder);
     }
 
     /**
@@ -86,10 +110,25 @@ public class DataBuilderMetadataManager {
      */
     public DataBuilderMetadataManager register(Set<String> consumes, String produces,
                          String builder, Class<? extends DataBuilder> dataBuilder) throws DataBuilderFrameworkException {
-        DataBuilderMeta metadata = new DataBuilderMeta(consumes, produces, builder);
+        return register(consumes, null, null, produces, builder, dataBuilder);
+    }
+
+    public DataBuilderMetadataManager registerWithOptionals(Set<String> consumes, Set<String> optionals, String produces,
+            String builder, Class<? extends DataBuilder> dataBuilder) throws DataBuilderFrameworkException {
+        return register(consumes, optionals, null, produces, builder, dataBuilder);
+        }
+    
+    public DataBuilderMetadataManager registerWithAccess(Set<String> consumes, Set<String> access, String produces,
+            String builder, Class<? extends DataBuilder> dataBuilder) throws DataBuilderFrameworkException {
+        return register(consumes, null, access, produces, builder, dataBuilder);
+    }
+    
+    public DataBuilderMetadataManager register(Set<String> consumes, Set<String> optionals, Set<String> access, String produces,
+            String builder, Class<? extends DataBuilder> dataBuilder) throws DataBuilderFrameworkException {
+        DataBuilderMeta metadata = new DataBuilderMeta(consumes, produces, builder, optionals, access);
         if(meta.containsKey(builder)) {
             throw new DataBuilderFrameworkException(DataBuilderFrameworkException.ErrorCode.BUILDER_EXISTS,
-                            "A builder with name " + builder + " already exists");
+                    "A builder with name " + builder + " already exists");
         }
         meta.put(builder, metadata);
         if(!producedToProducerMap.containsKey(produces)) {
@@ -102,10 +141,28 @@ public class DataBuilderMetadataManager {
             }
             consumesMeta.get(consumesData).add(metadata);
         }
+        
+        if(optionals != null){
+            for(String optionalsData : optionals) {
+                if(!optionalsMeta.containsKey(optionalsData)) {
+                    optionalsMeta.put(optionalsData, Sets.<DataBuilderMeta>newTreeSet());
+                }
+                optionalsMeta.get(optionalsData).add(metadata);
+            }
+            
+        }
+        if(access != null){
+            for(String accessData : access) {
+                if(!accessesMeta.containsKey(accessData)) {
+                    accessesMeta.put(accessData, Sets.<DataBuilderMeta>newTreeSet());
+                }
+                accessesMeta.get(accessData).add(metadata);
+            }
+        }
         dataBuilders.put(builder, dataBuilder);
         return this;
     }
-
+    
     /**
      * Get {@link com.flipkart.databuilderframework.model.DataBuilderMeta} meta for all builders that consume this data.
      * @param data Name of the data to be consumed
@@ -159,8 +216,11 @@ public class DataBuilderMetadataManager {
 
     public DataBuilderMetadataManager immutableCopy() {
         return new DataBuilderMetadataManager(ImmutableMap.copyOf(dataBuilders),
+                
                 ImmutableMap.copyOf(meta),
                 ImmutableMap.copyOf(producedToProducerMap),
-                ImmutableMap.copyOf(consumesMeta));
+                ImmutableMap.copyOf(consumesMeta),
+                ImmutableMap.copyOf(optionalsMeta),
+                ImmutableMap.copyOf(accessesMeta));
     }
 }
