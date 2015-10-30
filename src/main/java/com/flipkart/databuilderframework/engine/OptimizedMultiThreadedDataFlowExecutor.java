@@ -65,7 +65,7 @@ public class OptimizedMultiThreadedDataFlowExecutor extends DataFlowExecutor {
                     }
                     DataBuilder builder = builderFactory.create(builderMeta.getName());
                     if (!dataSetAccessor.checkForData(builder.getDataBuilderMeta().getConsumes())) {
-                        continue; //No need to run others, list is topo sorted
+                        continue;
                     }
                     BuilderRunner builderRunner = new BuilderRunner(dataBuilderExecutionListener, dataFlowInstance,
                                                                         builderMeta, dataDelta, responseData,
@@ -83,19 +83,19 @@ public class OptimizedMultiThreadedDataFlowExecutor extends DataFlowExecutor {
                 int listSize = dataFutures.size();
                 for(int i = 0; i < listSize || singleRef != null; i++) { //listSize == 0 when singleRef is present, or condition allows this logic to run once
                     try {
-                    	 DataContainer responseContainer = null;
-                    	if(singleRef != null){
-                    		try {
-								responseContainer = singleRef.call();
-							} catch (Exception e) {
-								throw new ExecutionException(e); //to map this to existing exception handling
-							}finally{
-								singleRef = null; // make this null to avoid loopback hell
-							}
-                    	}else{
-                    		responseContainer = completionExecutor.take().get();
-                    	}
-                       
+                        DataContainer responseContainer = null;
+                        if(singleRef != null){
+                            try {
+                                responseContainer = singleRef.call();
+                            } catch (Exception e) {
+                                throw new ExecutionException(e); //to map this to existing exception handling
+                            }finally{
+                                singleRef = null; // make this null to avoid loopback hell
+                            }
+                        }else{
+                            responseContainer = completionExecutor.take().get();
+                        }
+
                         Data response = responseContainer.getGeneratedData();
                         if(responseContainer.isHasError()) {
                             if(null != responseContainer.getValidationException()) {
@@ -237,7 +237,7 @@ public class OptimizedMultiThreadedDataFlowExecutor extends DataFlowExecutor {
 
             for (DataBuilderExecutionListener listener : dataBuilderExecutionListener) {
                 try {
-                    listener.beforeExecute(dataFlowInstance, builderMeta, dataDelta, responseData);
+                    listener.beforeExecute(dataBuilderContext, dataFlowInstance, builderMeta, dataDelta, responseData);
                 } catch (Throwable t) {
                     logger.error("Error running pre-execution execution listener: ", t);
                 }
@@ -249,7 +249,7 @@ public class OptimizedMultiThreadedDataFlowExecutor extends DataFlowExecutor {
                 procesedBuilders.add(builderMeta);
                 for (DataBuilderExecutionListener listener : dataBuilderExecutionListener) {
                     try {
-                        listener.afterExecute(dataFlowInstance, builderMeta, dataDelta, responseData, response);
+                        listener.afterExecute(dataBuilderContext, dataFlowInstance, builderMeta, dataDelta, responseData, response);
                     } catch (Throwable t) {
                         logger.error("Error running post-execution listener: ", t);
                     }
@@ -265,7 +265,7 @@ public class OptimizedMultiThreadedDataFlowExecutor extends DataFlowExecutor {
                 logger.error("Error running builder: " + builderMeta.getName());
                 for (DataBuilderExecutionListener listener : dataBuilderExecutionListener) {
                     try {
-                        listener.afterException(dataFlowInstance, builderMeta, dataDelta, responseData, e);
+                        listener.afterException(dataBuilderContext, dataFlowInstance, builderMeta, dataDelta, responseData, e);
 
                     } catch (Throwable error) {
                         logger.error("Error running post-execution listener: ", error);
@@ -278,7 +278,7 @@ public class OptimizedMultiThreadedDataFlowExecutor extends DataFlowExecutor {
                 logger.error("Validation error in data produced by builder" +builderMeta.getName());
                 for (DataBuilderExecutionListener listener : dataBuilderExecutionListener) {
                     try {
-                        listener.afterException(dataFlowInstance, builderMeta, dataDelta, responseData, e);
+                        listener.afterException(dataBuilderContext, dataFlowInstance, builderMeta, dataDelta, responseData, e);
 
                     } catch (Throwable error) {
                         logger.error("Error running post-execution listener: ", error);
@@ -293,7 +293,7 @@ public class OptimizedMultiThreadedDataFlowExecutor extends DataFlowExecutor {
                 logger.error("Error running builder: " + builderMeta.getName());
                 for (DataBuilderExecutionListener listener : dataBuilderExecutionListener) {
                     try {
-                        listener.afterException(dataFlowInstance, builderMeta, dataDelta, responseData, t);
+                        listener.afterException(dataBuilderContext, dataFlowInstance, builderMeta, dataDelta, responseData, t);
 
                     } catch (Throwable error) {
                         logger.error("Error running post-execution listener: ", error);
