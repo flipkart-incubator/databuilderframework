@@ -5,6 +5,7 @@ import com.flipkart.databuilderframework.engine.impl.InstantiatingDataBuilderFac
 import com.flipkart.databuilderframework.model.*;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -16,6 +17,9 @@ public class ConcurrencyTest {
     private DataFlowExecutor executor = new MultiThreadedDataFlowExecutor(
                                                 new InstantiatingDataBuilderFactory(dataBuilderMetadataManager),
                                                 Executors.newFixedThreadPool(10));
+    private DataFlowExecutor optimizedMultiThreadedExecutor = new OptimizedMultiThreadedDataFlowExecutor(
+            new InstantiatingDataBuilderFactory(dataBuilderMetadataManager),
+            Executors.newFixedThreadPool(10));
     private DataFlowExecutor simpleExecutor = new SimpleDataFlowExecutor(
                                                 new InstantiatingDataBuilderFactory(dataBuilderMetadataManager));
     private ExecutionGraphGenerator executionGraphGenerator = new ExecutionGraphGenerator(dataBuilderMetadataManager);
@@ -83,6 +87,19 @@ public class ConcurrencyTest {
             Assert.assertEquals(8, response.getResponses().size());
             //System.out.println("ST:" + System.currentTimeMillis());
         }
-        System.out.println(String.format("MT: %d ST: %d", mTime, sTime));
+        
+        long omTime = 0 ;
+        for(int i = 0; i < 1000; i++) {
+            DataFlowInstance dataFlowInstance = new DataFlowInstance();
+            dataFlowInstance.setId("testflow");
+            dataFlowInstance.setDataFlow(dataFlow);
+            DataDelta dataDelta = new DataDelta(Lists.<Data>newArrayList(new RequestData()));
+            long startTime = System.currentTimeMillis();
+            DataExecutionResponse response = optimizedMultiThreadedExecutor.run(dataFlowInstance, dataDelta);
+            omTime += (System.currentTimeMillis() - startTime);
+            Assert.assertEquals(8, response.getResponses().size());
+            //System.out.println("MT:" + System.currentTimeMillis());
+        }
+        System.out.println(String.format("OMT: %d MT: %d ST: %d",omTime, mTime, sTime));
     }
 }

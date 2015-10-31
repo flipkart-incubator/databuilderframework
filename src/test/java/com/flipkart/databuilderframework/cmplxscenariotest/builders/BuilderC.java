@@ -1,6 +1,7 @@
 package com.flipkart.databuilderframework.cmplxscenariotest.builders;
 
 import com.flipkart.databuilderframework.annotations.DataBuilderInfo;
+import com.flipkart.databuilderframework.cmplxscenariotest.ThreadUtils;
 import com.flipkart.databuilderframework.cmplxscenariotest.data.DataC;
 import com.flipkart.databuilderframework.engine.DataBuilder;
 import com.flipkart.databuilderframework.engine.DataBuilderContext;
@@ -24,20 +25,12 @@ public class BuilderC extends DataBuilder{
 					accessor.checkForData("B3") &&
 					accessor.checkForData("B4") &&
 					accessor.checkForData("B5")){
-				try {
-					Thread.sleep(20); //simulate work being done
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
+				ThreadUtils.INSTANCE.putToSleep(20, "C");
 
 				return new DataC();
 			}
 		}else if(accessor.checkForData("A2")){
-			try {
-				Thread.sleep(20); //simulate work being done
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
+			ThreadUtils.INSTANCE.putToSleep(20, "C");
 			return new DataC();
 		}
 		return null;

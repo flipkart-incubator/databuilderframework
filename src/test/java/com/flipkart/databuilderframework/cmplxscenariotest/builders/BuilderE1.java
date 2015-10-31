@@ -1,6 +1,7 @@
 package com.flipkart.databuilderframework.cmplxscenariotest.builders;
 
 import com.flipkart.databuilderframework.annotations.DataBuilderInfo;
+import com.flipkart.databuilderframework.cmplxscenariotest.ThreadUtils;
 import com.flipkart.databuilderframework.cmplxscenariotest.data.DataD;
 import com.flipkart.databuilderframework.cmplxscenariotest.data.DataE1;
 import com.flipkart.databuilderframework.engine.DataBuilder;
@@ -20,11 +21,7 @@ public class BuilderE1 extends DataBuilder{
 		DataSetAccessor dataSetAccessor = DataSet.accessor(context.getDataSet());
 		DataD dataD = dataSetAccessor.get("D", DataD.class);
 		if(dataD.val == 0){ // RUN FOR 0 VAL
-			try {
-				Thread.sleep(20); //simulate work being done
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
+			ThreadUtils.INSTANCE.putToSleep(20, "E1");
 			return new DataE1();
 		}
 		return null;
