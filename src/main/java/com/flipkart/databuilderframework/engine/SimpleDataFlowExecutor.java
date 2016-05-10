@@ -105,7 +105,7 @@ public class SimpleDataFlowExecutor extends DataFlowExecutor {
                             }
                         }
                         throw new DataBuilderFrameworkException(DataBuilderFrameworkException.ErrorCode.BUILDER_EXECUTION_ERROR,
-                                "Error running builder: " + builderMeta.getName(), e.getDetails(), e);
+                                "Error running builder: " + builderMeta.getName(), e.getDetails(), e, new DataExecutionResponse(responseData));
 
                     } catch (DataValidationException e) {
                         logger.error("Validation error in data produced by builder" +builderMeta.getName());
@@ -137,7 +137,7 @@ public class SimpleDataFlowExecutor extends DataFlowExecutor {
                         objectMap.put("MESSAGE", t.getMessage());
                         throw new DataBuilderFrameworkException(DataBuilderFrameworkException.ErrorCode.BUILDER_EXECUTION_ERROR,
                                 "Error running builder: " + builderMeta.getName()
-                                        + ": " + t.getMessage(), objectMap, t);
+                                        + ": " + t.getMessage(), objectMap, t, new DataExecutionResponse(responseData));
                     }
                 }
             }

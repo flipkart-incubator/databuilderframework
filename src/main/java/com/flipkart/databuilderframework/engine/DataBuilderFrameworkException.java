@@ -1,10 +1,13 @@
 package com.flipkart.databuilderframework.engine;
 
 
+import com.flipkart.databuilderframework.model.DataExecutionResponse;
+
 import java.util.Map;
 
 public class DataBuilderFrameworkException extends Exception {
     private Map<String,Object> details;
+	private DataExecutionResponse partialExecutionResponse;
     public ErrorCode getErrorCode() {
         return errorCode;
     }
@@ -44,7 +47,18 @@ public class DataBuilderFrameworkException extends Exception {
         this.details=details;
     }
 
+	public DataBuilderFrameworkException(ErrorCode errorCode, String message, Map<String, Object> details, Throwable cause, DataExecutionResponse partialExecutionResponse){
+		super(message, cause);
+		this.errorCode = errorCode;
+		this.details = details;
+		this.partialExecutionResponse = partialExecutionResponse;
+	}
+
     public Map<String, Object> getDetails() {
         return details;
     }
+
+	public DataExecutionResponse getPartialExecutionResponse() {
+		return partialExecutionResponse;
+	}
 }
