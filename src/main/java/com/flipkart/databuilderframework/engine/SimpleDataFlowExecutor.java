@@ -119,7 +119,7 @@ public class SimpleDataFlowExecutor extends DataFlowExecutor {
                         }
                         // Sending Execution response in exception object
 
-                        throw new DataValidationException(DataValidationException.ErrorCode.DATA_VALIDATION_EXCEPTION, "Data validation error" +builderMeta.getName(), new DataExecutionResponse(responseData),e.getDetails(), e);
+                        throw new DataValidationException(DataValidationException.ErrorCode.DATA_VALIDATION_EXCEPTION, e.getMessage(), new DataExecutionResponse(responseData),e.getDetails(), e);
 
 
                     }
