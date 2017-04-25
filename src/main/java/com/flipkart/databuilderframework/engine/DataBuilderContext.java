@@ -3,12 +3,15 @@ package com.flipkart.databuilderframework.engine;
 import com.flipkart.databuilderframework.model.DataSet;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
+import lombok.Builder;
+import lombok.Data;
 
 import java.util.Map;
 
 /**
  * Context object passed to the builder
  */
+@Data
 public class DataBuilderContext {
 
     /**
@@ -21,6 +24,7 @@ public class DataBuilderContext {
     public DataBuilderContext() {
     }
 
+    @Builder
     DataBuilderContext(DataSet dataSet, Map<String, Object> contextData) {
         this.dataSet = dataSet;
         this.contextData = contextData;

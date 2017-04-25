@@ -3,6 +3,7 @@ package com.flipkart.databuilderframework.engine;
 import com.flipkart.databuilderframework.model.*;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 import java.util.List;
 
@@ -85,7 +86,10 @@ public abstract class DataFlowExecutor {
      * @throws DataBuilderFrameworkException
      */
     public DataExecutionResponse run(DataFlowInstance dataFlowInstance, DataDelta dataDelta) throws DataBuilderFrameworkException,DataValidationException {
-        DataBuilderContext dataBuilderContext = new DataBuilderContext();
+        DataBuilderContext dataBuilderContext = DataBuilderContext.builder()
+                .dataSet(dataFlowInstance.getDataSet())
+                .contextData(Maps.newHashMap())
+                .build();
         return run(dataBuilderContext, dataFlowInstance, dataDelta);
     }
 
