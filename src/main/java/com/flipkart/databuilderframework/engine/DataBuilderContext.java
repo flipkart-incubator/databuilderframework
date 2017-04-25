@@ -11,7 +11,6 @@ import java.util.Map;
 /**
  * Context object passed to the builder
  */
-@Data
 public class DataBuilderContext {
 
     /**
