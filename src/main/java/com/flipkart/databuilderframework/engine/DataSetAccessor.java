@@ -111,6 +111,15 @@ public class DataSetAccessor {
     }
 
     /**
+     * Check if a specified data is present in the {@link com.flipkart.databuilderframework.model.DataSet}
+     * @param clazz Class to be checked.
+     * @return <i>true</i> if all elements are present. <i>false</i> otherwise.
+     */
+    public boolean checkForData(Class<?> clazz) {
+        return dataSet.getAvailableData().containsKey(Utils.name(clazz));
+    }
+
+    /**
      * Get a copy of the underlying data set.
      */
     public DataSet copy() {
