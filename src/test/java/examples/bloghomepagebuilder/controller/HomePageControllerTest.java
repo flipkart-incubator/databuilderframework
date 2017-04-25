@@ -6,11 +6,14 @@ import com.google.common.base.Stopwatch;
 import examples.bloghomepagebuilder.builders.*;
 import examples.bloghomepagebuilder.data.HomePageRequest;
 import examples.bloghomepagebuilder.data.HomePageResponse;
+import lombok.extern.slf4j.Slf4j;
+import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
-
+@Slf4j
 public class HomePageControllerTest {
     //private final DataFlowExecutor executor = new MultiThreadedDataFlowExecutor(Executors.newFixedThreadPool(10));
     private final DataFlow homePageDataFlow;
@@ -27,6 +30,7 @@ public class HomePageControllerTest {
                                 .withDataBuilder(new HomePageBuilder())
                                 .withTargetData(HomePageResponse.class)
                                 .build();
+        log.info("Dataflow: {}", homePageDataFlow);
     }
 
     @Test
@@ -41,16 +45,12 @@ public class HomePageControllerTest {
 
     private void runHomePageTest(DataFlowExecutor executor) throws Exception {
         final HomePageRequest request = new HomePageRequest("2321312312", "2323454", "Blah".getBytes());
-        Stopwatch stopwatch = new Stopwatch();
-        stopwatch.start();
+        Stopwatch stopwatch = Stopwatch.createStarted();
         for(long i = 0; i < 100000; i++) {
             HomePageResponse response = executor.run(homePageDataFlow, request).get(HomePageResponse.class);
-            if(null == response) {
-                throw new Exception("WTF!!");
-            }
+            Assert.assertNotNull(response);
             //System.out.println(new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(response));
         }
-        stopwatch.stop();
-        System.out.println("Time taken: " + stopwatch.elapsedMillis());
+        System.out.println("Time taken: " + stopwatch.elapsed(TimeUnit.MILLISECONDS));
     }
 }

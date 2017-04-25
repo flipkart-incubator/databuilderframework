@@ -8,7 +8,7 @@ import java.util.Map;
  */
 public class DataBuilderException extends Exception{
     private Map<String,Object> details;
-    public static enum ErrorCode {
+    public enum ErrorCode {
         HANDLER_FAILURE
     }
 

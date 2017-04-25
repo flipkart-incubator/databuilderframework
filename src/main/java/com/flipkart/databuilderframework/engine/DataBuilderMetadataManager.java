@@ -64,24 +64,24 @@ public class DataBuilderMetadataManager {
             //TODO (gokul) remove getCannonicalName() and inject a Handler for client to customize this
 
             for(Class<? extends Data> data : dataBuilderClassInfo.consumes()) {
-                consumes.add(data.getCanonicalName());
+                consumes.add(Utils.name(data));
             }
             
             for(Class<? extends Data> data : dataBuilderClassInfo.optionals()) {
-                optionals.add(data.getCanonicalName());
+                optionals.add(Utils.name(data));
             }
             
             for(Class<? extends Data> data : dataBuilderClassInfo.accesses()) {
-                access.add(data.getCanonicalName());
+                access.add(Utils.name(data));
             }
 
             register(
                     ImmutableSet.copyOf(consumes),
                     ImmutableSet.copyOf(optionals),
                     ImmutableSet.copyOf(access),
-                    dataBuilderClassInfo.produces().getCanonicalName(),
+                    Utils.name(dataBuilderClassInfo.produces()),
                     Strings.isNullOrEmpty(dataBuilderClassInfo.name())
-                            ? annotatedDataBuilder.getCanonicalName()
+                            ? Utils.name(annotatedDataBuilder)
                             : dataBuilderClassInfo.name(),
                     annotatedDataBuilder);
         }
