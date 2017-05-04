@@ -10,7 +10,7 @@ import java.util.Map;
 public class DataValidationException extends Exception {
     private Map<String,Object> details;
     private DataExecutionResponse response;
-    public static enum ErrorCode {
+    public enum ErrorCode {
         DATA_VALIDATION_EXCEPTION
     }
 

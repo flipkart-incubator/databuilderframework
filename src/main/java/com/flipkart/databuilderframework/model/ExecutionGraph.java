@@ -11,7 +11,10 @@ import java.util.List;
  * analysis and creates a representation of the dependency tree. This is used by the {@link com.flipkart.databuilderframework.engine.DataFlowExecutor}
  * to evaluate and run the data.
  */
+@lombok.Data
 public class ExecutionGraph implements Serializable {
+
+    private static final long serialVersionUID = -7024388736060201946L;
     /**
      * A ranked list of builders for each level of dependency tree. The builders at the bottom of the tree come first.
      * Each consecutive level moves towards the root of the tree.
@@ -40,11 +43,4 @@ public class ExecutionGraph implements Serializable {
         return new ExecutionGraph(tmpDependencyHierarchy);
     }
 
-    public List<List<DataBuilderMeta>> getDependencyHierarchy() {
-        return dependencyHierarchy;
-    }
-
-    public void setDependencyHierarchy(List<List<DataBuilderMeta>> dependencyHierarchy) {
-        this.dependencyHierarchy = dependencyHierarchy;
-    }
 }

@@ -2,7 +2,7 @@ package com.flipkart.databuilderframework.engine;
 
 import com.flipkart.databuilderframework.complextest.SB;
 import com.google.common.collect.ImmutableSet;
-import junit.framework.Assert;
+import org.junit.Assert;
 import org.junit.Test;
 
 public class DataBuilderMetadataManagerTest {

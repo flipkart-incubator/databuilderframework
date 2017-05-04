@@ -10,10 +10,8 @@ import com.flipkart.databuilderframework.model.DataFlow;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -193,13 +191,13 @@ public class DataFlowBuilder {
                     "No useful annotations found on class. Use DataBuilderInfo or DataBuilderClassInfo to annotate");
             Set<String> consumes = Sets.newHashSet();
             for(Class<? extends Data> data : dataBuilderClassInfo.consumes()) {
-                consumes.add(data.getCanonicalName());
+                consumes.add(Utils.name(data));
             }
             dataBuilderMeta = new DataBuilderMeta(
                     ImmutableSet.copyOf(consumes),
-                    dataBuilderClassInfo.produces().getCanonicalName(),
+                    Utils.name(dataBuilderClassInfo.produces()),
                     Strings.isNullOrEmpty(dataBuilderClassInfo.name())
-                            ? annotatedDataBuilder.getCanonicalName()
+                            ? Utils.name(annotatedDataBuilder)
                             : dataBuilderClassInfo.name());
         }
         dataBuilderMetadataManager.register(dataBuilderMeta, dataBuilder.getClass());
@@ -213,7 +211,7 @@ public class DataFlowBuilder {
      * @return
      */
     public DataFlowBuilder withTargetData(Class<? extends DataAdapter> targetDataClass) {
-        this.dataFlow.setTargetData(targetDataClass.getCanonicalName());
+        this.dataFlow.setTargetData(Utils.name(targetDataClass));
         return this;
     }
 
@@ -245,7 +243,7 @@ public class DataFlowBuilder {
      * @return
      */
     public DataFlowBuilder withResolutionSpec(final Class<? extends Data> data, final Class<? extends DataBuilder> generatingBuilder) {
-        this.dataFlow.getResolutionSpecs().put(data.getCanonicalName(), generatingBuilder.getCanonicalName());
+        this.dataFlow.getResolutionSpecs().put(Utils.name(data), Utils.name(generatingBuilder));
         return this;
     }
 

@@ -1,5 +1,7 @@
 package com.flipkart.databuilderframework.model;
 
+import com.flipkart.databuilderframework.engine.Utils;
+
 import java.util.Map;
 
 /**
@@ -26,7 +28,7 @@ public class DataExecutionResponse {
     }
 
     public <T extends Data> T get(Class<T> type) {
-        Data d = responses.get(type.getCanonicalName());
+        Data d = responses.get(Utils.name(type));
         return type.cast(d);
     }
 
