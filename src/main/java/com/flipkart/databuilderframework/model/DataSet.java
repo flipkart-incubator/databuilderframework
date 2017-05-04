@@ -2,6 +2,7 @@ package com.flipkart.databuilderframework.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.flipkart.databuilderframework.engine.DataSetAccessor;
+import com.flipkart.databuilderframework.engine.Utils;
 import com.google.common.collect.Maps;
 import org.hibernate.validator.constraints.NotEmpty;
 
@@ -26,6 +27,16 @@ public class DataSet {
 
     public DataSet(Map<String, Data> availableData) {
         this.availableData = availableData;
+    }
+
+    public DataSet add(String dataName, Data data) {
+        this.availableData.put(dataName, data);
+        return this;
+    }
+
+    public<T extends Data> DataSet add(T data) {
+        this.availableData.put(Utils.name(data.getClass()), data);
+        return this;
     }
 
     public Map<String, Data> getAvailableData() {
