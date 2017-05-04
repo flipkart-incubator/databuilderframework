@@ -1,6 +1,7 @@
 package com.flipkart.databuilderframework.engine;
 
 import com.flipkart.databuilderframework.model.DataSet;
+import com.google.common.base.Predicates;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 
@@ -26,6 +27,22 @@ public class DataBuilderContext {
         this.contextData = contextData;
     }
 
+    /**
+     * Get only the accessible data for this builder.
+     * @param builder The builder that wants to access this data.
+     * @return A dataset that contains only the data accessible to the builder.
+     */
+    public DataSet getDataSet(DataBuilder builder) {
+        return new DataSet(Maps.filterKeys(dataSet.getAvailableData(),
+                Predicates.in(builder.getDataBuilderMeta().getAccessibleDataSet())));
+    }
+
+    /**
+     * Access the data set. Ideally a builder should only access data as declared.
+     * Deprecated: This methpd will be removed in the near future. Do not use this in newer projects.
+     * @return The full data set.
+     */
+    @Deprecated
     public DataSet getDataSet() {
         return dataSet;
     }
