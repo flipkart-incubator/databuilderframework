@@ -4,14 +4,12 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
-import com.google.common.collect.Sets.SetView;
-
+import lombok.Builder;
 import org.hibernate.validator.constraints.NotEmpty;
 
-import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
-
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.Set;
 
 /**
@@ -19,6 +17,7 @@ import java.util.Set;
  * This is used internally by the system to describe the requirements and also the current state of the data in the
  * execution.
  */
+@lombok.Data
 public class DataBuilderMeta implements Comparable<DataBuilderMeta>, Serializable {
     /**
      * List of {@link com.flipkart.databuilderframework.model.Data} this {@link com.flipkart.databuilderframework.engine.DataBuilder}
@@ -54,7 +53,6 @@ public class DataBuilderMeta implements Comparable<DataBuilderMeta>, Serializabl
      *  presence would trigger {@link com.flipkart.databuilderframework.engine.DataBuilder} if
      *  all consumes {@link com.flipkart.databuilderframework.model.Data} are present but its optional and not mandatory for {@link com.flipkart.databuilderframework.engine.DataBuilder} to run.
      */
-    @Nullable
     @JsonProperty
     private Set<String> optionals;
 
@@ -68,12 +66,10 @@ public class DataBuilderMeta implements Comparable<DataBuilderMeta>, Serializabl
     private Set<String> access;
 
     public DataBuilderMeta(Set<String> consumes, String produces, String name) {
-        this.consumes = consumes;
-        this.produces = produces;
-        this.name = name;
+        this(consumes, produces, name, Collections.emptySet(), Collections.emptySet());
     }
 
-    //overloaded constructor
+    @Builder
     public DataBuilderMeta(Set<String> consumes, String produces, String name, 
     		Set<String> optionals, Set<String> access) {
         this.consumes = consumes;
@@ -85,27 +81,6 @@ public class DataBuilderMeta implements Comparable<DataBuilderMeta>, Serializabl
 
     
     public DataBuilderMeta() {
-    }
-
-    public Set<String> getConsumes() {
-        return consumes;
-    }
-
-    public String getProduces() {
-        return produces;
-    }
-
-    public String getName() {
-        return name;
-    }
-    
-    
-    public Set<String> getOptionals() {
-        return optionals;
-    }
-    
-    public Set<String> getAccess() {
-        return access;
     }
 
     @JsonIgnore
@@ -133,57 +108,9 @@ public class DataBuilderMeta implements Comparable<DataBuilderMeta>, Serializabl
         return name.compareTo(rhs.getName());
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        DataBuilderMeta that = (DataBuilderMeta) o;
-
-        if (!consumes.equals(that.consumes)) return false;
-        if (!name.equals(that.name)) return false;
-        if (!produces.equals(that.produces)) return false;
-        if (optionals == null && that.optionals != null) return false;
-        if (access == null && that.access != null) return false;
-        if(optionals != null && !optionals.equals(that.optionals)) return false;
-        if(access != null && !access.equals(that.access)) return false;
-
-        return true;
-    }
-
-    @Override
-    public int hashCode() {
-        int result = consumes.hashCode();
-        if(optionals != null) result = 31 * result + optionals.hashCode();
-        if(access != null) result = 31 * result + access.hashCode();
-        result = 31 * result + produces.hashCode();
-        result = 31 * result + name.hashCode();
-        return result;
-    }
-
     public DataBuilderMeta deepCopy() {
     	Set<String> optionalCopy = (optionals != null) ? ImmutableSet.copyOf(optionals) : null;
     	Set<String> accessCopy = (access != null) ? ImmutableSet.copyOf(access) : null;
         return new DataBuilderMeta(ImmutableSet.copyOf(consumes), produces, name, optionalCopy, accessCopy);
-    }
-
-    public void setConsumes(Set<String> consumes) {
-        this.consumes = consumes;
-    }
-
-    public void setProduces(String produces) {
-        this.produces = produces;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public int getRank() {
-        return rank;
-    }
-
-    public void setRank(int rank) {
-        this.rank = rank;
     }
 }

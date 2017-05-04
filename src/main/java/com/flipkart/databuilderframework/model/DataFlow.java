@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.flipkart.databuilderframework.engine.DataBuilderFactory;
 import com.google.common.collect.Maps;
+import lombok.Builder;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.constraints.NotNull;
@@ -14,7 +15,11 @@ import java.util.Set;
 /**
  * Flow specification for execution
  */
+@lombok.Data
 public class DataFlow implements Serializable {
+
+    private static final long serialVersionUID = -2095986441159703272L;
+
     /**
      * The name of the flow for execution.
      */
@@ -71,12 +76,13 @@ public class DataFlow implements Serializable {
      * Factory to be used to build data for this flow. This is set by the framework generally.
      */
     @JsonIgnore
-    private DataBuilderFactory dataBuilderFactory;
+    private transient DataBuilderFactory dataBuilderFactory;
 
     public DataFlow() {
         this.resolutionSpecs = Maps.newHashMap();
     }
 
+    @Builder
     DataFlow(String name,
                     String description,
                     String targetData,
@@ -94,78 +100,6 @@ public class DataFlow implements Serializable {
         this.transients = transients;
         this.enabled = enabled;
         this.loopingEnabled = loopingEnabled;
-        this.dataBuilderFactory = dataBuilderFactory;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public String getTargetData() {
-        return targetData;
-    }
-
-    public void setTargetData(String targetData) {
-        this.targetData = targetData;
-    }
-
-    public ExecutionGraph getExecutionGraph() {
-        return executionGraph;
-    }
-
-    public void setExecutionGraph(ExecutionGraph executionGraph) {
-        this.executionGraph = executionGraph;
-    }
-
-    public Map<String, String> getResolutionSpecs() {
-        return resolutionSpecs;
-    }
-
-    public void setResolutionSpecs(Map<String, String> resolutionSpecs) {
-        this.resolutionSpecs = resolutionSpecs;
-    }
-
-    public boolean isEnabled() {
-        return enabled;
-    }
-
-    public void setEnabled(boolean enabled) {
-        this.enabled = enabled;
-    }
-
-    public Set<String> getTransients() {
-        return transients;
-    }
-
-    public void setTransients(Set<String> transients) {
-        this.transients = transients;
-    }
-
-    public boolean isLoopingEnabled() {
-        return loopingEnabled;
-    }
-
-    public void setLoopingEnabled(boolean loopingEnabled) {
-        this.loopingEnabled = loopingEnabled;
-    }
-
-    public DataBuilderFactory getDataBuilderFactory() {
-        return dataBuilderFactory;
-    }
-
-    public void setDataBuilderFactory(DataBuilderFactory dataBuilderFactory) {
         this.dataBuilderFactory = dataBuilderFactory;
     }
 

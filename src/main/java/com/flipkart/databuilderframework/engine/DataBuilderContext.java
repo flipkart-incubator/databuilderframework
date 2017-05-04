@@ -4,6 +4,8 @@ import com.flipkart.databuilderframework.model.DataSet;
 import com.google.common.base.Predicates;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
+import lombok.Builder;
+import lombok.Data;
 
 import java.util.Map;
 
@@ -22,6 +24,7 @@ public class DataBuilderContext {
     public DataBuilderContext() {
     }
 
+    @Builder
     DataBuilderContext(DataSet dataSet, Map<String, Object> contextData) {
         this.dataSet = dataSet;
         this.contextData = contextData;

@@ -68,7 +68,7 @@ public class DataFlowBuilderTest {
                                                       new DataDelta(
                                                           new TestDataA("Hello"),
                                                           new TestDataB("Santanu")));
-        Assert.assertTrue(response.getResponses().containsKey(TestDataC.class.getCanonicalName()));
+        Assert.assertTrue(response.getResponses().containsKey(Utils.name(TestDataC.class)));
     }
 
 }
