@@ -73,7 +73,7 @@ Use the following maven dependency:
 <dependency>
     <groupId>com.flipkart.databuilderframework</groupId>
     <artifactId>databuilderframework</artifactId>
-    <version>0.5.1</version>
+    <version>0.5.3</version>
 </dependency>
 ```
 ## Framework usage
@@ -303,7 +303,7 @@ That's it. The libary is extensively tested and documented. Go through the JavaD
 
 Version
 ----
-0.5.1
+0.5.3
 
 # Contribution, Bugs and Feedback
 For bugs, questions and discussions please use the [Github Issues](https://github.com/flipkart-incubator/databuilderframework/issues).
