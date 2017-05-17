@@ -1,13 +1,12 @@
 package com.flipkart.databuilderframework.engine;
 
-import com.flipkart.databuilderframework.annotations.DataBuilderClassInfo;
-import com.flipkart.databuilderframework.annotations.DataBuilderInfo;
-import com.flipkart.databuilderframework.model.Data;
 import com.flipkart.databuilderframework.model.DataBuilderMeta;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicates;
-import com.google.common.base.Strings;
-import com.google.common.collect.*;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 
 import java.util.*;
 
@@ -44,47 +43,12 @@ public class DataBuilderMetadataManager {
     }
 
     public DataBuilderMetadataManager register(Class<? extends DataBuilder> annotatedDataBuilder) throws DataBuilderFrameworkException {
-        DataBuilderInfo info = annotatedDataBuilder.getAnnotation(DataBuilderInfo.class);
-        if(null != info) {
-            register(
-                    ImmutableSet.copyOf(info.consumes()),
-                    ImmutableSet.copyOf(info.optionals()),
-                    ImmutableSet.copyOf(info.accesses()),
-                    info.produces(),
-                    info.name(),
-                    annotatedDataBuilder);
-        }
-        else {
-            DataBuilderClassInfo dataBuilderClassInfo = annotatedDataBuilder.getAnnotation(DataBuilderClassInfo.class);
-            Preconditions.checkNotNull(dataBuilderClassInfo,
+            DataBuilderMeta dataBuilderMeta = Utils.meta(annotatedDataBuilder);
+            Preconditions.checkNotNull(dataBuilderMeta,
                     "No useful annotations found on class. Use DataBuilderInfo or DataBuilderClassInfo to annotate");
-            Set<String> consumes = Sets.newHashSet();
-            Set<String> optionals = Sets.newHashSet();
-            Set<String> access = Sets.newHashSet();
-            //TODO (gokul) remove getCannonicalName() and inject a Handler for client to customize this
-
-            for(Class<? extends Data> data : dataBuilderClassInfo.consumes()) {
-                consumes.add(Utils.name(data));
-            }
-            
-            for(Class<? extends Data> data : dataBuilderClassInfo.optionals()) {
-                optionals.add(Utils.name(data));
-            }
-            
-            for(Class<? extends Data> data : dataBuilderClassInfo.accesses()) {
-                access.add(Utils.name(data));
-            }
-
             register(
-                    ImmutableSet.copyOf(consumes),
-                    ImmutableSet.copyOf(optionals),
-                    ImmutableSet.copyOf(access),
-                    Utils.name(dataBuilderClassInfo.produces()),
-                    Strings.isNullOrEmpty(dataBuilderClassInfo.name())
-                            ? Utils.name(annotatedDataBuilder)
-                            : dataBuilderClassInfo.name(),
+                    dataBuilderMeta,
                     annotatedDataBuilder);
-        }
         return this;
     }
 
