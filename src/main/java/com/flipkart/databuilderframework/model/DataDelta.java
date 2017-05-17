@@ -1,6 +1,7 @@
 package com.flipkart.databuilderframework.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.collect.Lists;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.constraints.NotNull;
@@ -25,6 +26,7 @@ public class DataDelta {
         delta = Arrays.asList(data);
     }
     public DataDelta() {
+        delta = Lists.newArrayList();
     }
 
     public DataDelta(List<Data> delta) {

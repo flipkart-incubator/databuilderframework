@@ -20,9 +20,10 @@ public class DataSet {
     @NotNull
     @NotEmpty
     @JsonProperty
-    private Map<String,Data> availableData = Maps.newHashMap();
+    private Map<String,Data> availableData;
 
     public DataSet() {
+        this.availableData = Maps.newHashMap();
     }
 
     public DataSet(Map<String, Data> availableData) {

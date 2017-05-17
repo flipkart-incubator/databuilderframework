@@ -1,11 +1,11 @@
 package com.flipkart.databuilderframework.engine;
 
 import com.flipkart.databuilderframework.model.DataSet;
+import com.google.common.base.Preconditions;
 import com.google.common.base.Predicates;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import lombok.Builder;
-import lombok.Data;
 
 import java.util.Map;
 
@@ -19,9 +19,10 @@ public class DataBuilderContext {
      */
     private DataSet dataSet;
 
-    private Map<String, Object> contextData = Maps.newHashMap();
+    private Map<String, Object> contextData;
 
     public DataBuilderContext() {
+        contextData = Maps.newHashMap();
     }
 
     @Builder
@@ -36,8 +37,10 @@ public class DataBuilderContext {
      * @return A dataset that contains only the data accessible to the builder.
      */
     public DataSet getDataSet(DataBuilder builder) {
-        return new DataSet(Maps.filterKeys(dataSet.getAvailableData(),
-                Predicates.in(builder.getDataBuilderMeta().getAccessibleDataSet())));
+        Preconditions.checkNotNull(builder.getDataBuilderMeta(), "No metadata present in this builder");
+        return new DataSet(
+                Maps.filterKeys(Utils.sanitize(dataSet.getAvailableData()),
+                Predicates.in(Utils.sanitize(builder.getDataBuilderMeta().getAccessibleDataSet()))));
     }
 
     /**

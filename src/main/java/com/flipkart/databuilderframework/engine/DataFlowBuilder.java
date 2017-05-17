@@ -1,7 +1,5 @@
 package com.flipkart.databuilderframework.engine;
 
-import com.flipkart.databuilderframework.annotations.DataBuilderClassInfo;
-import com.flipkart.databuilderframework.annotations.DataBuilderInfo;
 import com.flipkart.databuilderframework.engine.impl.MixedDataBuilderFactory;
 import com.flipkart.databuilderframework.model.Data;
 import com.flipkart.databuilderframework.model.DataAdapter;
@@ -9,7 +7,6 @@ import com.flipkart.databuilderframework.model.DataBuilderMeta;
 import com.flipkart.databuilderframework.model.DataFlow;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 
 import java.util.Set;
@@ -32,7 +29,7 @@ public class DataFlowBuilder {
     private MixedDataBuilderFactory dataBuilderFactory = new MixedDataBuilderFactory();
 
     public DataFlowBuilder() {
-        dataFlow.setTransients(Sets.<String>newHashSet());
+        dataFlow.setTransients(Sets.newHashSet());
     }
 
     /**
@@ -176,30 +173,9 @@ public class DataFlowBuilder {
      */
     public DataFlowBuilder withDataBuilder(DataBuilder dataBuilder) throws DataBuilderFrameworkException {
         Preconditions.checkNotNull(dataBuilder, "Null DataBuilder cannot be registered");
-        Class<? extends DataBuilder> annotatedDataBuilder = dataBuilder.getClass();
-        DataBuilderMeta dataBuilderMeta;
-        DataBuilderInfo info = annotatedDataBuilder.getAnnotation(DataBuilderInfo.class);
-        if(null != info) {
-            dataBuilderMeta = new DataBuilderMeta(
-                    ImmutableSet.copyOf(info.consumes()),
-                    info.produces(),
-                    info.name());
-        }
-        else {
-            DataBuilderClassInfo dataBuilderClassInfo = annotatedDataBuilder.getAnnotation(DataBuilderClassInfo.class);
-            Preconditions.checkNotNull(dataBuilderClassInfo,
-                    "No useful annotations found on class. Use DataBuilderInfo or DataBuilderClassInfo to annotate");
-            Set<String> consumes = Sets.newHashSet();
-            for(Class<? extends Data> data : dataBuilderClassInfo.consumes()) {
-                consumes.add(Utils.name(data));
-            }
-            dataBuilderMeta = new DataBuilderMeta(
-                    ImmutableSet.copyOf(consumes),
-                    Utils.name(dataBuilderClassInfo.produces()),
-                    Strings.isNullOrEmpty(dataBuilderClassInfo.name())
-                            ? Utils.name(annotatedDataBuilder)
-                            : dataBuilderClassInfo.name());
-        }
+        DataBuilderMeta dataBuilderMeta = Utils.meta(dataBuilder);
+        Preconditions.checkNotNull(dataBuilderMeta,
+                "No useful annotations found on class. Use DataBuilderInfo or DataBuilderClassInfo to annotate");
         dataBuilderMetadataManager.register(dataBuilderMeta, dataBuilder.getClass());
         dataBuilderFactory.register(new ProxyDataBuilder(dataBuilderMeta, dataBuilder));
         return this;

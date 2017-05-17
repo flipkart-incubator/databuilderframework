@@ -2,6 +2,7 @@ package com.flipkart.databuilderframework.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import lombok.ToString;
 
 import javax.validation.constraints.NotNull;
 
@@ -9,6 +10,8 @@ import javax.validation.constraints.NotNull;
  * Data base class. All data classes to be considered by a DataBuilder need to inherit from this
  */
 @JsonTypeInfo(use= JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "data")
+@lombok.Data
+@ToString
 public abstract class Data {
 
     /**
@@ -30,19 +33,4 @@ public abstract class Data {
         this.data = data;
     }
 
-    public String getData() {
-        return data;
-    }
-
-    public void setData(String data) {
-        this.data = data;
-    }
-
-    public String getGeneratedBy() {
-        return generatedBy;
-    }
-
-    public void setGeneratedBy(String generatedBy) {
-        this.generatedBy = generatedBy;
-    }
 }
