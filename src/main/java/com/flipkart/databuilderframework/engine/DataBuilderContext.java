@@ -1,6 +1,7 @@
 package com.flipkart.databuilderframework.engine;
 
 import com.flipkart.databuilderframework.model.DataSet;
+import com.google.common.base.Preconditions;
 import com.google.common.base.Predicates;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
@@ -36,6 +37,7 @@ public class DataBuilderContext {
      * @return A dataset that contains only the data accessible to the builder.
      */
     public DataSet getDataSet(DataBuilder builder) {
+        Preconditions.checkNotNull(builder.getDataBuilderMeta(), "No metadata present in this builder");
         return new DataSet(
                 Maps.filterKeys(Utils.sanitize(dataSet.getAvailableData()),
                 Predicates.in(Utils.sanitize(builder.getDataBuilderMeta().getAccessibleDataSet()))));
