@@ -25,16 +25,17 @@ public class DataSetAccessor {
     public <T extends Data> T get(Class<T> tClass) {
         return get(Utils.name(tClass), tClass);
     }
+
     /**
      * Get a data from {@link com.flipkart.databuilderframework.model.DataSet}.
-     * @param key Key for the data
+     * @param key    Key for the data
      * @param tClass Class to cast the data to. Should inherit from {@link com.flipkart.databuilderframework.model.Data}
-     * @param <T> Sub-Type for {@link com.flipkart.databuilderframework.model.Data}. Should be same as <i>tClass</i>
+     * @param <T>    Sub-Type for {@link com.flipkart.databuilderframework.model.Data}. Should be same as <i>tClass</i>
      * @return data
      */
     public <T extends Data> T get(String key, Class<T> tClass) {
         Map<String, Data> availableData = dataSet.getAvailableData();
-        if(availableData.containsKey(key)) {
+        if (availableData.containsKey(key)) {
             Data data = availableData.get(key);
             return tClass.cast(data);
         }
@@ -44,17 +45,17 @@ public class DataSetAccessor {
     /**
      * Get data from {@link com.flipkart.databuilderframework.model.DataSet}, with accessibility checks.
      * This will throw an exception if the calling data builder is not supposed to use the requested data.
-     * @param key Key for the data
+     * @param key     Key for the data
      * @param builder {@link com.flipkart.databuilderframework.engine.DataBuilder} that is accessing the data
-     * @param tClass Class to cast the data to. Should inherit from {@link com.flipkart.databuilderframework.model.Data}
-     * @param <T> Sub-Type for {@link com.flipkart.databuilderframework.model.Data}. Should be same as <i>tClass</i>
+     * @param tClass  Class to cast the data to. Should inherit from {@link com.flipkart.databuilderframework.model.Data}
+     * @param <T>     Sub-Type for {@link com.flipkart.databuilderframework.model.Data}. Should be same as <i>tClass</i>
      * @return data
      */
     public <B extends DataBuilder, T extends Data> T getAccessibleData(String key, B builder, Class<T> tClass) {
         Preconditions.checkArgument(!builder.getDataBuilderMeta().getAccessibleDataSet().contains(key),
-                            String.format("Builder %s can access only %s",
-                                            builder.getDataBuilderMeta().getName(),
-                                            builder.getDataBuilderMeta().getConsumes()));
+                String.format("Builder %s can access only %s",
+                        builder.getDataBuilderMeta().getName(),
+                        builder.getDataBuilderMeta().getConsumes()));
         return get(key, tClass);
     }
 
@@ -65,7 +66,7 @@ public class DataSetAccessor {
      */
     public DataSet getAccesibleDataSetFor(DataBuilder builder) {
         return new DataSet(Maps.filterKeys(dataSet.getAvailableData(),
-                                    Predicates.in(builder.getDataBuilderMeta().getAccessibleDataSet())));
+                Predicates.in(builder.getDataBuilderMeta().getAccessibleDataSet())));
     }
 
     /**
@@ -86,7 +87,7 @@ public class DataSetAccessor {
      */
     public void merge(DataDelta dataDelta) {
         Map<String, Data> availableData = dataSet.getAvailableData();
-        for(Data data : dataDelta.getDelta()) {
+        for (Data data : dataDelta.getDelta()) {
             availableData.put(data.getData(), data);
         }
     }
@@ -130,22 +131,12 @@ public class DataSetAccessor {
      * Get a copy of the underlying data set. Don't copy transients.
      */
     public DataSet copy(Set<String> transients) {
-        /*Map<String, Data> dataMap = Maps.newHashMap();
-        for(Map.Entry<String, Data> data : dataSet.getAvailableData().entrySet()) {
-            if(null == transients || !transients.contains(data.getKey())) {
-                dataMap.put(data.getKey(), data.getValue());
-            }
-        }
-        DataSet tmpDataSet = new DataSet();
-        tmpDataSet.setAvailableData(dataMap);
-        return tmpDataSet;*/
-         Map<String, Data> dataMap = Maps.newHashMap();
-         if(null != transients && !transients.isEmpty()) {
+        Map<String, Data> dataMap = Maps.newHashMap();
+        if (null != transients && !transients.isEmpty()) {
             dataMap.putAll(Maps.filterKeys(dataSet.getAvailableData(), Predicates.not(Predicates.in(transients))));
-         }
-        else {
-             dataMap.putAll(dataSet.getAvailableData());
-         }
-         return new DataSet(dataMap);
+        } else {
+            dataMap.putAll(dataSet.getAvailableData());
+        }
+        return new DataSet(dataMap);
     }
 }
