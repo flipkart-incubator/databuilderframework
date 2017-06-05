@@ -4,6 +4,7 @@ import com.flipkart.databuilderframework.engine.DataBuilder;
 import com.flipkart.databuilderframework.engine.DataBuilderFactory;
 import com.flipkart.databuilderframework.engine.DataBuilderFrameworkException;
 import com.flipkart.databuilderframework.engine.DataBuilderMetadataManager;
+import com.flipkart.databuilderframework.model.DataBuilderMeta;
 
 /**
  * @inheritDoc
@@ -17,7 +18,8 @@ public class InstantiatingDataBuilderFactory implements DataBuilderFactory {
         this.dataBuilderMetadataManager = dataBuilderMetadataManager;
     }
 
-    public DataBuilder create(String builderName) throws DataBuilderFrameworkException {
+    public DataBuilder create(DataBuilderMeta meta) throws DataBuilderFrameworkException {
+        final String builderName = meta.getName();
         Class<? extends DataBuilder> dataBuilderClass = dataBuilderMetadataManager.getDataBuilderClass(builderName);
         if(null == dataBuilderClass) {
             throw new DataBuilderFrameworkException(DataBuilderFrameworkException.ErrorCode.NO_BUILDER_FOUND_FOR_NAME,
@@ -25,7 +27,7 @@ public class InstantiatingDataBuilderFactory implements DataBuilderFactory {
         }
         try {
             DataBuilder dataBuilder = dataBuilderClass.newInstance();
-            dataBuilder.setDataBuilderMeta(dataBuilderMetadataManager.get(builderName).deepCopy());
+            dataBuilder.setDataBuilderMeta(meta.deepCopy());
             return dataBuilder;
         } catch (Exception e) {
             throw new DataBuilderFrameworkException(DataBuilderFrameworkException.ErrorCode.INSTANTIATION_FAILURE,

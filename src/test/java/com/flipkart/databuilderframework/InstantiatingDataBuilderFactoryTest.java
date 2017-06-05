@@ -3,11 +3,14 @@ package com.flipkart.databuilderframework;
 import com.flipkart.databuilderframework.engine.*;
 import com.flipkart.databuilderframework.engine.impl.InstantiatingDataBuilderFactory;
 import com.flipkart.databuilderframework.model.Data;
+import com.flipkart.databuilderframework.model.DataBuilderMeta;
 import com.flipkart.databuilderframework.model.ExecutionGraph;
 import com.google.common.collect.ImmutableSet;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.util.Collections;
 
 import static org.junit.Assert.fail;
 
@@ -38,8 +41,15 @@ public class InstantiatingDataBuilderFactoryTest {
     @Test
     public void testCreate() throws Exception {
         try {
-            Assert.assertNotNull(dataBuilderFactory.create("BuilderA"));
-            dataBuilderFactory.create("BuilderB"); //Should throw
+            Assert.assertNotNull(dataBuilderFactory.create(
+                    DataBuilderMeta.builder()
+                            .name("BuilderA")
+                            .consumes(Collections.emptySet())
+                            .build()));
+            dataBuilderFactory.create(DataBuilderMeta.builder()
+                    .name("BuilderB")
+                    .consumes(Collections.emptySet())
+                    .build()); //Should throw
         } catch (DataBuilderFrameworkException e) {
             if(DataBuilderFrameworkException.ErrorCode.NO_BUILDER_FOUND_FOR_NAME == e.getErrorCode()) {
                 return;
@@ -52,7 +62,10 @@ public class InstantiatingDataBuilderFactoryTest {
     public void testFail() throws Exception {
         ExecutionGraph executionGraph = new ExecutionGraph();
         try {
-            dataBuilderFactory.create("BuilderC"); //Should throw
+            dataBuilderFactory.create(DataBuilderMeta.builder()
+                    .name("BuilderC")
+                    .consumes(Collections.emptySet())
+                    .build()); //Should throw
         } catch (DataBuilderFrameworkException e) {
             if(DataBuilderFrameworkException.ErrorCode.INSTANTIATION_FAILURE == e.getErrorCode()) {
                 return;

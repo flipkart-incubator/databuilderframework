@@ -63,7 +63,7 @@ public class OptimizedMultiThreadedDataFlowExecutor extends DataFlowExecutor {
                     if (Sets.intersection(builderMeta.getEffectiveConsumes(), activeDataSet).isEmpty()) {
                         continue;
                     }
-                    DataBuilder builder = builderFactory.create(builderMeta.getName());
+                    DataBuilder builder = builderFactory.create(builderMeta);
                     if (!dataSetAccessor.checkForData(builder.getDataBuilderMeta().getConsumes())) {
                         continue;
                     }

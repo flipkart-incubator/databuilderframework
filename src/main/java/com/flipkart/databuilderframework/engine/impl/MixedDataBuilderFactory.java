@@ -4,6 +4,7 @@ import com.flipkart.databuilderframework.engine.DataBuilder;
 import com.flipkart.databuilderframework.engine.DataBuilderFactory;
 import com.flipkart.databuilderframework.engine.DataBuilderFrameworkException;
 import com.flipkart.databuilderframework.engine.DataBuilderMetadataManager;
+import com.flipkart.databuilderframework.model.DataBuilderMeta;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 
@@ -34,7 +35,8 @@ public class MixedDataBuilderFactory implements DataBuilderFactory {
         builderInstances.put(dataBuilder.getDataBuilderMeta().getName(), dataBuilder);
     }
 
-    public DataBuilder create(String builderName) throws DataBuilderFrameworkException {
+    public DataBuilder create(DataBuilderMeta dataBuilderMeta) throws DataBuilderFrameworkException {
+        final String builderName = dataBuilderMeta.getName();
         if(builderInstances.containsKey(builderName)) {
             return builderInstances.get(builderName);
         }
@@ -45,7 +47,7 @@ public class MixedDataBuilderFactory implements DataBuilderFactory {
         }
         try {
             DataBuilder dataBuilder = dataBuilderClass.newInstance();
-            dataBuilder.setDataBuilderMeta(dataBuilderMetadataManager.get(builderName).deepCopy());
+            dataBuilder.setDataBuilderMeta(dataBuilderMeta.deepCopy());
             return dataBuilder;
         } catch (Exception e) {
             throw new DataBuilderFrameworkException(DataBuilderFrameworkException.ErrorCode.INSTANTIATION_FAILURE,
