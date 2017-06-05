@@ -9,7 +9,9 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.Sets;
 
+import java.util.Collection;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Build {@link com.flipkart.databuilderframework.model.DataFlow} for execution by the {@link com.flipkart.databuilderframework.engine.DataFlowExecutor}.
@@ -220,6 +222,53 @@ public class DataFlowBuilder {
      */
     public DataFlowBuilder withResolutionSpec(final Class<? extends Data> data, final Class<? extends DataBuilder> generatingBuilder) {
         this.dataFlow.getResolutionSpecs().put(Utils.name(data), Utils.name(generatingBuilder));
+        return this;
+    }
+
+    /**
+     * Register a transient data
+     *
+     * @param data Name of transient data
+     * @return
+     */
+    public DataFlowBuilder withTransientData(String data) {
+        dataFlow.getTransients().add(data);
+        return this;
+    }
+
+    /**
+     * Register a transient data by class name
+     *
+     * @param dataClass Class of the data. Name will be derived from this
+     * @return
+     */
+    public DataFlowBuilder withTransientDataClass(Class<? extends Data> dataClass) {
+        dataFlow.getTransients().add(Utils.name(dataClass));
+        return this;
+    }
+
+    /**
+     * Register a transient data
+     *
+     * @param data Names of transient data
+     * @return
+     */
+    public DataFlowBuilder withTransientData(Collection<String> data) {
+        dataFlow.getTransients().addAll(data);
+        return this;
+    }
+
+    /**
+     * Register a transient data by class name
+     *
+     * @param dataClasses Classes of the data. Name will be derived from this
+     * @return
+     */
+    public DataFlowBuilder withTransientDataClasses(Collection<Class<? extends Data>> dataClasses) {
+        dataFlow.getTransients().addAll(
+                dataClasses.stream()
+                        .map(Utils::name)
+                        .collect(Collectors.toList()));
         return this;
     }
 

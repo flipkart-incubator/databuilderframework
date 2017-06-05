@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * The executor for a {@link com.flipkart.databuilderframework.model.DataFlow}.
@@ -41,9 +42,10 @@ public class SimpleDataFlowExecutor extends DataFlowExecutor {
         Map<String, Data> responseData = Maps.newTreeMap();
         Set<String> activeDataSet = Sets.newHashSet();
 
-        for (Data data : dataDelta.getDelta()) {
-            activeDataSet.add(data.getData());
-        }
+        activeDataSet.addAll(dataDelta.getDelta()
+                .stream()
+                .map(Data::getData)
+                .collect(Collectors.toList()));
         List<List<DataBuilderMeta>> dependencyHierarchy = executionGraph.getDependencyHierarchy();
         Set<String> newlyGeneratedData = Sets.newHashSet();
         Set<DataBuilderMeta> processedBuilders = Sets.newHashSet();

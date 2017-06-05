@@ -33,6 +33,22 @@ public class DataDelta {
         this.delta = delta;
     }
 
+    public DataDelta add(Data data) {
+        if(null == this.delta) {
+            this.delta = Lists.newArrayList();
+        }
+        this.delta.add(data);
+        return this;
+    }
+
+    public DataDelta add(List<Data> data) {
+        if(null == this.delta) {
+            this.delta = Lists.newArrayList(data);
+        }
+        this.delta.addAll(data);
+        return this;
+    }
+
     public List<Data> getDelta() {
         return delta;
     }
