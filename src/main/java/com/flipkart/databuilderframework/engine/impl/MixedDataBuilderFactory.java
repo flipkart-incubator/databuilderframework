@@ -18,13 +18,18 @@ import java.util.Map;
 public class MixedDataBuilderFactory implements DataBuilderFactory {
     private Map<String, DataBuilder> builderInstances = Maps.newHashMap();
     private DataBuilderMetadataManager dataBuilderMetadataManager;
+    private boolean useCurrentMeta;
 
     public MixedDataBuilderFactory() {
     }
 
-    public MixedDataBuilderFactory(Map<String, DataBuilder> builderInstances, DataBuilderMetadataManager dataBuilderMetadataManager) {
+    public MixedDataBuilderFactory(
+            Map<String, DataBuilder> builderInstances,
+            DataBuilderMetadataManager dataBuilderMetadataManager,
+            boolean useCurrentMeta) {
         this.builderInstances = builderInstances;
         this.dataBuilderMetadataManager = dataBuilderMetadataManager;
+        this.useCurrentMeta = useCurrentMeta;
     }
 
     public void setDataBuilderMetadataManager(DataBuilderMetadataManager dataBuilderMetadataManager) {
@@ -47,7 +52,12 @@ public class MixedDataBuilderFactory implements DataBuilderFactory {
         }
         try {
             DataBuilder dataBuilder = dataBuilderClass.newInstance();
-            dataBuilder.setDataBuilderMeta(dataBuilderMeta.deepCopy());
+            if(useCurrentMeta) {
+                dataBuilder.setDataBuilderMeta(dataBuilderMetadataManager.get(builderName).deepCopy());
+            }
+            else {
+                dataBuilder.setDataBuilderMeta(dataBuilderMeta.deepCopy());
+            }
             return dataBuilder;
         } catch (Exception e) {
             throw new DataBuilderFrameworkException(DataBuilderFrameworkException.ErrorCode.INSTANTIATION_FAILURE,
@@ -57,6 +67,7 @@ public class MixedDataBuilderFactory implements DataBuilderFactory {
 
     public MixedDataBuilderFactory immutableCopy() {
         return new MixedDataBuilderFactory(ImmutableMap.copyOf(builderInstances),
-                                            dataBuilderMetadataManager.immutableCopy());
+                                            dataBuilderMetadataManager.immutableCopy(),
+                                            useCurrentMeta);
     }
 }
