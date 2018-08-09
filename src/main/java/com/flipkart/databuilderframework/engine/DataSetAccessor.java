@@ -79,6 +79,10 @@ public class DataSetAccessor {
         dataSet.getAvailableData().put(data.getData(), data);
     }
 
+    public void unset(String data){
+        dataSet.getAvailableData().remove(data);
+    }
+
     /**
      * Merge all {@link com.flipkart.databuilderframework.model.Data} elements from the {@link com.flipkart.databuilderframework.model.DataDelta}
      * Will overwrite all data present in the current {@link com.flipkart.databuilderframework.model.DataSet}.
