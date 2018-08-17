@@ -17,6 +17,11 @@ public class DataFlowWithOptionalExecutorTest {
     private static class TestListener implements DataBuilderExecutionListener {
 
         @Override
+        public void preProcessing(DataFlow dataFlow, DataDelta dataDelta) throws Exception {
+            System.out.println("Being called for: " + dataFlow.getName());
+        }
+
+        @Override
         public void beforeExecute(DataBuilderContext builderContext,
         						  DataFlowInstance dataFlowInstance,
                                   DataBuilderMeta builderToBeApplied,
@@ -40,8 +45,18 @@ public class DataFlowWithOptionalExecutorTest {
                                    Map<String, Data> prevResponses, Throwable frameworkException) throws Exception {
             System.out.println(builderToBeApplied.getName() + " called for: " + dataFlowInstance.getId());
         }
+
+        @Override
+        public void postProcessing(DataFlow dataFlow, DataDelta dataDelta, Map<String, Data> allResponses) throws Exception {
+            System.out.println("Being called for: " + dataFlow.getName());
+        }
     }
     private static class TestListenerBeforeExecutionError implements DataBuilderExecutionListener {
+
+        @Override
+        public void preProcessing(DataFlow dataFlow, DataDelta dataDelta) throws Exception {
+            System.out.println("Being called for: " + dataFlow.getName());
+        }
 
         @Override
         public void beforeExecute(DataBuilderContext builderContext,
@@ -68,8 +83,18 @@ public class DataFlowWithOptionalExecutorTest {
                                    Map<String, Data> prevResponses, Throwable frameworkException) throws Exception {
             System.out.println(builderToBeApplied.getName() + " called for: " + dataFlowInstance.getId());
         }
+
+        @Override
+        public void postProcessing(DataFlow dataFlow, DataDelta dataDelta, Map<String, Data> allResponses) throws Exception {
+            System.out.println("Being called for: " + dataFlow.getName());
+        }
     }
     private static class TestListenerAfterExecutionError implements DataBuilderExecutionListener {
+
+        @Override
+        public void preProcessing(DataFlow dataFlow, DataDelta dataDelta) throws Exception {
+            System.out.println("Being called for: " + dataFlow.getName());
+        }
 
         @Override
         public void beforeExecute(DataBuilderContext builderContext,
@@ -96,12 +121,22 @@ public class DataFlowWithOptionalExecutorTest {
                                    DataDelta dataDelta,
                                    Map<String, Data> prevResponses, Throwable frameworkException) throws Exception {
             System.out.println(builderToBeApplied.getName() + " called for: " + dataFlowInstance.getId());
+        }
+
+        @Override
+        public void postProcessing(DataFlow dataFlow, DataDelta dataDelta, Map<String, Data> allResponses) throws Exception {
+            System.out.println("Being called for: " + dataFlow.getName());
         }
     }
 
     private static class TestListenerAfterExceptionError implements DataBuilderExecutionListener {
 
         @Override
+        public void preProcessing(DataFlow dataFlow, DataDelta dataDelta) throws Exception {
+            System.out.println("Being called for: " + dataFlow.getName());
+        }
+
+        @Override
         public void beforeExecute(DataBuilderContext builderContext,
         						  DataFlowInstance dataFlowInstance,
                                   DataBuilderMeta builderToBeApplied,
@@ -126,6 +161,11 @@ public class DataFlowWithOptionalExecutorTest {
                                    Map<String, Data> prevResponses, Throwable frameworkException) throws Exception {
             //System.out.println(builderToBeApplied.getName() + " called for: " + dataFlowInstance.getId());
             throw new Exception("Blah blah");
+        }
+
+        @Override
+        public void postProcessing(DataFlow dataFlow, DataDelta dataDelta, Map<String, Data> allResponses) throws Exception {
+            System.out.println("Being called for: " + dataFlow.getName());
         }
     }
 

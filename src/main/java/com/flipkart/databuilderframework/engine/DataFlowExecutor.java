@@ -4,6 +4,8 @@ import com.flipkart.databuilderframework.model.*;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
@@ -13,6 +15,7 @@ import java.util.List;
 public abstract class DataFlowExecutor {
     protected List<DataBuilderExecutionListener> dataBuilderExecutionListener;
     private final DataBuilderFactory dataBuilderFactory;
+    private static final Logger logger = LoggerFactory.getLogger(DataFlowExecutor.class.getSimpleName());
 
     public DataFlowExecutor(DataBuilderFactory dataBuilderFactory) {
         this.dataBuilderExecutionListener = Lists.newArrayList();
@@ -51,8 +54,26 @@ public abstract class DataFlowExecutor {
                                      DataDelta dataDelta) throws DataBuilderFrameworkException, DataValidationException {
         Preconditions.checkNotNull(dataFlow);
         Preconditions.checkArgument(null != dataFlow.getDataBuilderFactory() || null != dataBuilderFactory);
-
-        return run(new DataBuilderContext(), new DataFlowInstance(), dataDelta, dataFlow, dataFlow.getDataBuilderFactory());
+        DataExecutionResponse response = null;
+        try {
+            for (DataBuilderExecutionListener listener : dataBuilderExecutionListener) {
+                try {
+                    listener.preProcessing(dataFlow, dataDelta);
+                } catch (Throwable t) {
+                    logger.error("Error running pre-processing listener: ", t);
+                }
+            }
+            response = run(new DataBuilderContext(), new DataFlowInstance(), dataDelta, dataFlow, dataFlow.getDataBuilderFactory());
+            return response;
+        } finally {
+            for (DataBuilderExecutionListener listener : dataBuilderExecutionListener) {
+                try {
+                    listener.postProcessing(dataFlow, dataDelta, response!= null ? response.getResponses() : null);
+                } catch (Throwable t) {
+                    logger.error("Error running post-processing listener: ", t);
+                }
+            }
+        }
     }
 
     /**
