@@ -68,7 +68,7 @@ public abstract class DataFlowExecutor {
         } finally {
             for (DataBuilderExecutionListener listener : dataBuilderExecutionListener) {
                 try {
-                    listener.postProcessing(dataFlow, dataDelta, response!= null ? response.getResponses() : null);
+                    listener.postProcessing(dataFlow, dataDelta, response != null ? response.getResponses() : null);
                 } catch (Throwable t) {
                     logger.error("Error running post-processing listener: ", t);
                 }
