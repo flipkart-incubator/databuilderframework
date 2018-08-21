@@ -4,6 +4,8 @@ import com.flipkart.databuilderframework.model.*;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
@@ -11,6 +13,7 @@ import java.util.List;
  * The executor for a {@link com.flipkart.databuilderframework.model.DataFlow}.
  */
 public abstract class DataFlowExecutor {
+    private static final Logger logger = LoggerFactory.getLogger(DataFlowExecutor.class.getSimpleName());
     protected List<DataBuilderExecutionListener> dataBuilderExecutionListener;
     private final DataBuilderFactory dataBuilderFactory;
 
@@ -51,8 +54,30 @@ public abstract class DataFlowExecutor {
                                      DataDelta dataDelta) throws DataBuilderFrameworkException, DataValidationException {
         Preconditions.checkNotNull(dataFlow);
         Preconditions.checkArgument(null != dataFlow.getDataBuilderFactory() || null != dataBuilderFactory);
-
-        return run(new DataBuilderContext(), new DataFlowInstance(), dataDelta, dataFlow, dataFlow.getDataBuilderFactory());
+        DataExecutionResponse response = null;
+        Throwable frameworkException = null;
+        try {
+            for (DataBuilderExecutionListener listener : dataBuilderExecutionListener) {
+                try {
+                    listener.preProcessing(dataFlow, dataDelta);
+                } catch (Throwable t) {
+                    logger.error("Error running pre-processing listener: ", t);
+                }
+            }
+            response = run(new DataBuilderContext(), new DataFlowInstance(), dataDelta, dataFlow, dataFlow.getDataBuilderFactory());
+            return response;
+        } catch (DataBuilderFrameworkException e) {
+            frameworkException = e;
+            throw e;
+        } finally {
+            for (DataBuilderExecutionListener listener : dataBuilderExecutionListener) {
+                try {
+                    listener.postProcessing(dataFlow, dataDelta, response, frameworkException);
+                } catch (Throwable t) {
+                    logger.error("Error running post-processing listener: ", t);
+                }
+            }
+        }
     }
 
     /**

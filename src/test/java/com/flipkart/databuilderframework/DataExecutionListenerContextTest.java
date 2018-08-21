@@ -19,6 +19,11 @@ public class DataExecutionListenerContextTest {
     private static class TestListenerWithContextCheck implements DataBuilderExecutionListener {
 
         @Override
+        public void preProcessing(DataFlow dataFlow, DataDelta dataDelta) throws Exception {
+            Assert.assertNotNull(dataFlow);
+        }
+
+        @Override
         public void beforeExecute(DataBuilderContext builderContext,
         						  DataFlowInstance dataFlowInstance,
                                   DataBuilderMeta builderToBeApplied,
@@ -44,6 +49,12 @@ public class DataExecutionListenerContextTest {
                                    Map<String, Data> prevResponses, Throwable frameworkException) throws Exception {
         	Assert.assertNotNull(builderContext);
         	Assert.assertEquals(builderContext.getContextData(KEY, String.class), VALUE);
+        }
+
+        @Override
+        public void postProcessing(DataFlow dataFlow, DataDelta dataDelta, DataExecutionResponse response,
+                                   Throwable frameworkException) throws Exception {
+            Assert.assertNotNull(dataFlow);
         }
     }
 
