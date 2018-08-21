@@ -17,11 +17,6 @@ public class MultiThreadedDataFlowExecutorTest {
     private static class TestListener implements DataBuilderExecutionListener {
 
         @Override
-        public void preProcessing(DataFlow dataFlow, DataDelta dataDelta) throws Exception {
-            System.out.println("Being called for: " + dataFlow.getName());
-        }
-
-        @Override
         public void beforeExecute(DataBuilderContext builderContext,
         						  DataFlowInstance dataFlowInstance,
                                   DataBuilderMeta builderToBeApplied,
@@ -46,8 +41,8 @@ public class MultiThreadedDataFlowExecutorTest {
             System.out.println(builderToBeApplied.getName() + " called for: " + dataFlowInstance.getId());
         }
 
-        @Override
-        public void postProcessing(DataFlow dataFlow, DataDelta dataDelta, Map<String, Data> allResponses) throws Exception {
+        public void postProcessing(DataFlow dataFlow, DataDelta dataDelta, DataExecutionResponse response,
+                                   Throwable frameworkException) throws Exception  {
             System.out.println("Being called for: " + dataFlow.getName());
         }
     }
@@ -84,8 +79,8 @@ public class MultiThreadedDataFlowExecutorTest {
             System.out.println(builderToBeApplied.getName() + " called for: " + dataFlowInstance.getId());
         }
 
-        @Override
-        public void postProcessing(DataFlow dataFlow, DataDelta dataDelta, Map<String, Data> allResponses) throws Exception {
+        public void postProcessing(DataFlow dataFlow, DataDelta dataDelta, DataExecutionResponse response,
+                                   Throwable frameworkException) throws Exception  {
             System.out.println("Being called for: " + dataFlow.getName());
         }
     }
@@ -123,8 +118,8 @@ public class MultiThreadedDataFlowExecutorTest {
             System.out.println(builderToBeApplied.getName() + " called for: " + dataFlowInstance.getId());
         }
 
-        @Override
-        public void postProcessing(DataFlow dataFlow, DataDelta dataDelta, Map<String, Data> allResponses) throws Exception {
+        public void postProcessing(DataFlow dataFlow, DataDelta dataDelta, DataExecutionResponse response,
+                                   Throwable frameworkException) throws Exception  {
             System.out.println("Being called for: " + dataFlow.getName());
         }
     }
@@ -163,8 +158,8 @@ public class MultiThreadedDataFlowExecutorTest {
             throw new Exception("Blah blah");
         }
 
-        @Override
-        public void postProcessing(DataFlow dataFlow, DataDelta dataDelta, Map<String, Data> allResponses) throws Exception {
+        public void postProcessing(DataFlow dataFlow, DataDelta dataDelta, DataExecutionResponse response,
+                                   Throwable frameworkException) throws Exception  {
             System.out.println("Being called for: " + dataFlow.getName());
         }
     }

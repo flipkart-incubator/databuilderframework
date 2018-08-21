@@ -13,9 +13,9 @@ import java.util.List;
  * The executor for a {@link com.flipkart.databuilderframework.model.DataFlow}.
  */
 public abstract class DataFlowExecutor {
+    private static final Logger logger = LoggerFactory.getLogger(DataFlowExecutor.class.getSimpleName());
     protected List<DataBuilderExecutionListener> dataBuilderExecutionListener;
     private final DataBuilderFactory dataBuilderFactory;
-    private static final Logger logger = LoggerFactory.getLogger(DataFlowExecutor.class.getSimpleName());
 
     public DataFlowExecutor(DataBuilderFactory dataBuilderFactory) {
         this.dataBuilderExecutionListener = Lists.newArrayList();
@@ -55,6 +55,7 @@ public abstract class DataFlowExecutor {
         Preconditions.checkNotNull(dataFlow);
         Preconditions.checkArgument(null != dataFlow.getDataBuilderFactory() || null != dataBuilderFactory);
         DataExecutionResponse response = null;
+        Throwable frameworkException = null;
         try {
             for (DataBuilderExecutionListener listener : dataBuilderExecutionListener) {
                 try {
@@ -65,10 +66,13 @@ public abstract class DataFlowExecutor {
             }
             response = run(new DataBuilderContext(), new DataFlowInstance(), dataDelta, dataFlow, dataFlow.getDataBuilderFactory());
             return response;
+        } catch (DataBuilderFrameworkException e) {
+            frameworkException = e;
+            throw e;
         } finally {
             for (DataBuilderExecutionListener listener : dataBuilderExecutionListener) {
                 try {
-                    listener.postProcessing(dataFlow, dataDelta, response != null ? response.getResponses() : null);
+                    listener.postProcessing(dataFlow, dataDelta, response, frameworkException);
                 } catch (Throwable t) {
                     logger.error("Error running post-processing listener: ", t);
                 }

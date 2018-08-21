@@ -47,7 +47,8 @@ public class DataFlowWithOptionalExecutorTest {
         }
 
         @Override
-        public void postProcessing(DataFlow dataFlow, DataDelta dataDelta, Map<String, Data> allResponses) throws Exception {
+        public void postProcessing(DataFlow dataFlow, DataDelta dataDelta, DataExecutionResponse response,
+                                   Throwable frameworkException) throws Exception {
             System.out.println("Being called for: " + dataFlow.getName());
         }
     }
@@ -84,8 +85,8 @@ public class DataFlowWithOptionalExecutorTest {
             System.out.println(builderToBeApplied.getName() + " called for: " + dataFlowInstance.getId());
         }
 
-        @Override
-        public void postProcessing(DataFlow dataFlow, DataDelta dataDelta, Map<String, Data> allResponses) throws Exception {
+        public void postProcessing(DataFlow dataFlow, DataDelta dataDelta, DataExecutionResponse response,
+                                   Throwable frameworkException) throws Exception {
             System.out.println("Being called for: " + dataFlow.getName());
         }
     }
@@ -124,7 +125,8 @@ public class DataFlowWithOptionalExecutorTest {
         }
 
         @Override
-        public void postProcessing(DataFlow dataFlow, DataDelta dataDelta, Map<String, Data> allResponses) throws Exception {
+        public void postProcessing(DataFlow dataFlow, DataDelta dataDelta, DataExecutionResponse response,
+                                   Throwable frameworkException) throws Exception {
             System.out.println("Being called for: " + dataFlow.getName());
         }
     }
@@ -164,7 +166,8 @@ public class DataFlowWithOptionalExecutorTest {
         }
 
         @Override
-        public void postProcessing(DataFlow dataFlow, DataDelta dataDelta, Map<String, Data> allResponses) throws Exception {
+        public void postProcessing(DataFlow dataFlow, DataDelta dataDelta, DataExecutionResponse response,
+                                   Throwable frameworkException) throws Exception {
             System.out.println("Being called for: " + dataFlow.getName());
         }
     }

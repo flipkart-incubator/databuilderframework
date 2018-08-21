@@ -52,7 +52,8 @@ public class DataExecutionListenerContextTest {
         }
 
         @Override
-        public void postProcessing(DataFlow dataFlow, DataDelta dataDelta, Map<String, Data> allResponses) throws Exception {
+        public void postProcessing(DataFlow dataFlow, DataDelta dataDelta, DataExecutionResponse response,
+                                   Throwable frameworkException) throws Exception {
             Assert.assertNotNull(dataFlow);
         }
     }
