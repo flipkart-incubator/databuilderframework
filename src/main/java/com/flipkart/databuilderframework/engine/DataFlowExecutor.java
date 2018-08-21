@@ -54,30 +54,7 @@ public abstract class DataFlowExecutor {
                                      DataDelta dataDelta) throws DataBuilderFrameworkException, DataValidationException {
         Preconditions.checkNotNull(dataFlow);
         Preconditions.checkArgument(null != dataFlow.getDataBuilderFactory() || null != dataBuilderFactory);
-        DataExecutionResponse response = null;
-        Throwable frameworkException = null;
-        try {
-            for (DataBuilderExecutionListener listener : dataBuilderExecutionListener) {
-                try {
-                    listener.preProcessing(dataFlow, dataDelta);
-                } catch (Throwable t) {
-                    logger.error("Error running pre-processing listener: ", t);
-                }
-            }
-            response = run(new DataBuilderContext(), new DataFlowInstance(), dataDelta, dataFlow, dataFlow.getDataBuilderFactory());
-            return response;
-        } catch (DataBuilderFrameworkException e) {
-            frameworkException = e;
-            throw e;
-        } finally {
-            for (DataBuilderExecutionListener listener : dataBuilderExecutionListener) {
-                try {
-                    listener.postProcessing(dataFlow, dataDelta, response, frameworkException);
-                } catch (Throwable t) {
-                    logger.error("Error running post-processing listener: ", t);
-                }
-            }
-        }
+        return run(new DataBuilderContext(), new DataFlowInstance(), dataDelta, dataFlow, dataFlow.getDataBuilderFactory());
     }
 
     /**
@@ -115,7 +92,30 @@ public abstract class DataFlowExecutor {
                 .dataSet(dataFlowInstance.getDataSet())
                 .contextData(Maps.newHashMap())
                 .build();
-        return run(dataBuilderContext, dataFlowInstance, dataDelta);
+        DataExecutionResponse response = null;
+        Throwable frameworkException = null;
+        try {
+            for (DataBuilderExecutionListener listener : dataBuilderExecutionListener) {
+                try {
+                    listener.preProcessing(dataDelta, dataFlowInstance);
+                } catch (Throwable t) {
+                    logger.error("Error running pre-processing listener: ", t);
+                }
+            }
+            response = run(dataBuilderContext, dataFlowInstance, dataDelta);
+            return response;
+        } catch (DataBuilderFrameworkException e) {
+            frameworkException = e;
+            throw e;
+        } finally {
+            for (DataBuilderExecutionListener listener : dataBuilderExecutionListener) {
+                try {
+                    listener.postProcessing(dataFlowInstance, dataDelta, response, frameworkException);
+                } catch (Throwable t) {
+                    logger.error("Error running post-processing listener: ", t);
+                }
+            }
+        }
     }
 
     /**
