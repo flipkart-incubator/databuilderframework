@@ -73,7 +73,7 @@ Use the following maven dependency:
 <dependency>
     <groupId>com.flipkart.databuilderframework</groupId>
     <artifactId>databuilderframework</artifactId>
-    <version>0.5.3</version>
+    <version>0.5.4</version>
 </dependency>
 ```
 ## Framework usage
