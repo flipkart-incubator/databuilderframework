@@ -4,6 +4,7 @@ import com.flipkart.databuilderframework.engine.DataBuilder;
 import com.flipkart.databuilderframework.engine.DataBuilderFactory;
 import com.flipkart.databuilderframework.engine.DataBuilderFrameworkException;
 import com.flipkart.databuilderframework.engine.DataBuilderMetadataManager;
+import com.flipkart.databuilderframework.model.DataBuilderMeta;
 
 /**
  * @inheritDoc
@@ -12,12 +13,19 @@ import com.flipkart.databuilderframework.engine.DataBuilderMetadataManager;
  */
 public class InstantiatingDataBuilderFactory implements DataBuilderFactory {
     private DataBuilderMetadataManager dataBuilderMetadataManager;
+    private boolean useCurrentMeta;
 
     public InstantiatingDataBuilderFactory(DataBuilderMetadataManager dataBuilderMetadataManager) {
-        this.dataBuilderMetadataManager = dataBuilderMetadataManager;
+        this(dataBuilderMetadataManager, false);
     }
 
-    public DataBuilder create(String builderName) throws DataBuilderFrameworkException {
+    public InstantiatingDataBuilderFactory(DataBuilderMetadataManager dataBuilderMetadataManager, boolean useCurrentMeta) {
+        this.dataBuilderMetadataManager = dataBuilderMetadataManager;
+        this.useCurrentMeta = useCurrentMeta;
+    }
+
+    public DataBuilder create(DataBuilderMeta dataBuilderMeta) throws DataBuilderFrameworkException {
+        final String builderName = dataBuilderMeta.getName();
         Class<? extends DataBuilder> dataBuilderClass = dataBuilderMetadataManager.getDataBuilderClass(builderName);
         if(null == dataBuilderClass) {
             throw new DataBuilderFrameworkException(DataBuilderFrameworkException.ErrorCode.NO_BUILDER_FOUND_FOR_NAME,
@@ -25,7 +33,12 @@ public class InstantiatingDataBuilderFactory implements DataBuilderFactory {
         }
         try {
             DataBuilder dataBuilder = dataBuilderClass.newInstance();
-            dataBuilder.setDataBuilderMeta(dataBuilderMetadataManager.get(builderName).deepCopy());
+            if(useCurrentMeta) {
+                dataBuilder.setDataBuilderMeta(dataBuilderMetadataManager.get(builderName).deepCopy());
+            }
+            else {
+                dataBuilder.setDataBuilderMeta(dataBuilderMeta.deepCopy());
+            }
             return dataBuilder;
         } catch (Exception e) {
             throw new DataBuilderFrameworkException(DataBuilderFrameworkException.ErrorCode.INSTANTIATION_FAILURE,

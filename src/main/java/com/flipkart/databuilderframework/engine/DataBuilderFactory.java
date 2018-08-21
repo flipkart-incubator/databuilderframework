@@ -1,5 +1,7 @@
 package com.flipkart.databuilderframework.engine;
 
+import com.flipkart.databuilderframework.model.DataBuilderMeta;
+
 /**
  * A generic factory to build any {@link DataBuilder}.
  * Used by {@link DataFlowExecutor} during flow execution.
@@ -7,11 +9,11 @@ package com.flipkart.databuilderframework.engine;
 public interface DataBuilderFactory {
     /**
      * Create a {@link DataBuilder} of the given name.
-     * @param builderName Name of the builder to create
+     * @param dataBuilderMeta Meta for the builder to create
      * @return A {@link DataBuilder}
      * @throws DataBuilderFrameworkException
      */
-    DataBuilder create(String builderName) throws DataBuilderFrameworkException;
+    DataBuilder create(DataBuilderMeta dataBuilderMeta) throws DataBuilderFrameworkException;
 
     /**
      * Create and return an immutable copy of the factory to be used during execution.
