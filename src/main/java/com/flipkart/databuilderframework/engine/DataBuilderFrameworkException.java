@@ -13,6 +13,7 @@ public class DataBuilderFrameworkException extends Exception {
     }
 
     public static enum ErrorCode {
+        PRE_PROCESSING_ERROR,
         NO_FACTORY_FOR_DATA_BUILDER,
         NO_BUILDER_FOR_DATA,
         BUILDER_EXISTS,

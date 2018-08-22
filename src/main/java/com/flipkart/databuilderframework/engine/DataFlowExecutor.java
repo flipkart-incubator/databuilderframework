@@ -139,6 +139,8 @@ public abstract class DataFlowExecutor {
                     listener.preProcessing(dataFlowInstance, dataDelta);
                 } catch (Throwable t) {
                     logger.error("Error running pre-processing listener: ", t);
+                    throw new DataBuilderFrameworkException(DataBuilderFrameworkException.ErrorCode.PRE_PROCESSING_ERROR,
+                            "Error running pre-processing listener: " +  t.getMessage());
                 }
             }
             response = run(dataBuilderContext, dataFlowInstance, dataDelta, dataFlow, builderFactory);
