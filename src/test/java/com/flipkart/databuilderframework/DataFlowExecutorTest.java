@@ -16,8 +16,9 @@ public class DataFlowExecutorTest {
     private static class TestListener implements DataBuilderExecutionListener {
 
         @Override
-        public void preProcessing(DataFlow dataFlow, DataDelta dataDelta) throws Exception {
-            System.out.println("Being called for: " + dataFlow.getName());
+        public void preProcessing(DataFlowInstance dataFlowInstance,
+                                   DataDelta dataDelta) throws Exception {
+            System.out.println("Being called for: " + dataFlowInstance.getId());
         }
 
         @Override
@@ -45,18 +46,21 @@ public class DataFlowExecutorTest {
             System.out.println(builderToBeApplied.getName() + " called for: " + dataFlowInstance.getId());
         }
 
-        public void postProcessing(DataFlow dataFlow, DataDelta dataDelta, DataExecutionResponse response,
+        @Override
+        public void postProcessing(DataFlowInstance dataFlowInstance,
+                                   DataDelta dataDelta,
+                                   DataExecutionResponse response,
                                    Throwable frameworkException) throws Exception {
-            System.out.println("Being called for: " + dataFlow.getName());
+            System.out.println("Being called for: " + dataFlowInstance.getId());
         }
     }
     private static class TestListenerBeforeExecutionError implements DataBuilderExecutionListener {
 
         @Override
-        public void preProcessing(DataFlow dataFlow, DataDelta dataDelta) throws Exception {
-            System.out.println("Being called for: " + dataFlow.getName());
+        public void preProcessing(DataFlowInstance dataFlowInstance,
+                                  DataDelta dataDelta) throws Exception {
+            System.out.println("Being called for: " + dataFlowInstance.getId());
         }
-
         @Override
         public void beforeExecute(DataBuilderContext builderContext,
         						  DataFlowInstance dataFlowInstance,
@@ -83,16 +87,20 @@ public class DataFlowExecutorTest {
             System.out.println(builderToBeApplied.getName() + " called for: " + dataFlowInstance.getId());
         }
 
-        public void postProcessing(DataFlow dataFlow, DataDelta dataDelta, DataExecutionResponse response,
+        @Override
+        public void postProcessing(DataFlowInstance dataFlowInstance,
+                                   DataDelta dataDelta,
+                                   DataExecutionResponse response,
                                    Throwable frameworkException) throws Exception {
-            System.out.println("Being called for: " + dataFlow.getName());
+            System.out.println("Being called for: " + dataFlowInstance.getId());
         }
     }
     private static class TestListenerAfterExecutionError implements DataBuilderExecutionListener {
 
         @Override
-        public void preProcessing(DataFlow dataFlow, DataDelta dataDelta) throws Exception {
-            System.out.println("Being called for: " + dataFlow.getName());
+        public void preProcessing(DataFlowInstance dataFlowInstance,
+                                  DataDelta dataDelta) throws Exception {
+            System.out.println("Being called for: " + dataFlowInstance.getId());
         }
 
         @Override
@@ -122,17 +130,21 @@ public class DataFlowExecutorTest {
             System.out.println(builderToBeApplied.getName() + " called for: " + dataFlowInstance.getId());
         }
 
-        public void postProcessing(DataFlow dataFlow, DataDelta dataDelta, DataExecutionResponse response,
+        @Override
+        public void postProcessing(DataFlowInstance dataFlowInstance,
+                                   DataDelta dataDelta,
+                                   DataExecutionResponse response,
                                    Throwable frameworkException) throws Exception {
-            System.out.println("Being called for: " + dataFlow.getName());
+            System.out.println("Being called for: " + dataFlowInstance.getId());
         }
     }
 
     private static class TestListenerAfterExceptionError implements DataBuilderExecutionListener {
 
         @Override
-        public void preProcessing(DataFlow dataFlow, DataDelta dataDelta) throws Exception {
-            System.out.println("Being called for: " + dataFlow.getName());
+        public void preProcessing(DataFlowInstance dataFlowInstance,
+                                  DataDelta dataDelta) throws Exception {
+            System.out.println("Being called for: " + dataFlowInstance.getId());
         }
 
         @Override
@@ -161,10 +173,12 @@ public class DataFlowExecutorTest {
             //System.out.println(builderToBeApplied.getName() + " called for: " + dataFlowInstance.getId());
             throw new Exception("Blah blah");
         }
-
-        public void postProcessing(DataFlow dataFlow, DataDelta dataDelta, DataExecutionResponse response,
+        @Override
+        public void postProcessing(DataFlowInstance dataFlowInstance,
+                                   DataDelta dataDelta,
+                                   DataExecutionResponse response,
                                    Throwable frameworkException) throws Exception {
-            System.out.println("Being called for: " + dataFlow.getName());
+            System.out.println("Being called for: " + dataFlowInstance.getId());
         }
     }
 

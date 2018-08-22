@@ -5,8 +5,8 @@ import com.flipkart.databuilderframework.model.*;
 import java.util.Map;
 
 public interface DataBuilderExecutionListener {
-    default void preProcessing(DataDelta dataDelta,
-                               DataFlowInstance dataFlowInstance) throws Exception {
+    default void preProcessing(DataFlowInstance dataFlowInstance,
+                               DataDelta dataDelta) throws Exception {
 
     }
 

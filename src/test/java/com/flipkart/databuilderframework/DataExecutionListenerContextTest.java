@@ -19,8 +19,9 @@ public class DataExecutionListenerContextTest {
     private static class TestListenerWithContextCheck implements DataBuilderExecutionListener {
 
         @Override
-        public void preProcessing(DataFlow dataFlow, DataDelta dataDelta) throws Exception {
-            Assert.assertNotNull(dataFlow);
+        public void preProcessing(DataFlowInstance dataFlowInstance,
+                                  DataDelta dataDelta) throws Exception {
+            System.out.println("Being called for: " + dataFlowInstance.getId());
         }
 
         @Override
@@ -51,10 +52,12 @@ public class DataExecutionListenerContextTest {
         	Assert.assertEquals(builderContext.getContextData(KEY, String.class), VALUE);
         }
 
+
         @Override
-        public void postProcessing(DataFlow dataFlow, DataDelta dataDelta, DataExecutionResponse response,
-                                   Throwable frameworkException) throws Exception {
-            Assert.assertNotNull(dataFlow);
+        public void postProcessing(DataFlowInstance dataFlowInstance,
+                                   DataDelta dataDelta, DataExecutionResponse response,
+                                   Throwable frameworkException) throws Exception  {
+            System.out.println("Being called for: " + dataFlowInstance.getId());
         }
     }
 
