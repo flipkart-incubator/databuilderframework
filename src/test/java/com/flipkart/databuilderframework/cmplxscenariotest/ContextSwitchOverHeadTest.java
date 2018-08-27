@@ -39,10 +39,12 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
+import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+@Slf4j
 public class ContextSwitchOverHeadTest {
 	private final DataBuilderMetadataManager dataBuilderMetadataManager = new DataBuilderMetadataManager();
 	private  DataFlow dataflow = new DataFlow();
@@ -90,19 +92,19 @@ public class ContextSwitchOverHeadTest {
 	
 	@Test
 	public void testWhenConccurencyIsMoreThanBuilderSize() throws Exception{
-		System.out.println("testWhenConccurencyIsMoreThanBuilderSize");
+		log.info("testWhenConccurencyIsMoreThanBuilderSize");
 		runTestWithUnBoundedQueue(50, 150);
 	}
 	
 	@Test
 	public void testWhenConccurencyIsSameAsBuilderSize() throws Exception{
-		System.out.println("testWhenConccurencyIsSameAsBuilderSize");
+		log.info("testWhenConccurencyIsSameAsBuilderSize");
 		runTestWithUnBoundedQueue(150, 150);
 	}
 	
 	public void runTestWithUnBoundedQueue(int builderThreadSize, int concurrentRequestSize) throws Exception{
 
-		System.out.println(String.format("running unbounded queue test with builder size %d and concurrecy %d",builderThreadSize,concurrentRequestSize));
+		log.info("running unbounded queue test with builder size {} and concurrecy {}",builderThreadSize,concurrentRequestSize);
 		final SimpleDataFlowExecutor se = new SimpleDataFlowExecutor(new InstantiatingDataBuilderFactory(dataBuilderMetadataManager));
 		final ProfileExecutor builderExecutor = new ProfileExecutor(builderThreadSize, -1, 50);
 		final MultiThreadedDataFlowExecutor me =  new MultiThreadedDataFlowExecutor(new InstantiatingDataBuilderFactory(dataBuilderMetadataManager),builderExecutor);;
@@ -132,7 +134,7 @@ public class ContextSwitchOverHeadTest {
 		}
 		exec.shutdown();
 		exec.awaitTermination(200, TimeUnit.SECONDS);
-		System.out.println("se "+(System.currentTimeMillis() - start));
+		log.info("se {}", (System.currentTimeMillis() - start));
 
 
 
@@ -161,10 +163,10 @@ public class ContextSwitchOverHeadTest {
 		}
 		newExec.shutdown();
 		newExec.awaitTermination(200, TimeUnit.SECONDS);
-		System.out.println("me "+(System.currentTimeMillis() - start));
-		System.out.println(String.format("me run: context switches over threshold count %d, max latent switch: %d, rejections %d",
+		log.info("me {}", (System.currentTimeMillis() - start));
+		log.info("me run: context switches over threshold count {}, max latent switch: {}, rejections {}",
 				builderExecutor.getNumberOfContextSwitchesOverThresHold(), builderExecutor.getMaxContextSwitchLatency(),
-				builderExecutor.getRejectedCount()));
+				builderExecutor.getRejectedCount());
 		builderExecutor.resetStats();
 
 
@@ -191,10 +193,10 @@ public class ContextSwitchOverHeadTest {
 		}
 		omeExec.shutdown();
 		omeExec.awaitTermination(200, TimeUnit.SECONDS);
-		System.out.println("ome "+(System.currentTimeMillis() - start));
-		System.out.println(String.format("ome run: context switches over threshold count %d, max latent switch: %d, rejections %d",
+		log.info("ome {}"+(System.currentTimeMillis() - start));
+		log.info("ome run: context switches over threshold count {}, max latent switch: {}, rejections {}",
 				builderExecutor.getNumberOfContextSwitchesOverThresHold(), builderExecutor.getMaxContextSwitchLatency(),
-				builderExecutor.getRejectedCount()));
+				builderExecutor.getRejectedCount());
 		builderExecutor.resetStats();
 		builderExecutor.shutdownNow();
 	}

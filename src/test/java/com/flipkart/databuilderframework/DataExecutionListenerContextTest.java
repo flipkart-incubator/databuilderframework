@@ -4,6 +4,7 @@ import com.flipkart.databuilderframework.engine.*;
 import com.flipkart.databuilderframework.engine.impl.InstantiatingDataBuilderFactory;
 import com.flipkart.databuilderframework.model.*;
 import com.google.common.collect.Lists;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -12,6 +13,7 @@ import java.util.Map;
 
 import static org.junit.Assert.fail;
 
+@Slf4j
 public class DataExecutionListenerContextTest {
 	
 	private static final String KEY = "key";
@@ -21,7 +23,7 @@ public class DataExecutionListenerContextTest {
         @Override
         public void preProcessing(DataFlowInstance dataFlowInstance,
                                   DataDelta dataDelta) throws Exception {
-            System.out.println("Being called for: " + dataFlowInstance.getId());
+            log.info("Being called for: {}", dataFlowInstance.getId());
         }
 
         @Override
@@ -57,7 +59,7 @@ public class DataExecutionListenerContextTest {
         public void postProcessing(DataFlowInstance dataFlowInstance,
                                    DataDelta dataDelta, DataExecutionResponse response,
                                    Throwable frameworkException) throws Exception  {
-            System.out.println("Being called for: " + dataFlowInstance.getId());
+            log.info("Being called for: {}", dataFlowInstance.getId());
         }
     }
 

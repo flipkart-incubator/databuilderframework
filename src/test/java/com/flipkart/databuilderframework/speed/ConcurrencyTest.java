@@ -6,12 +6,14 @@ import com.flipkart.databuilderframework.model.*;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 
+import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.concurrent.Executors;
 
+@Slf4j
 public class ConcurrencyTest {
     private DataBuilderMetadataManager dataBuilderMetadataManager = new DataBuilderMetadataManager();
     private DataFlowExecutor executor = new MultiThreadedDataFlowExecutor(
@@ -53,7 +55,7 @@ public class ConcurrencyTest {
             Assert.assertEquals(8, response.getResponses().size());
             Assert.assertTrue(response.getResponses().containsKey("RES"));
         }
-        System.out.println(System.currentTimeMillis() - startTime);
+        log.info("{}", System.currentTimeMillis() - startTime);
 
     }
     @Test
@@ -100,6 +102,6 @@ public class ConcurrencyTest {
             Assert.assertEquals(8, response.getResponses().size());
             //System.out.println("MT:" + System.currentTimeMillis());
         }
-        System.out.println(String.format("OMT: %d MT: %d ST: %d",omTime, mTime, sTime));
+        log.info("OMT: {} MT: {} ST: {}",omTime, mTime, sTime);
     }
 }

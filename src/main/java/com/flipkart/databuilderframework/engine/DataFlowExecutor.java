@@ -138,9 +138,11 @@ public abstract class DataFlowExecutor {
                 try {
                     listener.preProcessing(dataFlowInstance, dataDelta);
                 } catch (Throwable t) {
+                    if(listener.shouldThrowException()) {
+                        throw new DataBuilderFrameworkException(DataBuilderFrameworkException.ErrorCode.PRE_PROCESSING_ERROR,
+                                "Error running pre-processing listener: " +  t.getMessage(), t);
+                    }
                     logger.error("Error running pre-processing listener: ", t);
-                    throw new DataBuilderFrameworkException(DataBuilderFrameworkException.ErrorCode.PRE_PROCESSING_ERROR,
-                            "Error running pre-processing listener: " +  t.getMessage());
                 }
             }
             response = run(dataBuilderContext, dataFlowInstance, dataDelta, dataFlow, builderFactory);
@@ -153,7 +155,12 @@ public abstract class DataFlowExecutor {
                 try {
                     listener.postProcessing(dataFlowInstance, dataDelta, response, frameworkException);
                 } catch (Throwable t) {
+                    if(listener.shouldThrowException()) {
+                        throw new DataBuilderFrameworkException(DataBuilderFrameworkException.ErrorCode.POST_PROCESSING_ERROR,
+                                "Error running post-processing listener: " +  t.getMessage(), t);
+                    }
                     logger.error("Error running post-processing listener: ", t);
+
                 }
             }
         }

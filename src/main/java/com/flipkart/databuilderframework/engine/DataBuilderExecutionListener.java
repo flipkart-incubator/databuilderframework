@@ -37,4 +37,8 @@ public interface DataBuilderExecutionListener {
                                 Throwable frameworkException) throws Exception {
 
     }
+
+    default boolean shouldThrowException() {
+        return false;
+    }
 }

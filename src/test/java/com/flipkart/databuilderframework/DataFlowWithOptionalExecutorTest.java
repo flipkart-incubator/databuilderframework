@@ -5,6 +5,7 @@ import com.flipkart.databuilderframework.engine.impl.InstantiatingDataBuilderFac
 import com.flipkart.databuilderframework.model.*;
 import com.google.common.collect.Lists;
 
+import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -13,13 +14,14 @@ import java.util.Map;
 
 import static org.junit.Assert.fail;
 
+@Slf4j
 public class DataFlowWithOptionalExecutorTest {
     private static class TestListener implements DataBuilderExecutionListener {
 
         @Override
         public void preProcessing(DataFlowInstance dataFlowInstance,
                                   DataDelta dataDelta) throws Exception {
-            System.out.println("Being called for: " + dataFlowInstance.getId());
+            log.info("Being called for: {}", dataFlowInstance.getId());
         }
 
         @Override
@@ -27,7 +29,7 @@ public class DataFlowWithOptionalExecutorTest {
         						  DataFlowInstance dataFlowInstance,
                                   DataBuilderMeta builderToBeApplied,
                                   DataDelta dataDelta, Map<String, Data> prevResponses) throws Exception {
-            System.out.println(builderToBeApplied.getName() + " being called for: " + dataFlowInstance.getId());
+            log.info("{} called for: {}", builderToBeApplied.getName(), dataFlowInstance.getId());
         }
 
         @Override
@@ -35,7 +37,7 @@ public class DataFlowWithOptionalExecutorTest {
         						 DataFlowInstance dataFlowInstance,
                                  DataBuilderMeta builderToBeApplied,
                                  DataDelta dataDelta, Map<String, Data> prevResponses, Data currentResponse) throws Exception {
-            System.out.println(builderToBeApplied.getName() + " called for: " + dataFlowInstance.getId());
+            log.info("{} called for: {}", builderToBeApplied.getName(), dataFlowInstance.getId());
         }
 
         @Override
@@ -44,14 +46,14 @@ public class DataFlowWithOptionalExecutorTest {
                                    DataBuilderMeta builderToBeApplied,
                                    DataDelta dataDelta,
                                    Map<String, Data> prevResponses, Throwable frameworkException) throws Exception {
-            System.out.println(builderToBeApplied.getName() + " called for: " + dataFlowInstance.getId());
+            log.info("{} called for: {}", builderToBeApplied.getName(), dataFlowInstance.getId());
         }
 
         @Override
         public void postProcessing(DataFlowInstance dataFlowInstance,
                                    DataDelta dataDelta, DataExecutionResponse response,
                                    Throwable frameworkException) throws Exception {
-            System.out.println("Being called for: " + dataFlowInstance.getId());
+            log.info("Being called for: {}", dataFlowInstance.getId());
         }
     }
     private static class TestListenerBeforeExecutionError implements DataBuilderExecutionListener {
@@ -59,7 +61,7 @@ public class DataFlowWithOptionalExecutorTest {
         @Override
         public void preProcessing(DataFlowInstance dataFlowInstance,
                                   DataDelta dataDelta) throws Exception {
-            System.out.println("Being called for: " + dataFlowInstance.getId());
+            log.info("Being called for: {}", dataFlowInstance.getId());
         }
 
         @Override
@@ -76,7 +78,7 @@ public class DataFlowWithOptionalExecutorTest {
         						 DataFlowInstance dataFlowInstance,
                                  DataBuilderMeta builderToBeApplied,
                                  DataDelta dataDelta, Map<String, Data> prevResponses, Data currentResponse) throws Exception {
-            System.out.println(builderToBeApplied.getName() + " called for: " + dataFlowInstance.getId());
+            log.info("{} called for: {}", builderToBeApplied.getName(), dataFlowInstance.getId());
         }
 
         @Override
@@ -85,14 +87,14 @@ public class DataFlowWithOptionalExecutorTest {
                                    DataBuilderMeta builderToBeApplied,
                                    DataDelta dataDelta,
                                    Map<String, Data> prevResponses, Throwable frameworkException) throws Exception {
-            System.out.println(builderToBeApplied.getName() + " called for: " + dataFlowInstance.getId());
+            log.info("{} called for: {}", builderToBeApplied.getName(), dataFlowInstance.getId());
         }
 
         @Override
         public void postProcessing(DataFlowInstance dataFlowInstance,
                                    DataDelta dataDelta, DataExecutionResponse response,
                                    Throwable frameworkException) throws Exception {
-            System.out.println("Being called for: " + dataFlowInstance.getId());
+            log.info("Being called for: {}", dataFlowInstance.getId());
         }
     }
     private static class TestListenerAfterExecutionError implements DataBuilderExecutionListener {
@@ -100,7 +102,7 @@ public class DataFlowWithOptionalExecutorTest {
         @Override
         public void preProcessing(DataFlowInstance dataFlowInstance,
                                   DataDelta dataDelta) throws Exception {
-            System.out.println("Being called for: " + dataFlowInstance.getId());
+            log.info("Being called for: {}", dataFlowInstance.getId());
         }
 
         @Override
@@ -108,7 +110,7 @@ public class DataFlowWithOptionalExecutorTest {
         						  DataFlowInstance dataFlowInstance,
                                   DataBuilderMeta builderToBeApplied,
                                   DataDelta dataDelta, Map<String, Data> prevResponses) throws Exception {
-            System.out.println(builderToBeApplied.getName() + " being called for: " + dataFlowInstance.getId());
+            log.info("{} called for: {}", builderToBeApplied.getName(), dataFlowInstance.getId());
         }
 
         @Override
@@ -127,14 +129,14 @@ public class DataFlowWithOptionalExecutorTest {
                                    DataBuilderMeta builderToBeApplied,
                                    DataDelta dataDelta,
                                    Map<String, Data> prevResponses, Throwable frameworkException) throws Exception {
-            System.out.println(builderToBeApplied.getName() + " called for: " + dataFlowInstance.getId());
+            log.info("{} called for: {}", builderToBeApplied.getName(), dataFlowInstance.getId());
         }
 
         @Override
         public void postProcessing(DataFlowInstance dataFlowInstance,
                                    DataDelta dataDelta, DataExecutionResponse response,
                                    Throwable frameworkException) throws Exception {
-            System.out.println("Being called for: " + dataFlowInstance.getId());
+            log.info("Being called for: {}", dataFlowInstance.getId());
         }
     }
 
@@ -143,7 +145,7 @@ public class DataFlowWithOptionalExecutorTest {
         @Override
         public void preProcessing(DataFlowInstance dataFlowInstance,
                                   DataDelta dataDelta) throws Exception {
-            System.out.println("Being called for: " + dataFlowInstance.getId());
+            log.info("Being called for: {}", dataFlowInstance.getId());
         }
 
         @Override
@@ -151,7 +153,7 @@ public class DataFlowWithOptionalExecutorTest {
         						  DataFlowInstance dataFlowInstance,
                                   DataBuilderMeta builderToBeApplied,
                                   DataDelta dataDelta, Map<String, Data> prevResponses) throws Exception {
-            System.out.println(builderToBeApplied.getName() + " being called for: " + dataFlowInstance.getId());
+            log.info("{} called for: {}", builderToBeApplied.getName(), dataFlowInstance.getId());
         }
 
         @Override
@@ -159,7 +161,7 @@ public class DataFlowWithOptionalExecutorTest {
         						 DataFlowInstance dataFlowInstance,
                                  DataBuilderMeta builderToBeApplied,
                                  DataDelta dataDelta, Map<String, Data> prevResponses, Data currentResponse) throws Exception {
-            System.out.println(builderToBeApplied.getName() + " called for: " + dataFlowInstance.getId());
+            log.info("{} called for: {}", builderToBeApplied.getName(), dataFlowInstance.getId());
 
         }
 
@@ -176,7 +178,7 @@ public class DataFlowWithOptionalExecutorTest {
         public void postProcessing(DataFlowInstance dataFlowInstance,
                                    DataDelta dataDelta, DataExecutionResponse response,
                                    Throwable frameworkException) throws Exception {
-            System.out.println("Being called for: " + dataFlowInstance.getId());
+            log.info("Being called for: {}", dataFlowInstance.getId());
         }
     }
 
