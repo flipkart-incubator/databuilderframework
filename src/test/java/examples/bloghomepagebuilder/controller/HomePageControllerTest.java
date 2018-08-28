@@ -51,6 +51,6 @@ public class HomePageControllerTest {
             Assert.assertNotNull(response);
             //System.out.println(new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(response));
         }
-        System.out.println("Time taken: " + stopwatch.elapsed(TimeUnit.MILLISECONDS));
+        log.info("Time taken: {}", stopwatch.elapsed(TimeUnit.MILLISECONDS));
     }
 }

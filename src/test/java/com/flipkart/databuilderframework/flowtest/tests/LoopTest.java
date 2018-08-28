@@ -13,6 +13,7 @@ import com.flipkart.databuilderframework.model.*;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -23,6 +24,7 @@ import java.util.concurrent.Executors;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
+@Slf4j
 public class LoopTest {
     private DataBuilderMetadataManager dataBuilderMetadataManager = new DataBuilderMetadataManager();
     private DataFlowExecutor executor = new MultiThreadedDataFlowExecutor(new InstantiatingDataBuilderFactory(dataBuilderMetadataManager), Executors.newFixedThreadPool(10));
@@ -65,19 +67,19 @@ public class LoopTest {
             DataDelta dataDelta = new DataDelta(Lists.newArrayList(
                     new CAID(), new CR(), new OP(), new SPO(), new EPD()));
             DataExecutionResponse response = executor.run(dataFlowInstance, dataDelta);
-            System.out.println(listPrint(response.getResponses().keySet()));
+            log.info(listPrint(response.getResponses().keySet()));
             Assert.assertEquals(9, response.getResponses().size());
         }
         {
             DataDelta dataDelta = new DataDelta(Lists.newArrayList(new SPO(), new EPD()));
             DataExecutionResponse response = executor.run(dataFlowInstance, dataDelta);
-            System.out.println(listPrint(response.getResponses().keySet()));
+            log.info(listPrint(response.getResponses().keySet()));
             Assert.assertEquals(8, response.getResponses().size());
         }
         {
             DataDelta dataDelta = new DataDelta(Lists.newArrayList(new SPO(), new EPD()));
             DataExecutionResponse response = executor.run(dataFlowInstance, dataDelta);
-            System.out.println(listPrint(response.getResponses().keySet()));
+            log.info(listPrint(response.getResponses().keySet()));
             Assert.assertEquals(7, response.getResponses().size());
         }
     }
