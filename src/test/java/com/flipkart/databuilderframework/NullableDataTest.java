@@ -43,7 +43,19 @@ public class NullableDataTest {
 
     }
 
+    public static final class C extends DataAdapter<C> {
+
+        public C() {
+            super(C.class);
+        }
+
+    }
+
     public static final class RepeatableBuilder extends DataBuilder {
+
+        public RepeatableBuilder() {
+
+        }
 
         @Override
         public Data process(DataBuilderContext context) {
@@ -54,16 +66,32 @@ public class NullableDataTest {
             }
             return new B();
         }
+    }
 
+    public static final class TargetBuilder extends DataBuilder {
+
+        public TargetBuilder() {
+
+        }
+
+        @Override
+        public Data process(DataBuilderContext context) {
+            val accessor = context.getDataSet().accessor();
+            if (accessor.checkForData(B.class)) {
+                return new C();
+            }
+            return null;
+        }
     }
 
 
     @Before
     public void setup() throws Exception {
         dataBuilderMetadataManager.register(ImmutableSet.of("A"), "B", "BuilderA", RepeatableBuilder.class);
+        dataBuilderMetadataManager.register(ImmutableSet.of("A", "B"), "C", "BuilderB", TargetBuilder.class);
         dataFlow = new DataFlowBuilder()
                 .withMetaDataManager(dataBuilderMetadataManager)
-                .withTargetData("B")
+                .withTargetData("C")
                 .build();
     }
 
@@ -75,7 +103,7 @@ public class NullableDataTest {
 
         DataDelta dataDelta = new DataDelta(Lists.newArrayList(new A()));
         DataExecutionResponse response = executor.run(dataFlowInstance, dataDelta);
-        Assert.assertEquals(1, response.getResponses().size());
+        Assert.assertEquals(2, response.getResponses().size());
 
         A a = new A();
         a.setRetry(true);

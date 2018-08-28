@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <groupId>com.flipkart.databuilderframework</groupId>
-    <version>0.5.5</version>
+    <version>0.5.5-SNAPSHOT-R</version>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>databuilderframework</artifactId>
@@ -14,10 +14,13 @@
 
     <distributionManagement>
         <repository>
-            <id>clojars</id>
-            <name>Clojars repository</name>
-            <url>https://clojars.org/repo</url>
+            <id>phonepe-releases</id>
+            <url>http://artifactory.phonepe.com/content/repositories/releases</url>
         </repository>
+        <snapshotRepository>
+            <id>phonepe-snapshots</id>
+            <url>http://artifactory.phonepe.com/content/repositories/snapshots</url>
+        </snapshotRepository>
     </distributionManagement>
 
     <scm>
