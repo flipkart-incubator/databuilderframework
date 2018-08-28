@@ -54,30 +54,7 @@ public abstract class DataFlowExecutor {
                                      DataDelta dataDelta) throws DataBuilderFrameworkException, DataValidationException {
         Preconditions.checkNotNull(dataFlow);
         Preconditions.checkArgument(null != dataFlow.getDataBuilderFactory() || null != dataBuilderFactory);
-        DataExecutionResponse response = null;
-        Throwable frameworkException = null;
-        try {
-            for (DataBuilderExecutionListener listener : dataBuilderExecutionListener) {
-                try {
-                    listener.preProcessing(dataFlow, dataDelta);
-                } catch (Throwable t) {
-                    logger.error("Error running pre-processing listener: ", t);
-                }
-            }
-            response = run(new DataBuilderContext(), new DataFlowInstance(), dataDelta, dataFlow, dataFlow.getDataBuilderFactory());
-            return response;
-        } catch (DataBuilderFrameworkException e) {
-            frameworkException = e;
-            throw e;
-        } finally {
-            for (DataBuilderExecutionListener listener : dataBuilderExecutionListener) {
-                try {
-                    listener.postProcessing(dataFlow, dataDelta, response, frameworkException);
-                } catch (Throwable t) {
-                    logger.error("Error running post-processing listener: ", t);
-                }
-            }
-        }
+        return process(new DataBuilderContext(), new DataFlowInstance(), dataDelta, dataFlow, dataFlow.getDataBuilderFactory());
     }
 
     /**
@@ -146,14 +123,54 @@ public abstract class DataFlowExecutor {
             throw new DataBuilderFrameworkException(DataBuilderFrameworkException.ErrorCode.NO_FACTORY_FOR_DATA_BUILDER,
                                                 "No builder specified in contructor or dataflow");
         }
-        return run(dataBuilderContext, dataFlowInstance, dataDelta, dataFlow, builderFactory);
+        return process(dataBuilderContext, dataFlowInstance, dataDelta, dataFlow, builderFactory);
+    }
+
+    protected DataExecutionResponse process(DataBuilderContext dataBuilderContext,
+                                            DataFlowInstance dataFlowInstance,
+                                            DataDelta dataDelta,
+                                            DataFlow dataFlow,
+                                            DataBuilderFactory builderFactory) throws DataBuilderFrameworkException, DataValidationException {
+        DataExecutionResponse response = null;
+        Throwable frameworkException = null;
+        try {
+            for (DataBuilderExecutionListener listener : dataBuilderExecutionListener) {
+                try {
+                    listener.preProcessing(dataFlowInstance, dataDelta);
+                } catch (Throwable t) {
+                    if(listener.shouldThrowException()) {
+                        throw new DataBuilderFrameworkException(DataBuilderFrameworkException.ErrorCode.PRE_PROCESSING_ERROR,
+                                "Error running pre-processing listener: " +  t.getMessage(), t);
+                    }
+                    logger.error("Error running pre-processing listener: ", t);
+                }
+            }
+            response = run(dataBuilderContext, dataFlowInstance, dataDelta, dataFlow, builderFactory);
+            return response;
+        } catch (DataBuilderFrameworkException e) {
+            frameworkException = e;
+            throw e;
+        } finally {
+            for (DataBuilderExecutionListener listener : dataBuilderExecutionListener) {
+                try {
+                    listener.postProcessing(dataFlowInstance, dataDelta, response, frameworkException);
+                } catch (Throwable t) {
+                    if(listener.shouldThrowException()) {
+                        throw new DataBuilderFrameworkException(DataBuilderFrameworkException.ErrorCode.POST_PROCESSING_ERROR,
+                                "Error running post-processing listener: " +  t.getMessage(), t);
+                    }
+                    logger.error("Error running post-processing listener: ", t);
+
+                }
+            }
+        }
     }
 
     abstract protected DataExecutionResponse run(DataBuilderContext dataBuilderContext,
-                                              DataFlowInstance dataFlowInstance,
-                                              DataDelta dataDelta,
-                                              DataFlow dataFlow,
-                                              DataBuilderFactory builderFactory) throws DataBuilderFrameworkException, DataValidationException;
+                                                 DataFlowInstance dataFlowInstance,
+                                                 DataDelta dataDelta,
+                                                 DataFlow dataFlow,
+                                                 DataBuilderFactory builderFactory) throws DataBuilderFrameworkException, DataValidationException;
 
     /**
      * A instance of {@link com.flipkart.databuilderframework.engine.DataBuilderExecutionListener}

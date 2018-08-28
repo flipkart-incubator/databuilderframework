@@ -12,6 +12,7 @@ import com.flipkart.databuilderframework.flowtest.data.*;
 import com.flipkart.databuilderframework.model.*;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -21,6 +22,7 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
+@Slf4j
 public class FlowTest {
     private DataBuilderMetadataManager dataBuilderMetadataManager = new DataBuilderMetadataManager();
     private DataFlowExecutor executor = new SimpleDataFlowExecutor(new InstantiatingDataBuilderFactory(dataBuilderMetadataManager));
@@ -63,21 +65,21 @@ public class FlowTest {
             DataDelta dataDelta = new DataDelta(Lists.newArrayList(
                     new CAID(), new CR(), new OP()));
             DataExecutionResponse response = executor.run(dataFlowInstance, dataDelta);
-            System.out.println(listPrint(response.getResponses().keySet()));
+            log.info(listPrint(response.getResponses().keySet()));
             Assert.assertEquals(3, response.getResponses().size());
         }
         {
             DataDelta dataDelta = new DataDelta(Lists.<Data>newArrayList(
                     new SPO()));
             DataExecutionResponse response = executor.run(dataFlowInstance, dataDelta);
-            System.out.println(listPrint(response.getResponses().keySet()));
+            log.info(listPrint(response.getResponses().keySet()));
             Assert.assertEquals(2, response.getResponses().size());
         }
         {
             DataDelta dataDelta = new DataDelta(Lists.<Data>newArrayList(
                     new EPD()));
             DataExecutionResponse response = executor.run(dataFlowInstance, dataDelta);
-            System.out.println(listPrint(response.getResponses().keySet()));
+            log.info(listPrint(response.getResponses().keySet()));
             Assert.assertEquals(5, response.getResponses().size());
         }
     }
@@ -102,7 +104,7 @@ public class FlowTest {
             DataDelta dataDelta = new DataDelta(Lists.newArrayList(
                     new CAID(), new CR(), new OP(), new SPO(), new EPD()));
             DataExecutionResponse response = executor.run(dataFlowInstance, dataDelta);
-            System.out.println(listPrint(response.getResponses().keySet()));
+            log.info(listPrint(response.getResponses().keySet()));
             Assert.assertEquals(10, response.getResponses().size());
         }
     }

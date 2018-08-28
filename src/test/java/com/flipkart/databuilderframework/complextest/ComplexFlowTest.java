@@ -9,8 +9,10 @@ import com.flipkart.databuilderframework.engine.impl.InstantiatingDataBuilderFac
 import com.flipkart.databuilderframework.model.*;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 
+@Slf4j
 public class ComplexFlowTest {
     private DataBuilderMetadataManager dataBuilderMetadataManager = new DataBuilderMetadataManager();
     private DataFlowExecutor executor = new SimpleDataFlowExecutor(new InstantiatingDataBuilderFactory(dataBuilderMetadataManager));
@@ -37,17 +39,17 @@ public class ComplexFlowTest {
         {
             DataDelta dataDelta = new DataDelta(Lists.newArrayList(new CR(), new CAID(), new VAS()));
             DataExecutionResponse response = executor.run(complexFlowIntsnace, dataDelta);
-            System.out.println(new ObjectMapper().writeValueAsString(response));
+            log.info(new ObjectMapper().writeValueAsString(response));
         }
         {
             DataDelta dataDelta = new DataDelta(Lists.<Data>newArrayList(new SPD()));
             DataExecutionResponse response = executor.run(complexFlowIntsnace, dataDelta);
-            System.out.println(new ObjectMapper().writeValueAsString(response));
+            log.info(new ObjectMapper().writeValueAsString(response));
         }
         {
             DataDelta dataDelta = new DataDelta(Lists.<Data>newArrayList(new EPD()));
             DataExecutionResponse response = executor.run(complexFlowIntsnace, dataDelta);
-            System.out.println(new ObjectMapper().writeValueAsString(response));
+            log.info(new ObjectMapper().writeValueAsString(response));
         }
 
     }
@@ -66,12 +68,12 @@ public class ComplexFlowTest {
         {
             DataDelta dataDelta = new DataDelta(Lists.newArrayList(new CR(), new CAID(), new VAS(), new SPD()));
             DataExecutionResponse response = executor.run(complexFlowIntsnace, dataDelta);
-            System.out.println(new ObjectMapper().writeValueAsString(response));
+            log.info(new ObjectMapper().writeValueAsString(response));
         }
         {
             DataDelta dataDelta = new DataDelta(Lists.<Data>newArrayList(new EPD()));
             DataExecutionResponse response = executor.run(complexFlowIntsnace, dataDelta);
-            System.out.println(new ObjectMapper().writeValueAsString(response));
+            log.info(new ObjectMapper().writeValueAsString(response));
         }
 
     }
@@ -90,7 +92,7 @@ public class ComplexFlowTest {
         {
             DataDelta dataDelta = new DataDelta(Lists.newArrayList(new CR(), new CAID(), new VAS(), new SPD(), new EPD()));
             DataExecutionResponse response = executor.run(complexFlowIntsnace, dataDelta);
-            System.out.println(new ObjectMapper().writeValueAsString(response));
+            log.info(new ObjectMapper().writeValueAsString(response));
         }
 
     }

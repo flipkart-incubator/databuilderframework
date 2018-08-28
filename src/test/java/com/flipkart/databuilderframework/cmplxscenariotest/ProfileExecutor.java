@@ -1,5 +1,7 @@
 package com.flipkart.databuilderframework.cmplxscenariotest;
 
+import lombok.extern.slf4j.Slf4j;
+
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -16,6 +18,7 @@ import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 //wrapper to measure context switch time
+@Slf4j
 public class ProfileExecutor implements ExecutorService {
 
 	private final  ExecutorService exec;
@@ -123,7 +126,7 @@ public class ProfileExecutor implements ExecutorService {
 		return exec.submit(new Callable<T>() {
 			@Override
 			public T call() throws Exception {
-				System.out.println("context switch time "+(System.currentTimeMillis()-start));
+				log.info("context switch time {}", (System.currentTimeMillis()-start));
 				return taskref.call();
 			}
 		});

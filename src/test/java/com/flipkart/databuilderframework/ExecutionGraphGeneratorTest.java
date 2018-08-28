@@ -8,6 +8,7 @@ import com.flipkart.databuilderframework.engine.ExecutionGraphGenerator;
 import com.flipkart.databuilderframework.model.DataFlow;
 import com.flipkart.databuilderframework.model.ExecutionGraph;
 import com.google.common.collect.ImmutableSet;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -16,6 +17,7 @@ import java.util.Collections;
 
 import static org.junit.Assert.fail;
 
+@Slf4j
 public class ExecutionGraphGeneratorTest {
     private DataBuilderMetadataManager dataBuilderMetadataManager = new DataBuilderMetadataManager();
     private ExecutionGraphGenerator executionGraphGenerator = new ExecutionGraphGenerator(dataBuilderMetadataManager);
@@ -179,7 +181,7 @@ public class ExecutionGraphGeneratorTest {
                                     .withResolutionSpec("G", "BuilderD")
                                     .build();
         ExecutionGraph e = dataFlow.getExecutionGraph();
-        System.out.println(new ObjectMapper().writeValueAsString(e));
+        log.info("{}", new ObjectMapper().writeValueAsString(e));
         Assert.assertEquals(4, e.getDependencyHierarchy().size());
         Assert.assertEquals("BuilderA", e.getDependencyHierarchy().get(0).get(0).getName());
         Assert.assertEquals(1, e.getDependencyHierarchy().get(0).size());

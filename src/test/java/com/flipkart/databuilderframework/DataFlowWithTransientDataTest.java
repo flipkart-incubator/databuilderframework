@@ -7,10 +7,12 @@ import com.flipkart.databuilderframework.model.*;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+@Slf4j
 public class DataFlowWithTransientDataTest {
 
     private DataBuilderMetadataManager dataBuilderMetadataManager = new DataBuilderMetadataManager();
@@ -32,7 +34,7 @@ public class DataFlowWithTransientDataTest {
         dataFlow.setTargetData("F");
         dataFlow.setExecutionGraph(executionGraphGenerator.generateGraph(dataFlow).deepCopy());
         dataFlow.setTransients(Sets.newHashSet("C"));
-        System.out.println(new ObjectMapper().writeValueAsString(dataFlow));
+        log.info("{}",new ObjectMapper().writeValueAsString(dataFlow));
     }
 
     @Test

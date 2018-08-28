@@ -5,12 +5,14 @@ import com.flipkart.databuilderframework.engine.impl.InstantiatingDataBuilderFac
 import com.flipkart.databuilderframework.model.*;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.concurrent.Executors;
 
+@Slf4j
 public class ConcurrencyWithOptionalsTest {
     private DataBuilderMetadataManager dataBuilderMetadataManager = new DataBuilderMetadataManager();
     private DataFlowExecutor executor = new MultiThreadedDataFlowExecutor(
@@ -66,6 +68,6 @@ public class ConcurrencyWithOptionalsTest {
 //            Assert.assertEquals(5, response.getResponses().size());
             //System.out.println("ST:" + System.currentTimeMillis());
         }
-        System.out.println(String.format("MT: %d ST: %d", mTime, sTime));
+        log.info("MT: {} ST: {}", mTime, sTime);
     }
 }
