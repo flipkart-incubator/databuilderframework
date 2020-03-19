@@ -1,13 +1,14 @@
 package com.flipkart.databuilderframework.engine;
 
+import com.flipkart.databuilderframework.engine.util.TimedExecutor;
 import com.flipkart.databuilderframework.model.DataBuilderMeta;
 import com.flipkart.databuilderframework.model.DataFlow;
 import com.flipkart.databuilderframework.model.ExecutionGraph;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.*;
 
@@ -17,9 +18,8 @@ import java.util.*;
  * to generate a dependency list. This is used later by the {@link DataFlowExecutor}
  * to run the flow.
  */
+@Slf4j
 public class ExecutionGraphGenerator {
-    private static final Logger logger = LoggerFactory.getLogger(ExecutionGraphGenerator.class.getSimpleName());
-
     private DataBuilderMetadataManager dataBuilderMetadataManager;
 
     public ExecutionGraphGenerator(DataBuilderMetadataManager dataBuilderMetadataManager) {
@@ -44,13 +44,15 @@ public class ExecutionGraphGenerator {
         /**
          * STEP 1:: GENERATE DEPENDENCY TREE {ROOT=>TARGET}
          */
-        DependencyNode root = generateDependencyTree(dataFlow.getTargetData(), dataFlow, null,
-                new DependencyNodeManager(), dependencyInfoManager,
-                new FlattenedDataRoute());
+        DependencyNode root
+                = TimedExecutor.run("generateDependencyTree",
+                                                () -> generateDependencyTree(dataFlow.getTargetData(), dataFlow, null,
+                                                                   new DependencyNodeManager(), dependencyInfoManager,
+                                                                   new FlattenedDataRoute()));
         /**
          * STEP 2:: RANK NODES IN THE TREE ACCORDING TO DISTANCE FROM ROOT
          */
-        int maxHeight = rankNodes(root, 0);
+        int maxHeight = TimedExecutor.run("rankNodes", () -> rankNodes(root, 0));
 
         /**
         STEP 3:: CREATE REPRESENTATION
@@ -74,12 +76,21 @@ public class ExecutionGraphGenerator {
            2 : [A]
         ]
         */
+        List<List<DataBuilderMeta>> dependencyHierarchy
+                = TimedExecutor.run("buildHierarchy", () -> buildHierarchy(dependencyInfoManager, maxHeight));
+
+        //Return
+        return new ExecutionGraph(dependencyHierarchy);
+    }
+
+    private List<List<DataBuilderMeta>> buildHierarchy(
+            DependencyInfoManager dependencyInfoManager,
+            int maxHeight) {
         Map<String, DependencyInfo> dependencyInfos = dependencyInfoManager.infos;
 
         //Fill up array with nulls. Array size == max Rank
         List<List<DataBuilderMeta>> dependencyHierarchy
-                                        = new ArrayList<List<DataBuilderMeta>>(
-                                                    Collections.<List<DataBuilderMeta>>nCopies(maxHeight + 1, null));
+                                        = new ArrayList<>(Collections.nCopies(maxHeight + 1, null));
 
         //For each dependency
         for(Map.Entry<String, DependencyInfo> dependencyInfo : dependencyInfos.entrySet()) {
@@ -106,9 +117,7 @@ public class ExecutionGraphGenerator {
 
         //Reverse the array for helping in bottom up traversal during execution
         Collections.reverse(dependencyHierarchy);
-
-        //Return
-        return new ExecutionGraph(dependencyHierarchy);
+        return dependencyHierarchy;
     }
 
     private int rankNodes(DependencyNode root, int currentNode) {
@@ -119,7 +128,7 @@ public class ExecutionGraphGenerator {
         int returnValue = childNode;
         for(DependencyNode child : root.getIncoming()) {
             int val = rankNodes(child, childNode);
-            returnValue = (val > returnValue)?val:returnValue;
+            returnValue = Math.max(val, returnValue);
         }
         return returnValue;
     }
@@ -129,7 +138,12 @@ public class ExecutionGraphGenerator {
                                                   DependencyNodeManager dependencyNodeManager,
                                                   DependencyInfoManager dependencyInfoManager,
                                                   FlattenedDataRoute routeMeta) throws DataBuilderFrameworkException {
-        logger.debug("Generating for: " + data);
+        DependencyNode root = dependencyNodeManager.get(data);
+        if(root.getData() != null ) {
+            log.debug("Precomputed dependency tree found for data: {}", data);
+            return root;
+        }
+        log.debug("Generating dependency tree for: {}", data);
         List<DependencyNode> incoming = Lists.newArrayList();
         DataBuilderMeta dataBuilderMeta = findBuilder(data, dataFlow);
         DependencyInfo info = dependencyInfoManager.get(data);
@@ -142,25 +156,21 @@ public class ExecutionGraphGenerator {
             }
             for(String consumes : dataBuilderMeta.getEffectiveConsumes()) {
                 if(routeMeta.isAlreadyOnOutgoingPath(data, consumes)) {
-                    logger.debug(String.format("Loop detected: Path for %s already contains %s", consumes, data));
+                    log.warn("Loop detected: Path for {} already contains {}", consumes, data);
                     continue;
                 }
                 routeMeta.addOutputData(consumes, data);
                 DependencyNode childnode = generateDependencyTree(consumes, dataFlow, info,
                                                 dependencyNodeManager, dependencyInfoManager, routeMeta);
-                if(null != childnode) {
-                    incoming.add(childnode);
-                }
+                incoming.add(childnode);
             }
         }
-        DependencyNode root = dependencyNodeManager.get(data);
-        if(root.getData() == null ){
-            root.setData(info);
-            root.setIncoming(incoming);
-        }
+        root.setData(info);
+        root.setIncoming(incoming);
         if(null != outgoing) {
             root.getOutgoing().add(outgoing);
         }
+
         return root;
     }
 
@@ -174,18 +184,18 @@ public class ExecutionGraphGenerator {
                 throw new DataBuilderFrameworkException(DataBuilderFrameworkException.ErrorCode.NO_BUILDER_FOR_DATA,
                         "No builder found with name: " + resolutionSpecs.get(data));
             }
-            //logger.info("Found builder for data " + data + ": " + resolutionSpecs.get(data));
+            //log.info("Found builder for data " + data + ": " + resolutionSpecs.get(data));
         }
         if(null == producerMeta) {
             List<DataBuilderMeta> producerMetaList = dataBuilderMetadataManager.getMetaForProducerOf(data);
             if(producerMetaList == null) {
-                logger.info("Starting data point found: " + data);
+                log.debug("Starting data point found: {}", data);
                 return null;
             }
 
             if(producerMetaList.size() > 1) {
                 //No resolution spec was specified, but multiple builders were found
-                logger.error("Multiple builders found for data, but no resolution spec found. Cannot proceed. data: " + data);
+                log.error("Multiple builders found for data, but no resolution spec found. Cannot proceed. data: {}", data);
                 throw new DataBuilderFrameworkException(DataBuilderFrameworkException.ErrorCode.BUILDER_RESOLUTION_CONFLICT_FOR_DATA,
                         "Multiple builders found for data, but no resolution spec found. Cannot proceed. Data: " + data);
             }
@@ -205,7 +215,6 @@ public class ExecutionGraphGenerator {
             if(outgoingMap.containsKey(output)) {
                 outgoingMap.get(input).addAll(outgoingMap.get(output)); //My output's outputs are my outputs also
             }
-            //logger.info(String.format("Added %s in path for %s", input, output));
         }
 
         public boolean isAlreadyOnOutgoingPath(String input, String output) {
@@ -216,42 +225,11 @@ public class ExecutionGraphGenerator {
         }
     }
 
+    @Data
     private static class DependencyInfo {
         private String data;
         private String builder;
         private int rank = 0;
-
-        private DependencyInfo(String data, String builder) {
-            this.data = data;
-            this.builder = builder;
-        }
-
-        private DependencyInfo() {
-        }
-
-        public String getData() {
-            return data;
-        }
-
-        public void setData(String data) {
-            this.data = data;
-        }
-
-        public String getBuilder() {
-            return builder;
-        }
-
-        public void setBuilder(String builder) {
-            this.builder = builder;
-        }
-
-        public int getRank() {
-            return rank;
-        }
-
-        public void setRank(int rank) {
-            this.rank = rank;
-        }
     }
 
     private static final class DependencyInfoManager {
@@ -264,38 +242,11 @@ public class ExecutionGraphGenerator {
         }
     }
 
+    @Data
     private static class DependencyNode {
-
         private DependencyInfo data;
         private List<DependencyNode> incoming = Lists.newArrayList();
         private Set<DependencyInfo> outgoing = Sets.newLinkedHashSet();
-
-        private DependencyNode() {
-        }
-
-        public DependencyInfo getData() {
-            return data;
-        }
-
-        public void setData(DependencyInfo data) {
-            this.data = data;
-        }
-
-        public List<DependencyNode> getIncoming() {
-            return incoming;
-        }
-
-        public void setIncoming(List<DependencyNode> incoming) {
-            this.incoming = incoming;
-        }
-
-        public Set<DependencyInfo> getOutgoing() {
-            return outgoing;
-        }
-
-        public void setOutgoing(Set<DependencyInfo> outgoing) {
-            this.outgoing = outgoing;
-        }
     }
 
     private static class DependencyNodeManager {
