@@ -97,8 +97,6 @@ public class MultiThreadedDataFlowExecutor extends DataFlowExecutor {
                             if(null != dataFlow.getTransients() && !dataFlow.getTransients().contains(response.getData())) {
                                 newlyGeneratedData.add(response.getData());
                             }
-                        } else {
-                            dataSetAccessor.unset(data);
                         }
                     }
                     catch (InterruptedException e) {
