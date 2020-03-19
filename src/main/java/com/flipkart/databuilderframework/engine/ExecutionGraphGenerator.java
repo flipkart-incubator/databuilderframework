@@ -45,14 +45,14 @@ public class ExecutionGraphGenerator {
          * STEP 1:: GENERATE DEPENDENCY TREE {ROOT=>TARGET}
          */
         DependencyNode root
-                = TimedExecutor.run("generateDependencyTree",
+                = TimedExecutor.run("ExecutionGraphGenerator::generateDependencyTree",
                                                 () -> generateDependencyTree(dataFlow.getTargetData(), dataFlow, null,
                                                                    new DependencyNodeManager(), dependencyInfoManager,
                                                                    new FlattenedDataRoute()));
         /**
          * STEP 2:: RANK NODES IN THE TREE ACCORDING TO DISTANCE FROM ROOT
          */
-        int maxHeight = TimedExecutor.run("rankNodes", () -> rankNodes(root, 0));
+        int maxHeight = TimedExecutor.run("ExecutionGraphGenerator::rankNodes", () -> rankNodes(root, 0));
 
         /**
         STEP 3:: CREATE REPRESENTATION
@@ -77,7 +77,7 @@ public class ExecutionGraphGenerator {
         ]
         */
         List<List<DataBuilderMeta>> dependencyHierarchy
-                = TimedExecutor.run("buildHierarchy", () -> buildHierarchy(dependencyInfoManager, maxHeight));
+                = TimedExecutor.run("ExecutionGraphGenerator::buildHierarchy", () -> buildHierarchy(dependencyInfoManager, maxHeight));
 
         //Return
         return new ExecutionGraph(dependencyHierarchy);

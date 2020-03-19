@@ -85,6 +85,8 @@ public class SimpleDataFlowExecutor extends DataFlowExecutor {
                             if(null != dataFlow.getTransients() && !dataFlow.getTransients().contains(response.getData())) {
                                 newlyGeneratedData.add(response.getData());
                             }
+                        } else {
+                            dataSetAccessor.unset(builderMeta.getProduces());
                         }
                         //logger.debug("Ran " + builderMeta.getName());
                         processedBuilders.add(builderMeta);

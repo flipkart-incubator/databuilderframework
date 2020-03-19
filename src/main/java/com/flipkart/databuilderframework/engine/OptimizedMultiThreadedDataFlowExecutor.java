@@ -97,6 +97,7 @@ public class OptimizedMultiThreadedDataFlowExecutor extends DataFlowExecutor {
                         }
 
                         Data response = responseContainer.getGeneratedData();
+                        String data = responseContainer.getBuilderMeta().getProduces();
                         if(responseContainer.isHasError()) {
                             if(null != responseContainer.getValidationException()) {
                                 throw responseContainer.getValidationException();
@@ -106,12 +107,17 @@ public class OptimizedMultiThreadedDataFlowExecutor extends DataFlowExecutor {
                             throw responseContainer.getException();
                         }
                         if (null != response) {
+                            Preconditions.checkArgument(response.getData().equalsIgnoreCase(data),
+                                    String.format("Builder is supposed to produce %s but produces %s",
+                                            data, response.getData()));
                             dataSetAccessor.merge(response);
                             responseData.put(response.getData(), response);
                             activeDataSet.add(response.getData());
                             if(null != dataFlow.getTransients() && !dataFlow.getTransients().contains(response.getData())) {
                                 newlyGeneratedData.add(response.getData());
                             }
+                        } else {
+                            dataSetAccessor.unset(data);
                         }
                     }
                     catch (InterruptedException e) {

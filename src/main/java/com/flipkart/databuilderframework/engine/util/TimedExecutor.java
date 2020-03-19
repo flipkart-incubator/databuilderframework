@@ -16,7 +16,7 @@ public class TimedExecutor {
         try {
             return handler.run();
         } finally {
-            log.info("Execution of {} took {} ms", name, stopwatch.elapsed(TimeUnit.MILLISECONDS));
+            log.debug("Execution of {} took {} ms", name, stopwatch.elapsed(TimeUnit.MILLISECONDS));
         }
     }
 }
