@@ -7,6 +7,7 @@ import com.google.common.collect.Sets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -49,18 +50,35 @@ public class SimpleDataFlowExecutor extends DataFlowExecutor {
         List<List<DataBuilderMeta>> dependencyHierarchy = executionGraph.getDependencyHierarchy();
         Set<String> newlyGeneratedData = Sets.newHashSet();
         Set<DataBuilderMeta> processedBuilders = Sets.newHashSet();
+        List<String> matrix = new ArrayList<>();
+        StringBuilder heading = new StringBuilder();
+        heading.append("ActiveDataSet" +":" + "Builder" +":" + "Effective Consumes" + ":" );
+        matrix.add(heading.toString());
         while(true) {
             for (List<DataBuilderMeta> levelBuilders : dependencyHierarchy) {
                 for (DataBuilderMeta builderMeta : levelBuilders) {
+
+                    StringBuilder builderRunData = new StringBuilder();
+
+                    builderRunData.append( activeDataSet.toString() + ":");
+
+                    //ensures a builder is run only once, even if looping is enabled.
+                    builderRunData.append( builderMeta.getName() + ":");
                     if (processedBuilders.contains(builderMeta)) {
+                        matrix.add(builderRunData.toString());
                         continue;
                     }
                     //If there is an intersection, means some of it's inputs have changed. Reevaluate
+                    builderRunData.append( builderMeta.getEffectiveConsumes() + ":");
                     if (Sets.intersection(builderMeta.getEffectiveConsumes(), activeDataSet).isEmpty()) {
+                        matrix.add(builderRunData.toString());
                         continue;
                     }
+
                     DataBuilder builder = builderFactory.create(builderMeta);
                     if (!dataSetAccessor.checkForData(builder.getDataBuilderMeta().getConsumes())) {
+                        builderRunData.append("NOT_RUN");
+                        matrix.add(builderRunData.toString());
                         continue;
                     }
                     for (DataBuilderExecutionListener listener : dataBuilderExecutionListener) {
@@ -71,6 +89,8 @@ public class SimpleDataFlowExecutor extends DataFlowExecutor {
                         }
                     }
                     try {
+                        builderRunData.append("RUN");
+                        matrix.add(builderRunData.toString());
                         Data response = builder.process(
                                                     dataBuilderContext.immutableCopy(
                                                             dataSet.accessor().getAccesibleDataSetFor(builder)));
@@ -146,18 +166,18 @@ public class SimpleDataFlowExecutor extends DataFlowExecutor {
                 }
             }
             if(newlyGeneratedData.contains(dataFlow.getTargetData())) {
-                //logger.debug("Finished running this instance of the flow. Exiting.");
+                logger.debug("Finished running this instance of the flow. Exiting.");
                 break;
             }
             if(newlyGeneratedData.isEmpty()) {
-                //logger.debug("Nothing happened in this loop, exiting..");
+                logger.debug("Nothing happened in this loop, exiting..");
                 break;
             }
-//            StringBuilder stringBuilder = new StringBuilder();
-//            for(String data : newlyGeneratedData) {
-//                stringBuilder.append(data + ", ");
-//            }
-            //logger.info("Newly generated: " + stringBuilder);
+            StringBuilder stringBuilder = new StringBuilder();
+            for(String data : newlyGeneratedData) {
+                stringBuilder.append(data + ", ");
+            }
+            logger.info("Newly generated: " + stringBuilder);
             activeDataSet.clear();
             activeDataSet.addAll(newlyGeneratedData);
             newlyGeneratedData.clear();
@@ -165,8 +185,12 @@ public class SimpleDataFlowExecutor extends DataFlowExecutor {
                 break;
             }
         }
+        // ensure transients are not copied in the final data set
         DataSet finalDataSet = dataSetAccessor.copy(dataFlow.getTransients());
         dataFlowInstance.setDataSet(finalDataSet);
+        for (String s : matrix) {
+            System.out.println(s);
+        }
         return new DataExecutionResponse(responseData);
     }
 
