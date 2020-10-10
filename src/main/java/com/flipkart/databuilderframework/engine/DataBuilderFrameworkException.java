@@ -22,7 +22,9 @@ public class DataBuilderFrameworkException extends Exception {
         NO_BUILDER_FOUND_FOR_NAME,
         INSTANTIATION_FAILURE,
         BUILDER_RESOLUTION_CONFLICT_FOR_DATA,
-        BUILDER_EXECUTION_ERROR
+        BUILDER_EXECUTION_ERROR,
+        BUILDER_PRE_EXECUTION_ERROR,
+        BUILDER_POST_EXECUTION_ERROR
     }
 
     private final ErrorCode errorCode;

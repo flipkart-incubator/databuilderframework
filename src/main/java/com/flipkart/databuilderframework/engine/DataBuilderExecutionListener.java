@@ -41,4 +41,12 @@ public interface DataBuilderExecutionListener {
     default boolean shouldThrowException() {
         return false;
     }
+
+    default boolean shouldThrowExceptionInBeforeExecute() {
+        return false;
+    }
+
+    default boolean shouldThrowExceptionInAfterExecute() {
+        return false;
+    }
 }
