@@ -1,5 +1,6 @@
 package com.flipkart.databuilderframework.engine;
 
+import com.flipkart.databuilderframework.engine.util.DataBuilderExceptionUtil;
 import com.flipkart.databuilderframework.model.*;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
@@ -67,12 +68,7 @@ public class SimpleDataFlowExecutor extends DataFlowExecutor {
                         try {
                             listener.beforeExecute(dataBuilderContext, dataFlowInstance, builderMeta, dataDelta, responseData);
                         } catch (Throwable t) {
-                            final String errorMessage = "Error running pre-execution execution listener: ";
-                            logger.error(errorMessage, t);
-                            if (listener.shouldThrowExceptionInBeforeExecute()) {
-                                throw new DataBuilderFrameworkException(DataBuilderFrameworkException.ErrorCode.BUILDER_PRE_EXECUTION_ERROR,
-                                        errorMessage + t.getMessage(), t);
-                            }
+                            DataBuilderExceptionUtil.handleExceptionInBeforeExecute(listener, logger, t);
                         }
                     }
                     try {
@@ -96,12 +92,7 @@ public class SimpleDataFlowExecutor extends DataFlowExecutor {
                             try {
                                 listener.afterExecute(dataBuilderContext, dataFlowInstance, builderMeta, dataDelta, responseData, response);
                             } catch (Throwable t) {
-                                final String errorMessage = "Error running post-execution execution listener: ";
-                                logger.error(errorMessage, t);
-                                if (listener.shouldThrowExceptionInAfterExecute()) {
-                                    throw new DataBuilderFrameworkException(DataBuilderFrameworkException.ErrorCode.BUILDER_POST_EXECUTION_ERROR,
-                                            errorMessage + t.getMessage(), t);
-                                }
+                                DataBuilderExceptionUtil.handleExceptionInAfterExecute(listener, logger, t);
                             }
                         }
 
