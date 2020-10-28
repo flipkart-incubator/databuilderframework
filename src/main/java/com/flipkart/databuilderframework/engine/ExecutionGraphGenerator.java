@@ -121,20 +121,23 @@ public class ExecutionGraphGenerator {
     }
 
     private int rankNodes(DependencyNode root, int currentNode, Set<String> processedNodes) {
+        String data = root.getData().getData();
+
+        if(root.getData().getRank() >= currentNode && processedNodes.contains(data)) {
+            return currentNode;
+        }
+
         if(root.getData().getRank() < currentNode) {
             root.getData().setRank(currentNode);
         }
-        String data = root.getData().getData();
+
         int childNode = currentNode + 1;
         int returnValue = childNode;
-        if(processedNodes.contains(data)) {
-            return returnValue;
-        }
-        processedNodes.add(data);
         for(DependencyNode child : root.getIncoming()) {
             int val = rankNodes(child, childNode, processedNodes);
             returnValue = Math.max(val, returnValue);
         }
+        processedNodes.add(data);
         return returnValue;
     }
 
