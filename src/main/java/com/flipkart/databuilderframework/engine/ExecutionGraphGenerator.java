@@ -52,7 +52,7 @@ public class ExecutionGraphGenerator {
         /**
          * STEP 2:: RANK NODES IN THE TREE ACCORDING TO DISTANCE FROM ROOT
          */
-        int maxHeight = TimedExecutor.run("ExecutionGraphGenerator::rankNodes", () -> rankNodes(root, 0));
+        int maxHeight = TimedExecutor.run("ExecutionGraphGenerator::rankNodes", () -> rankNodes(root, 0, Sets.newHashSet()));
 
         /**
         STEP 3:: CREATE REPRESENTATION
@@ -120,14 +120,19 @@ public class ExecutionGraphGenerator {
         return dependencyHierarchy;
     }
 
-    private int rankNodes(DependencyNode root, int currentNode) {
+    private int rankNodes(DependencyNode root, int currentNode, Set<String> processedNodes) {
         if(root.getData().getRank() < currentNode) {
             root.getData().setRank(currentNode);
         }
+        String data = root.getData().getData();
         int childNode = currentNode + 1;
         int returnValue = childNode;
+        if(processedNodes.contains(data)) {
+            return returnValue;
+        }
+        processedNodes.add(data);
         for(DependencyNode child : root.getIncoming()) {
-            int val = rankNodes(child, childNode);
+            int val = rankNodes(child, childNode, processedNodes);
             returnValue = Math.max(val, returnValue);
         }
         return returnValue;
