@@ -136,7 +136,7 @@ public abstract class DataFlowExecutor {
         try {
             for (DataBuilderExecutionListener listener : dataBuilderExecutionListener) {
                 try {
-                    listener.preProcessing(dataFlowInstance, dataDelta);
+                    listener.preProcessing(dataFlowInstance, dataDelta, dataBuilderContext);
                 } catch (Throwable t) {
                     if(listener.shouldThrowException()) {
                         throw new DataBuilderFrameworkException(DataBuilderFrameworkException.ErrorCode.PRE_PROCESSING_ERROR,
@@ -153,7 +153,7 @@ public abstract class DataFlowExecutor {
         } finally {
             for (DataBuilderExecutionListener listener : dataBuilderExecutionListener) {
                 try {
-                    listener.postProcessing(dataFlowInstance, dataDelta, response, frameworkException);
+                    listener.postProcessing(dataFlowInstance, dataDelta, response, frameworkException, dataBuilderContext);
                 } catch (Throwable t) {
                     if(listener.shouldThrowException()) {
                         throw new DataBuilderFrameworkException(DataBuilderFrameworkException.ErrorCode.POST_PROCESSING_ERROR,

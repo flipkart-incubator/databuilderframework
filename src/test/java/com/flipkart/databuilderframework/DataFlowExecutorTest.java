@@ -19,7 +19,8 @@ public class DataFlowExecutorTest {
 
         @Override
         public void preProcessing(DataFlowInstance dataFlowInstance,
-                                   DataDelta dataDelta) throws Exception {
+                                   DataDelta dataDelta,
+                                  DataBuilderContext dataBuilderContext) throws Exception {
             log.info("Being called for: {}", dataFlowInstance.getId());
         }
 
@@ -52,7 +53,8 @@ public class DataFlowExecutorTest {
         public void postProcessing(DataFlowInstance dataFlowInstance,
                                    DataDelta dataDelta,
                                    DataExecutionResponse response,
-                                   Throwable frameworkException) throws Exception {
+                                   Throwable frameworkException,
+                                   DataBuilderContext dataBuilderContext) throws Exception {
             log.info("Being called for: {}", dataFlowInstance.getId());
         }
     }
@@ -60,7 +62,8 @@ public class DataFlowExecutorTest {
 
         @Override
         public void preProcessing(DataFlowInstance dataFlowInstance,
-                                  DataDelta dataDelta) throws Exception {
+                                  DataDelta dataDelta,
+                                  DataBuilderContext dataBuilderContext) throws Exception {
             log.info("Being called for: {}", dataFlowInstance.getId());
         }
         @Override
@@ -93,7 +96,8 @@ public class DataFlowExecutorTest {
         public void postProcessing(DataFlowInstance dataFlowInstance,
                                    DataDelta dataDelta,
                                    DataExecutionResponse response,
-                                   Throwable frameworkException) throws Exception {
+                                   Throwable frameworkException,
+                                   DataBuilderContext dataBuilderContext) throws Exception {
             log.info("Being called for: {}", dataFlowInstance.getId());
         }
     }
@@ -101,7 +105,8 @@ public class DataFlowExecutorTest {
 
         @Override
         public void preProcessing(DataFlowInstance dataFlowInstance,
-                                  DataDelta dataDelta) throws Exception {
+                                  DataDelta dataDelta,
+                                  DataBuilderContext dataBuilderContext) throws Exception {
             log.info("Being called for: {}", dataFlowInstance.getId());
         }
 
@@ -136,7 +141,8 @@ public class DataFlowExecutorTest {
         public void postProcessing(DataFlowInstance dataFlowInstance,
                                    DataDelta dataDelta,
                                    DataExecutionResponse response,
-                                   Throwable frameworkException) throws Exception {
+                                   Throwable frameworkException,
+                                   DataBuilderContext dataBuilderContext) throws Exception {
             log.info("Being called for: {}", dataFlowInstance.getId());
         }
     }
@@ -145,7 +151,8 @@ public class DataFlowExecutorTest {
 
         @Override
         public void preProcessing(DataFlowInstance dataFlowInstance,
-                                  DataDelta dataDelta) throws Exception {
+                                  DataDelta dataDelta,
+                                  DataBuilderContext dataBuilderContext) throws Exception {
             log.info("Being called for: {}", dataFlowInstance.getId());
         }
 
@@ -179,7 +186,8 @@ public class DataFlowExecutorTest {
         public void postProcessing(DataFlowInstance dataFlowInstance,
                                    DataDelta dataDelta,
                                    DataExecutionResponse response,
-                                   Throwable frameworkException) throws Exception {
+                                   Throwable frameworkException,
+                                   DataBuilderContext dataBuilderContext) throws Exception {
             log.info("Being called for: {}", dataFlowInstance.getId());
         }
     }

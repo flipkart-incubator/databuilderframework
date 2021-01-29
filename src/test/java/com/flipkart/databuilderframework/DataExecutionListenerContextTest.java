@@ -11,8 +11,6 @@ import org.junit.Test;
 
 import java.util.Map;
 
-import static org.junit.Assert.fail;
-
 @Slf4j
 public class DataExecutionListenerContextTest {
 	
@@ -22,7 +20,8 @@ public class DataExecutionListenerContextTest {
 
         @Override
         public void preProcessing(DataFlowInstance dataFlowInstance,
-                                  DataDelta dataDelta) throws Exception {
+                                  DataDelta dataDelta,
+                                  DataBuilderContext dataBuilderContext) throws Exception {
             log.info("Being called for: {}", dataFlowInstance.getId());
         }
 
@@ -58,7 +57,8 @@ public class DataExecutionListenerContextTest {
         @Override
         public void postProcessing(DataFlowInstance dataFlowInstance,
                                    DataDelta dataDelta, DataExecutionResponse response,
-                                   Throwable frameworkException) throws Exception  {
+                                   Throwable frameworkException,
+                                   DataBuilderContext dataBuilderContext) throws Exception  {
             log.info("Being called for: {}", dataFlowInstance.getId());
         }
     }

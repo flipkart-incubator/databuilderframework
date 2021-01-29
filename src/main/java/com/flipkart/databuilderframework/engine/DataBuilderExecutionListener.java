@@ -6,7 +6,8 @@ import java.util.Map;
 
 public interface DataBuilderExecutionListener {
     default void preProcessing(DataFlowInstance dataFlowInstance,
-                               DataDelta dataDelta) throws Exception {
+                               DataDelta dataDelta,
+                               DataBuilderContext dataBuilderContext) throws Exception {
 
     }
 
@@ -31,10 +32,12 @@ public interface DataBuilderExecutionListener {
             Map<String, Data> prevResponses,
             Throwable frameworkException) throws Exception;
 
+
     default void postProcessing(DataFlowInstance dataFlowInstance,
                                 DataDelta dataDelta,
                                 DataExecutionResponse response,
-                                Throwable frameworkException) throws Exception {
+                                Throwable frameworkException,
+                                DataBuilderContext dataBuilderContext) throws Exception {
 
     }
 
