@@ -18,9 +18,9 @@ public class DataFlowExecutorTest {
     private static class TestListener implements DataBuilderExecutionListener {
 
         @Override
-        public void preProcessing(DataFlowInstance dataFlowInstance,
-                                   DataDelta dataDelta,
-                                  DataBuilderContext dataBuilderContext) throws Exception {
+        public void preProcessing(DataBuilderContext dataBuilderContext,
+                                  DataFlowInstance dataFlowInstance,
+                                  DataDelta dataDelta) throws Exception {
             log.info("Being called for: {}", dataFlowInstance.getId());
         }
 
@@ -50,20 +50,20 @@ public class DataFlowExecutorTest {
         }
 
         @Override
-        public void postProcessing(DataFlowInstance dataFlowInstance,
+        public void postProcessing(DataBuilderContext dataBuilderContext,
+                                   DataFlowInstance dataFlowInstance,
                                    DataDelta dataDelta,
                                    DataExecutionResponse response,
-                                   Throwable frameworkException,
-                                   DataBuilderContext dataBuilderContext) throws Exception {
+                                   Throwable frameworkException) throws Exception {
             log.info("Being called for: {}", dataFlowInstance.getId());
         }
     }
     private static class TestListenerBeforeExecutionError implements DataBuilderExecutionListener {
 
         @Override
-        public void preProcessing(DataFlowInstance dataFlowInstance,
-                                  DataDelta dataDelta,
-                                  DataBuilderContext dataBuilderContext) throws Exception {
+        public void preProcessing(DataBuilderContext dataBuilderContext,
+                                  DataFlowInstance dataFlowInstance,
+                                  DataDelta dataDelta) throws Exception {
             log.info("Being called for: {}", dataFlowInstance.getId());
         }
         @Override
@@ -93,20 +93,20 @@ public class DataFlowExecutorTest {
         }
 
         @Override
-        public void postProcessing(DataFlowInstance dataFlowInstance,
+        public void postProcessing(DataBuilderContext dataBuilderContext,
+                                   DataFlowInstance dataFlowInstance,
                                    DataDelta dataDelta,
                                    DataExecutionResponse response,
-                                   Throwable frameworkException,
-                                   DataBuilderContext dataBuilderContext) throws Exception {
+                                   Throwable frameworkException) throws Exception {
             log.info("Being called for: {}", dataFlowInstance.getId());
         }
     }
     private static class TestListenerAfterExecutionError implements DataBuilderExecutionListener {
 
         @Override
-        public void preProcessing(DataFlowInstance dataFlowInstance,
-                                  DataDelta dataDelta,
-                                  DataBuilderContext dataBuilderContext) throws Exception {
+        public void preProcessing(DataBuilderContext dataBuilderContext,
+                                  DataFlowInstance dataFlowInstance,
+                                  DataDelta dataDelta) throws Exception {
             log.info("Being called for: {}", dataFlowInstance.getId());
         }
 
@@ -138,11 +138,11 @@ public class DataFlowExecutorTest {
         }
 
         @Override
-        public void postProcessing(DataFlowInstance dataFlowInstance,
+        public void postProcessing(DataBuilderContext dataBuilderContext,
+                                   DataFlowInstance dataFlowInstance,
                                    DataDelta dataDelta,
                                    DataExecutionResponse response,
-                                   Throwable frameworkException,
-                                   DataBuilderContext dataBuilderContext) throws Exception {
+                                   Throwable frameworkException) throws Exception {
             log.info("Being called for: {}", dataFlowInstance.getId());
         }
     }
@@ -150,9 +150,9 @@ public class DataFlowExecutorTest {
     private static class TestListenerAfterExceptionError implements DataBuilderExecutionListener {
 
         @Override
-        public void preProcessing(DataFlowInstance dataFlowInstance,
-                                  DataDelta dataDelta,
-                                  DataBuilderContext dataBuilderContext) throws Exception {
+        public void preProcessing(DataBuilderContext dataBuilderContext,
+                                  DataFlowInstance dataFlowInstance,
+                                  DataDelta dataDelta) throws Exception {
             log.info("Being called for: {}", dataFlowInstance.getId());
         }
 
@@ -183,11 +183,11 @@ public class DataFlowExecutorTest {
             throw new Exception("Blah blah");
         }
         @Override
-        public void postProcessing(DataFlowInstance dataFlowInstance,
+        public void postProcessing(DataBuilderContext dataBuilderContext,
+                                   DataFlowInstance dataFlowInstance,
                                    DataDelta dataDelta,
                                    DataExecutionResponse response,
-                                   Throwable frameworkException,
-                                   DataBuilderContext dataBuilderContext) throws Exception {
+                                   Throwable frameworkException) throws Exception {
             log.info("Being called for: {}", dataFlowInstance.getId());
         }
     }

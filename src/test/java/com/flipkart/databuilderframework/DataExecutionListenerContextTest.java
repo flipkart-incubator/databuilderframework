@@ -19,9 +19,9 @@ public class DataExecutionListenerContextTest {
     private static class TestListenerWithContextCheck implements DataBuilderExecutionListener {
 
         @Override
-        public void preProcessing(DataFlowInstance dataFlowInstance,
-                                  DataDelta dataDelta,
-                                  DataBuilderContext dataBuilderContext) throws Exception {
+        public void preProcessing(DataBuilderContext dataBuilderContext,
+                                  DataFlowInstance dataFlowInstance,
+                                  DataDelta dataDelta) throws Exception {
             log.info("Being called for: {}", dataFlowInstance.getId());
         }
 
@@ -55,10 +55,10 @@ public class DataExecutionListenerContextTest {
 
 
         @Override
-        public void postProcessing(DataFlowInstance dataFlowInstance,
+        public void postProcessing(DataBuilderContext dataBuilderContext,
+                                   DataFlowInstance dataFlowInstance,
                                    DataDelta dataDelta, DataExecutionResponse response,
-                                   Throwable frameworkException,
-                                   DataBuilderContext dataBuilderContext) throws Exception  {
+                                   Throwable frameworkException) throws Exception  {
             log.info("Being called for: {}", dataFlowInstance.getId());
         }
     }
