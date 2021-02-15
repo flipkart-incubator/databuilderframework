@@ -18,9 +18,8 @@ public class DataFlowExecutorTest {
     private static class TestListener implements DataBuilderExecutionListener {
 
         @Override
-        public void preProcessing(DataBuilderContext dataBuilderContext,
-                                  DataFlowInstance dataFlowInstance,
-                                  DataDelta dataDelta) throws Exception {
+        public void preProcessing(DataFlowInstance dataFlowInstance,
+                                   DataDelta dataDelta) throws Exception {
             log.info("Being called for: {}", dataFlowInstance.getId());
         }
 
@@ -50,8 +49,7 @@ public class DataFlowExecutorTest {
         }
 
         @Override
-        public void postProcessing(DataBuilderContext dataBuilderContext,
-                                   DataFlowInstance dataFlowInstance,
+        public void postProcessing(DataFlowInstance dataFlowInstance,
                                    DataDelta dataDelta,
                                    DataExecutionResponse response,
                                    Throwable frameworkException) throws Exception {
@@ -61,8 +59,7 @@ public class DataFlowExecutorTest {
     private static class TestListenerBeforeExecutionError implements DataBuilderExecutionListener {
 
         @Override
-        public void preProcessing(DataBuilderContext dataBuilderContext,
-                                  DataFlowInstance dataFlowInstance,
+        public void preProcessing(DataFlowInstance dataFlowInstance,
                                   DataDelta dataDelta) throws Exception {
             log.info("Being called for: {}", dataFlowInstance.getId());
         }
@@ -93,8 +90,7 @@ public class DataFlowExecutorTest {
         }
 
         @Override
-        public void postProcessing(DataBuilderContext dataBuilderContext,
-                                   DataFlowInstance dataFlowInstance,
+        public void postProcessing(DataFlowInstance dataFlowInstance,
                                    DataDelta dataDelta,
                                    DataExecutionResponse response,
                                    Throwable frameworkException) throws Exception {
@@ -104,8 +100,7 @@ public class DataFlowExecutorTest {
     private static class TestListenerAfterExecutionError implements DataBuilderExecutionListener {
 
         @Override
-        public void preProcessing(DataBuilderContext dataBuilderContext,
-                                  DataFlowInstance dataFlowInstance,
+        public void preProcessing(DataFlowInstance dataFlowInstance,
                                   DataDelta dataDelta) throws Exception {
             log.info("Being called for: {}", dataFlowInstance.getId());
         }
@@ -138,8 +133,7 @@ public class DataFlowExecutorTest {
         }
 
         @Override
-        public void postProcessing(DataBuilderContext dataBuilderContext,
-                                   DataFlowInstance dataFlowInstance,
+        public void postProcessing(DataFlowInstance dataFlowInstance,
                                    DataDelta dataDelta,
                                    DataExecutionResponse response,
                                    Throwable frameworkException) throws Exception {
@@ -150,8 +144,7 @@ public class DataFlowExecutorTest {
     private static class TestListenerAfterExceptionError implements DataBuilderExecutionListener {
 
         @Override
-        public void preProcessing(DataBuilderContext dataBuilderContext,
-                                  DataFlowInstance dataFlowInstance,
+        public void preProcessing(DataFlowInstance dataFlowInstance,
                                   DataDelta dataDelta) throws Exception {
             log.info("Being called for: {}", dataFlowInstance.getId());
         }
@@ -183,8 +176,7 @@ public class DataFlowExecutorTest {
             throw new Exception("Blah blah");
         }
         @Override
-        public void postProcessing(DataBuilderContext dataBuilderContext,
-                                   DataFlowInstance dataFlowInstance,
+        public void postProcessing(DataFlowInstance dataFlowInstance,
                                    DataDelta dataDelta,
                                    DataExecutionResponse response,
                                    Throwable frameworkException) throws Exception {

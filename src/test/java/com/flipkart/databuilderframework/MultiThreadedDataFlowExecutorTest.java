@@ -47,8 +47,7 @@ public class MultiThreadedDataFlowExecutorTest {
     private static class TestListenerBeforeExecutionError implements DataBuilderExecutionListener {
 
         @Override
-        public void preProcessing(DataBuilderContext dataBuilderContext,
-                                  DataFlowInstance dataFlowInstance,
+        public void preProcessing(DataFlowInstance dataFlowInstance,
                                   DataDelta dataDelta) throws Exception {
             System.out.println("Being called for: " + dataFlowInstance.getId());
         }
@@ -80,10 +79,8 @@ public class MultiThreadedDataFlowExecutorTest {
         }
 
         @Override
-        public void postProcessing(DataBuilderContext dataBuilderContext,
-                                   DataFlowInstance dataFlowInstance,
-                                   DataDelta dataDelta,
-                                   DataExecutionResponse response,
+        public void postProcessing(DataFlowInstance dataFlowInstance,
+                                   DataDelta dataDelta, DataExecutionResponse response,
                                    Throwable frameworkException) throws Exception  {
             log.info("Being called for: {}", dataFlowInstance.getId());
         }
@@ -91,8 +88,7 @@ public class MultiThreadedDataFlowExecutorTest {
     private static class TestListenerAfterExecutionError implements DataBuilderExecutionListener {
 
         @Override
-        public void preProcessing(DataBuilderContext dataBuilderContext,
-                                  DataFlowInstance dataFlowInstance,
+        public void preProcessing(DataFlowInstance dataFlowInstance,
                                   DataDelta dataDelta) throws Exception {
             log.info("Being called for: {}", dataFlowInstance.getId());
         }
@@ -126,10 +122,8 @@ public class MultiThreadedDataFlowExecutorTest {
         }
 
         @Override
-        public void postProcessing(DataBuilderContext dataBuilderContext,
-                                   DataFlowInstance dataFlowInstance,
-                                   DataDelta dataDelta,
-                                   DataExecutionResponse response,
+        public void postProcessing(DataFlowInstance dataFlowInstance,
+                                   DataDelta dataDelta, DataExecutionResponse response,
                                    Throwable frameworkException) throws Exception  {
             log.info("Being called for: {}", dataFlowInstance.getId());
         }
@@ -138,8 +132,7 @@ public class MultiThreadedDataFlowExecutorTest {
     private static class TestListenerAfterExceptionError implements DataBuilderExecutionListener {
 
         @Override
-        public void preProcessing(DataBuilderContext dataBuilderContext,
-                                  DataFlowInstance dataFlowInstance,
+        public void preProcessing(DataFlowInstance dataFlowInstance,
                                   DataDelta dataDelta) throws Exception {
             System.out.println("Being called for: " + dataFlowInstance.getId());
         }
@@ -173,10 +166,8 @@ public class MultiThreadedDataFlowExecutorTest {
         }
 
         @Override
-        public void postProcessing(DataBuilderContext dataBuilderContext,
-                                   DataFlowInstance dataFlowInstance,
-                                   DataDelta dataDelta,
-                                   DataExecutionResponse response,
+        public void postProcessing(DataFlowInstance dataFlowInstance,
+                                   DataDelta dataDelta, DataExecutionResponse response,
                                    Throwable frameworkException) throws Exception  {
             log.info("Being called for: {}", dataFlowInstance.getId());
         }
