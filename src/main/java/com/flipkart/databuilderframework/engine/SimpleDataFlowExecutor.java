@@ -31,10 +31,10 @@ public class SimpleDataFlowExecutor extends DataFlowExecutor {
      * {@inheritDoc}
      */
     protected DataExecutionResponse run(DataBuilderContext dataBuilderContext,
-                                     DataFlowInstance dataFlowInstance,
-                                     DataDelta dataDelta,
-                                     DataFlow dataFlow,
-                                     DataBuilderFactory builderFactory) throws DataBuilderFrameworkException, DataValidationException {
+                                        DataFlowInstance dataFlowInstance,
+                                        DataDelta dataDelta,
+                                        DataFlow dataFlow,
+                                        DataBuilderFactory builderFactory) throws DataBuilderFrameworkException, DataValidationException {
         ExecutionGraph executionGraph = dataFlow.getExecutionGraph();
         DataSet dataSet = dataFlowInstance.getDataSet().accessor().copy(); //Create own copy to work with
         DataSetAccessor dataSetAccessor = DataSet.accessor(dataSet);
