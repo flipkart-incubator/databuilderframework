@@ -1,4 +1,4 @@
-# Data Builder Framework[![Travis build status](https://travis-ci.org/flipkart-incubator/databuilderframework.svg?branch=master)](https://travis-ci.org/flipkart-incubator/databuilderframework)
+# Data Builder Framework[![Travis build status](https://travis-ci.org/appform-io/databuilderframework.svg?branch=master)](https://travis-ci.org/appform-io/databuilderframework)
 
 DataBuilder framework is a high level logic execution engine that can be used to execute multi-step workflows. This engine currently powers the checkout system as well as diagnostics and other workflows at flipkart. You should look at this framework for the following scenarios:
 - Multi-step work flow executions where each step is dependent on data generated from previous steps
@@ -23,7 +23,7 @@ The following are the salient features:
 
 Data Builder Framework is conceptually inspired by build systems in general and Makefiles in particular.
 
-###Terms
+### Terms
 
 Before we get into the nitty-gritty details, lets go over the basic terminology:
 
@@ -53,7 +53,7 @@ The library can be used directly from maven, or from local.
 ###Build instructions
   - Clone the source:
 
-        git clone github.com/flipkart-incubator/databuilderframework
+        git clone git@github.com:appform-io/databuilderframework.git
 
   - Build
 
@@ -298,7 +298,7 @@ Version
 0.5.3
 
 # Contribution, Bugs and Feedback
-For bugs, questions and discussions please use the [Github Issues](https://github.com/flipkart-incubator/databuilderframework/issues).
+For bugs, questions and discussions please use the [Github Issues](https://github.com/appform-io/databuilderframework/issues)
 
 If you would like to contribute code you can do so through GitHub by forking the repository and sending a pull request.
 
