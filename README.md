@@ -71,7 +71,7 @@ Use the following repository:
 Use the following maven dependency:
 ```
 <dependency>
-    <groupId>com.flipkart.databuilderframework</groupId>
+    <groupId>io.appform.databuilderframework</groupId>
     <artifactId>databuilderframework</artifactId>
     <version>0.5.4</version>
 </dependency>
