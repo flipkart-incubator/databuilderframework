@@ -60,20 +60,12 @@ The library can be used directly from maven, or from local.
         mvn install
 
 ### Maven Dependency
-Use the following repository:
-```
-<repository>
-    <id>clojars</id>
-    <name>Clojars repository</name>
-    <url>https://clojars.org/repo</url>
-</repository>
-```
 Use the following maven dependency:
 ```
 <dependency>
     <groupId>io.appform.databuilderframework</groupId>
     <artifactId>databuilderframework</artifactId>
-    <version>0.5.4</version>
+    <version>1.0.0</version>
 </dependency>
 ```
 ## Framework usage
