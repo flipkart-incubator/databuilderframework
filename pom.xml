@@ -80,6 +80,8 @@
         <jackson.version>2.10.3</jackson.version>
         <lombok.version>1.16.6</lombok.version>
         <lombok.maven.version>1.16.6.1</lombok.maven.version>
+        <hibernate.validator.version>5.2.5.Final</hibernate.validator.version>
+        <junit.version>4.13.1</junit.version>
     </properties>
 
     <dependencies>
@@ -104,7 +106,7 @@
         <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-validator</artifactId>
-            <version>5.2.4.Final</version>
+            <version>${hibernate.validator.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -124,7 +126,7 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.12</version>
+            <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
