@@ -1,6 +1,6 @@
 package examples.bloghomepagebuilder.data;
 
-import com.flipkart.databuilderframework.model.DataAdapter;
+import io.appform.databuilderframework.model.DataAdapter;
 
 public class BlogPost extends DataAdapter<BlogPost> {
     private final String title;

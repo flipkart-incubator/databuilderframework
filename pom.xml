@@ -3,28 +3,34 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
-    <groupId>com.flipkart.databuilderframework</groupId>
-    <version>0.5.9</version>
+    <groupId>io.appform.databuilderframework</groupId>
+    <version>1.0.0</version>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>databuilderframework</artifactId>
 
     <name>The Data Builder Framework</name>
-    <url>http://maven.apache.org</url>
+    <url>https://github.com/appform-io/databuilderframework</url>
+    <description>A high-performance dependency based workflow builder and executor</description>
+    <inceptionYear>2014</inceptionYear>
 
     <distributionManagement>
+        <snapshotRepository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        </snapshotRepository>
         <repository>
-            <id>clojars</id>
-            <name>Clojars repository</name>
-            <url>https://clojars.org/repo</url>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
         </repository>
     </distributionManagement>
 
+
     <scm>
-        <connection>scm:git:https://github.com/flipkart-incubator/databuilderframework.git</connection>
-        <developerConnection>scm:git:https://github.com/flipkart-incubator/databuilderframework.git</developerConnection>
+        <connection>scm:git:https://github.com/appform-io/databuilderframework</connection>
+        <developerConnection>scm:git:git@github.com:appform-io/databuilderframework.git</developerConnection>
         <tag>HEAD</tag>
-        <url>https://github.com/flipkart-incubator/databuilderframework</url>
+        <url>https://github.com/appform-io/databuilderframework</url>
     </scm>
 
     <licenses>
@@ -35,6 +41,11 @@
             <comments>A business-friendly OSS license</comments>
         </license>
     </licenses>
+
+    <issueManagement>
+        <system>GitHub Issues</system>
+        <url>https://github.com/appform-io/databuilderframework/issues</url>
+    </issueManagement>
 
     <developers>
         <developer>
@@ -58,6 +69,11 @@
             <email>vinay.varma@flipkart.com</email>
         </developer>
     </developers>
+
+    <ciManagement>
+        <system>Travis CI</system>
+        <url>https://travis-ci.org/appform-io/databuilderframework</url>
+    </ciManagement>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -151,7 +167,7 @@
                         <packageBranchRate>85</packageBranchRate>
                         <regexes>
                             <regex>
-                                <pattern>com.flipkart.databuilderframework.*</pattern>
+                                <pattern>io.appform.databuilderframework.*</pattern>
                                 <branchRate>100</branchRate>
                                 <lineRate>100</lineRate>
                             </regex>
@@ -203,7 +219,80 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <configuration>
+                    <excludePackageNames>io.appform.hope.lang.parser</excludePackageNames>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>attach-javadocs</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.sonatype.plugins</groupId>
+                <artifactId>nexus-staging-maven-plugin</artifactId>
+                <version>1.6.7</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <serverId>ossrh</serverId>
+                    <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+                    <autoReleaseAfterClose>true</autoReleaseAfterClose>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 
+    <profiles>
+        <profile>
+            <id>release</id>
+            <activation>
+                <property>
+                    <name>release</name>
+                    <value>true</value>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>1.6</version>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                                <configuration>
+                                    <useAgent>true</useAgent>
+                                    <executable>gpg2</executable>
+                                    <!-- Run something like 'gpg2 -ab out' to cache the creds
+                                     on agent before running if needed -->
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>
