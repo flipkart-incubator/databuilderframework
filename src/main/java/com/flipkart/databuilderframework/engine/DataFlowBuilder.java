@@ -104,29 +104,6 @@ public class DataFlowBuilder {
     }
 
     /**
-     * Register a unannotated builder class.
-     * @param produces Name of the data that this builder produces.
-     * @param consumes Names of the data that this class consumes.
-     * @param optionals Names of the data that are optional.
-     * @param accesses Names of the data that this class accesses.
-     * @param dataBuilder Builder class to be used. Class must have a no-args constructor.
-     * @param isTransient Data produced by this class is transient and will not be a part of the data-set.
-     * @return
-     * @throws DataBuilderFrameworkException
-     */
-    public DataFlowBuilder withDataBuilder(String name,
-        String produces,
-        Set<String> consumes, Set<String> optionals, Set<String> accesses,
-        Class<? extends DataBuilder> dataBuilder,
-        boolean isTransient) throws DataBuilderFrameworkException {
-        dataBuilderMetadataManager.register(consumes, optionals, accesses, produces, name, dataBuilder);
-        if(isTransient) {
-            dataFlow.getTransients().add(name);
-        }
-        return this;
-    }
-
-    /**
      * Register a builder class annotated with either {@link com.flipkart.databuilderframework.annotations.DataBuilderInfo} or {@link com.flipkart.databuilderframework.annotations.DataBuilderClassInfo}
      * @return
      * @throws DataBuilderFrameworkException
@@ -134,6 +111,11 @@ public class DataFlowBuilder {
 
     public DataFlowBuilder withAnnotatedDataBuilder(Class<? extends DataBuilder> annotatedDataBuilder) throws DataBuilderFrameworkException {
         dataBuilderMetadataManager.register(annotatedDataBuilder);
+        return this;
+    }
+
+    public DataFlowBuilder withAnnotatedDataBuilder(Set<String> consumes, Set<String> optionals, Set<String> accesses, Class<? extends DataBuilder> annotatedDataBuilder) throws DataBuilderFrameworkException {
+        dataBuilderMetadataManager.register(consumes, optionals, accesses, annotatedDataBuilder);
         return this;
     }
 
@@ -181,33 +163,6 @@ public class DataFlowBuilder {
                                            DataBuilder dataBuilder,
                                            boolean isTransient) throws DataBuilderFrameworkException {
         DataBuilderMeta dataBuilderMeta = new DataBuilderMeta(consumes, produces, name);
-        if(isTransient) {
-            dataFlow.getTransients().add(name);
-        }
-        dataBuilderMetadataManager.register(dataBuilderMeta, dataBuilder.getClass());
-        dataBuilderFactory.register(new ProxyDataBuilder(dataBuilderMeta, dataBuilder));
-        return this;
-    }
-
-    /**
-     * Register a unannotated builder instance.
-     * @param produces Name of the data that this builder produces.
-     * @param consumes Names of the data that this builder consumes.
-     * @param optionals Names of the data that are optional.
-     * @param accesses Names of the data that this class accesses.
-     * @param dataBuilder Builder class to be used.
-     * @param isTransient Data produced by this class is transient and will not be a part of the data-set.
-     * @return
-     * @throws DataBuilderFrameworkException
-     */
-    public DataFlowBuilder withDataBuilder(String name,
-        String produces,
-        Set<String> consumes,
-        Set<String> optionals,
-        Set<String> accesses,
-        DataBuilder dataBuilder,
-        boolean isTransient) throws DataBuilderFrameworkException {
-        DataBuilderMeta dataBuilderMeta = new DataBuilderMeta(consumes, produces, name, optionals, accesses);
         if(isTransient) {
             dataFlow.getTransients().add(name);
         }
