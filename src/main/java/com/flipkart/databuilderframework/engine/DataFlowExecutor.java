@@ -38,7 +38,7 @@ public abstract class DataFlowExecutor {
      * @return A response containing responses from every {@link DataBuilder}
      * @throws DataBuilderFrameworkException
      */
-    public DataExecutionResponse run(final DataFlow dataFlow, Data... data) throws DataBuilderFrameworkException, DataValidationException {
+    public DataExecutionResponse run(final DataFlow dataFlow, Data... data) throws DataBuilderFrameworkException, DataValidationException, RateLimitException {
         return run(dataFlow, new DataDelta(data));
     }
 
@@ -51,7 +51,7 @@ public abstract class DataFlowExecutor {
      * @throws DataBuilderFrameworkException
      */
     public DataExecutionResponse run(final DataFlow dataFlow,
-                                     DataDelta dataDelta) throws DataBuilderFrameworkException, DataValidationException {
+                                     DataDelta dataDelta) throws DataBuilderFrameworkException, DataValidationException, RateLimitException {
         Preconditions.checkNotNull(dataFlow);
         Preconditions.checkArgument(null != dataFlow.getDataBuilderFactory() || null != dataBuilderFactory);
         return process(new DataBuilderContext(), new DataFlowInstance(), dataDelta, dataFlow, dataFlow.getDataBuilderFactory());
@@ -70,7 +70,7 @@ public abstract class DataFlowExecutor {
      * that was invoked in this stage. Note that these have already been added to the DataSet before returning.
      * @throws DataBuilderFrameworkException
      */
-    public DataExecutionResponse run(DataFlowInstance dataFlowInstance, Data... data) throws DataBuilderFrameworkException, DataValidationException {
+    public DataExecutionResponse run(DataFlowInstance dataFlowInstance, Data... data) throws DataBuilderFrameworkException, DataValidationException, RateLimitException {
         return run(dataFlowInstance, new DataDelta(data));
     }
 
@@ -87,7 +87,7 @@ public abstract class DataFlowExecutor {
      * that was invoked in this stage. Note that these have already been added to the DataSet before returning.
      * @throws DataBuilderFrameworkException
      */
-    public DataExecutionResponse run(DataFlowInstance dataFlowInstance, DataDelta dataDelta) throws DataBuilderFrameworkException,DataValidationException {
+    public DataExecutionResponse run(DataFlowInstance dataFlowInstance, DataDelta dataDelta) throws DataBuilderFrameworkException,DataValidationException, RateLimitException {
         DataBuilderContext dataBuilderContext = DataBuilderContext.builder()
                 .dataSet(dataFlowInstance.getDataSet())
                 .contextData(Maps.newHashMap())
@@ -111,8 +111,8 @@ public abstract class DataFlowExecutor {
      */
     public DataExecutionResponse run(DataBuilderContext dataBuilderContext,
                                               DataFlowInstance dataFlowInstance,
-                                              DataDelta dataDelta) throws DataBuilderFrameworkException, DataValidationException {
-        DataFlow dataFlow = dataFlowInstance.getDataFlow();
+                                              DataDelta dataDelta) throws DataBuilderFrameworkException, DataValidationException, RateLimitException {
+        DataFlow dataFlow = dataFlowInstance.getDataFlow();data
         Preconditions.checkArgument(null != dataFlow.getDataBuilderFactory()
                 || null != dataBuilderFactory);
         DataBuilderFactory builderFactory = dataFlow.getDataBuilderFactory();
@@ -130,7 +130,7 @@ public abstract class DataFlowExecutor {
                                             DataFlowInstance dataFlowInstance,
                                             DataDelta dataDelta,
                                             DataFlow dataFlow,
-                                            DataBuilderFactory builderFactory) throws DataBuilderFrameworkException, DataValidationException {
+                                            DataBuilderFactory builderFactory) throws DataBuilderFrameworkException, DataValidationException, RateLimitException {
         DataExecutionResponse response = null;
         Throwable frameworkException = null;
         try {
@@ -170,7 +170,7 @@ public abstract class DataFlowExecutor {
                                                  DataFlowInstance dataFlowInstance,
                                                  DataDelta dataDelta,
                                                  DataFlow dataFlow,
-                                                 DataBuilderFactory builderFactory) throws DataBuilderFrameworkException, DataValidationException;
+                                                 DataBuilderFactory builderFactory) throws DataBuilderFrameworkException, DataValidationException, RateLimitException;
 
     /**
      * A instance of {@link com.flipkart.databuilderframework.engine.DataBuilderExecutionListener}

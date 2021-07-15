@@ -34,7 +34,7 @@ public class SimpleDataFlowExecutor extends DataFlowExecutor {
                                      DataFlowInstance dataFlowInstance,
                                      DataDelta dataDelta,
                                      DataFlow dataFlow,
-                                     DataBuilderFactory builderFactory) throws DataBuilderFrameworkException, DataValidationException {
+                                     DataBuilderFactory builderFactory) throws DataBuilderFrameworkException, DataValidationException, RateLimitException {
         ExecutionGraph executionGraph = dataFlow.getExecutionGraph();
         DataSet dataSet = dataFlowInstance.getDataSet().accessor().copy(); //Create own copy to work with
         DataSetAccessor dataSetAccessor = DataSet.accessor(dataSet);
@@ -96,7 +96,19 @@ public class SimpleDataFlowExecutor extends DataFlowExecutor {
                             }
                         }
 
-                    } catch (DataBuilderException e) {
+                    } catch (RateLimitException e) {
+                        logger.error("Error running builder: " + builderMeta.getName());
+                        for (DataBuilderExecutionListener listener : dataBuilderExecutionListener) {
+                            try {
+                                listener.afterException(dataBuilderContext, dataFlowInstance, builderMeta, dataDelta, responseData, e);
+
+                            } catch (Throwable error) {
+                                logger.error("Error running post-execution listener: ", error);
+                            }
+                        }
+                        throw new RateLimitException(RateLimitException.ErrorCode.RATE_LIMITED, e.getMessage(), new DataExecutionResponse(responseData),e.getDetails(), e);
+                    }
+                    catch (DataBuilderException e) {
                         logger.error("Error running builder: " + builderMeta.getName());
                         for (DataBuilderExecutionListener listener : dataBuilderExecutionListener) {
                             try {
