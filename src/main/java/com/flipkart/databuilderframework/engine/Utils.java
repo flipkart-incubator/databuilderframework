@@ -15,7 +15,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Function;
 
 /**
  * Utilities for various stuff
@@ -100,8 +99,8 @@ public interface Utils {
                     ImmutableSet.copyOf(consumes),
                     Utils.name(dataBuilderClassInfo.produces()),
                     Strings.isNullOrEmpty(name)
-                            ? Utils.name(annotatedDataBuilder)
-                            : name,
+                        ? Utils.name(annotatedDataBuilder)
+                        : name,
                     ImmutableSet.copyOf(optionals),
                     ImmutableSet.copyOf(access)
             );
