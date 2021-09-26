@@ -52,7 +52,7 @@ public interface Utils {
                 : collection;
     }
 
-    static<K, V> Map<K, V> sanitize(Map<K, V> collection) {
+    static<K,V> Map<K,V> sanitize(Map<K,V> collection) {
         return isEmpty(collection)
                 ? Collections.emptyMap()
                 : collection;
