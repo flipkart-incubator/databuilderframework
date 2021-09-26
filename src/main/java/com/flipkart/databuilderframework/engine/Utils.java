@@ -9,7 +9,11 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 
@@ -18,7 +22,7 @@ import java.util.function.Function;
  */
 public interface Utils {
 
-    static ConcurrentHashMap<Class<?>, String> CLASS_TO_NAME_MAPPING = new ConcurrentHashMap<>();
+    ConcurrentHashMap<Class<?>, String> CLASS_TO_NAME_MAPPING = new ConcurrentHashMap<>();
 
     static String name(Object object) {
         return name(object.getClass());
@@ -37,41 +41,40 @@ public interface Utils {
         return null == collection || collection.isEmpty();
     }
 
-    static<T> Set<T> sanitize(Set<T> collection) {
+    static <T> Set<T> sanitize(Set<T> collection) {
         return isEmpty(collection)
                 ? Collections.emptySet()
                 : collection;
     }
 
-    static<T> List<T> sanitize(List<T> collection) {
+    static <T> List<T> sanitize(List<T> collection) {
         return isEmpty(collection)
                 ? Collections.emptyList()
                 : collection;
     }
 
-    static<K,V> Map<K, V> sanitize(Map<K,V> collection) {
+    static <K, V> Map<K, V> sanitize(Map<K, V> collection) {
         return isEmpty(collection)
                 ? Collections.emptyMap()
                 : collection;
     }
 
-    static<T extends DataBuilder> DataBuilderMeta meta(T annotatedDataBuilder) {
+    static <T extends DataBuilder> DataBuilderMeta meta(T annotatedDataBuilder) {
         return meta(annotatedDataBuilder.getClass());
     }
 
     static DataBuilderMeta meta(Class<? extends DataBuilder> annotatedDataBuilder) {
         DataBuilderInfo info = annotatedDataBuilder.getAnnotation(DataBuilderInfo.class);
-        if(null != info) {
+        if (null != info) {
             return new DataBuilderMeta(
                     ImmutableSet.copyOf(info.consumes()),
                     info.produces(),
                     info.name(),
                     ImmutableSet.copyOf(info.optionals()),
                     ImmutableSet.copyOf(info.accesses()));
-        }
-        else {
+        } else {
             DataBuilderClassInfo dataBuilderClassInfo = annotatedDataBuilder.getAnnotation(DataBuilderClassInfo.class);
-            if(null == dataBuilderClassInfo) {
+            if (null == dataBuilderClassInfo) {
                 return null;
             }
             Set<String> consumes = Sets.newHashSet();
@@ -96,8 +99,8 @@ public interface Utils {
                     ImmutableSet.copyOf(consumes),
                     Utils.name(dataBuilderClassInfo.produces()),
                     Strings.isNullOrEmpty(name)
-                        ? Utils.name(annotatedDataBuilder)
-                        : name,
+                            ? Utils.name(annotatedDataBuilder)
+                            : name,
                     ImmutableSet.copyOf(optionals),
                     ImmutableSet.copyOf(access)
             );
