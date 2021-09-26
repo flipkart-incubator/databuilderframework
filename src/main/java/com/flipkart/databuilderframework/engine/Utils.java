@@ -41,40 +41,41 @@ public interface Utils {
         return null == collection || collection.isEmpty();
     }
 
-    static <T> Set<T> sanitize(Set<T> collection) {
+    static<T> Set<T> sanitize(Set<T> collection) {
         return isEmpty(collection)
                 ? Collections.emptySet()
                 : collection;
     }
 
-    static <T> List<T> sanitize(List<T> collection) {
+    static<T> List<T> sanitize(List<T> collection) {
         return isEmpty(collection)
                 ? Collections.emptyList()
                 : collection;
     }
 
-    static <K, V> Map<K, V> sanitize(Map<K, V> collection) {
+    static<K, V> Map<K, V> sanitize(Map<K, V> collection) {
         return isEmpty(collection)
                 ? Collections.emptyMap()
                 : collection;
     }
 
-    static <T extends DataBuilder> DataBuilderMeta meta(T annotatedDataBuilder) {
+    static<T extends DataBuilder> DataBuilderMeta meta(T annotatedDataBuilder) {
         return meta(annotatedDataBuilder.getClass());
     }
 
     static DataBuilderMeta meta(Class<? extends DataBuilder> annotatedDataBuilder) {
         DataBuilderInfo info = annotatedDataBuilder.getAnnotation(DataBuilderInfo.class);
-        if (null != info) {
+        if(null != info) {
             return new DataBuilderMeta(
                     ImmutableSet.copyOf(info.consumes()),
                     info.produces(),
                     info.name(),
                     ImmutableSet.copyOf(info.optionals()),
                     ImmutableSet.copyOf(info.accesses()));
-        } else {
+        }
+        else {
             DataBuilderClassInfo dataBuilderClassInfo = annotatedDataBuilder.getAnnotation(DataBuilderClassInfo.class);
-            if (null == dataBuilderClassInfo) {
+            if(null == dataBuilderClassInfo) {
                 return null;
             }
             Set<String> consumes = Sets.newHashSet();
