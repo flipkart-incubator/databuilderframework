@@ -10,18 +10,23 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
 
 /**
  * Utilities for various stuff
  */
 public interface Utils {
 
+    static ConcurrentHashMap<Class<?>, String> CLASS_TO_NAME_MAPPING = new ConcurrentHashMap<>();
+
     static String name(Object object) {
         return name(object.getClass());
     }
 
     static String name(Class<?> clazz) {
-        return CaseFormat.UPPER_CAMEL.to(CaseFormat.UPPER_UNDERSCORE, clazz.getSimpleName());
+        return CaseFormat.UPPER_CAMEL.to(CaseFormat.UPPER_UNDERSCORE,
+                CLASS_TO_NAME_MAPPING.computeIfAbsent(clazz, aClass -> clazz.getSimpleName()));
     }
 
     static boolean isEmpty(Collection collection) {
