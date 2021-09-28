@@ -8,6 +8,7 @@ import com.google.common.base.CaseFormat;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
+import lombok.experimental.UtilityClass;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -19,9 +20,10 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Utilities for various stuff
  */
-public interface Utils {
+@UtilityClass
+public class Utils {
 
-    ConcurrentHashMap<Class<?>, String> CLASS_TO_NAME_MAPPING = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<Class<?>, String> CLASS_TO_NAME_MAPPING = new ConcurrentHashMap<>();
 
     static String name(Object object) {
         return name(object.getClass());
