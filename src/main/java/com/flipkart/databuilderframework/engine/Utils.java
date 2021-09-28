@@ -8,53 +8,63 @@ import com.google.common.base.CaseFormat;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
+import lombok.experimental.UtilityClass;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Utilities for various stuff
  */
-public interface Utils {
+@UtilityClass
+public class Utils {
 
-    static String name(Object object) {
+    private final ConcurrentHashMap<Class<?>, String> CLASS_TO_NAME_MAPPING = new ConcurrentHashMap<>();
+
+    public static String name(Object object) {
         return name(object.getClass());
     }
 
-    static String name(Class<?> clazz) {
-        return CaseFormat.UPPER_CAMEL.to(CaseFormat.UPPER_UNDERSCORE, clazz.getSimpleName());
+    public static String name(Class<?> clazz) {
+        return CaseFormat.UPPER_CAMEL.to(CaseFormat.UPPER_UNDERSCORE,
+                CLASS_TO_NAME_MAPPING.computeIfAbsent(clazz, aClass -> clazz.getSimpleName()));
     }
 
-    static boolean isEmpty(Collection collection) {
+    public static boolean isEmpty(Collection collection) {
         return null == collection || collection.isEmpty();
     }
 
-    static boolean isEmpty(Map collection) {
+    public static boolean isEmpty(Map collection) {
         return null == collection || collection.isEmpty();
     }
 
-    static<T> Set<T> sanitize(Set<T> collection) {
+    public static<T> Set<T> sanitize(Set<T> collection) {
         return isEmpty(collection)
                 ? Collections.emptySet()
                 : collection;
     }
 
-    static<T> List<T> sanitize(List<T> collection) {
+    public static<T> List<T> sanitize(List<T> collection) {
         return isEmpty(collection)
                 ? Collections.emptyList()
                 : collection;
     }
 
-    static<K,V> Map<K, V> sanitize(Map<K,V> collection) {
+    public static<K,V> Map<K, V> sanitize(Map<K,V> collection) {
         return isEmpty(collection)
                 ? Collections.emptyMap()
                 : collection;
     }
 
-    static<T extends DataBuilder> DataBuilderMeta meta(T annotatedDataBuilder) {
+    public static<T extends DataBuilder> DataBuilderMeta meta(T annotatedDataBuilder) {
         return meta(annotatedDataBuilder.getClass());
     }
 
-    static DataBuilderMeta meta(Class<? extends DataBuilder> annotatedDataBuilder) {
+    public static DataBuilderMeta meta(Class<? extends DataBuilder> annotatedDataBuilder) {
         DataBuilderInfo info = annotatedDataBuilder.getAnnotation(DataBuilderInfo.class);
         if(null != info) {
             return new DataBuilderMeta(
