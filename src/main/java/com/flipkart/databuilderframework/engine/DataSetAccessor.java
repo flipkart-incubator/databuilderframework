@@ -53,9 +53,9 @@ public class DataSetAccessor {
      */
     public <B extends DataBuilder, T extends Data> T getAccessibleData(String key, B builder, Class<T> tClass) {
         Preconditions.checkArgument(!builder.getDataBuilderMeta().getAccessibleDataSet().contains(key),
-                String.format("Builder %s can access only %s",
+                "Builder %s can access only %s",
                         builder.getDataBuilderMeta().getName(),
-                        builder.getDataBuilderMeta().getConsumes()));
+                        builder.getDataBuilderMeta().getConsumes());
         return get(key, tClass);
     }
 

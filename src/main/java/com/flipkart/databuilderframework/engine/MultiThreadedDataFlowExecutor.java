@@ -89,8 +89,8 @@ public class MultiThreadedDataFlowExecutor extends DataFlowExecutor {
                         }
                         if (null != response) {
                             Preconditions.checkArgument(response.getData().equalsIgnoreCase(data),
-                                    String.format("Builder is supposed to produce %s but produces %s",
-                                            data, response.getData()));
+                                    "Builder is supposed to produce %s but produces %s",
+                                            data, response.getData());
                             dataSetAccessor.merge(response);
                             responseData.put(response.getData(), response);
                             activeDataSet.add(response.getData());
@@ -241,8 +241,8 @@ public class MultiThreadedDataFlowExecutor extends DataFlowExecutor {
                 }
                 if(null != response) {
                     Preconditions.checkArgument(response.getData().equalsIgnoreCase(builderMeta.getProduces()),
-                            String.format("Builder is supposed to produce %s but produces %s",
-                                    builderMeta.getProduces(), response.getData()));
+                            "Builder is supposed to produce %s but produces %s",
+                                    builderMeta.getProduces(), response.getData());
                     response.setGeneratedBy(builderMeta.getName());
                 }
                 return new DataContainer(builderMeta, response);

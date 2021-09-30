@@ -75,9 +75,10 @@ public class SimpleDataFlowExecutor extends DataFlowExecutor {
                                                     dataBuilderContext.immutableCopy(
                                                             dataSet.accessor().getAccesibleDataSetFor(builder)));
                         if (null != response) {
-                            Preconditions.checkArgument(response.getData().equalsIgnoreCase(builderMeta.getProduces()),
-                                                String.format("Builder is supposed to produce %s but produces %s",
-                                                                builderMeta.getProduces(), response.getData()));
+                            Preconditions.checkArgument(
+                                    response.getData().equalsIgnoreCase(builderMeta.getProduces()),
+                                                "Builder is supposed to produce %s but produces %s",
+                                                                builderMeta.getProduces(), response.getData());
                             dataSetAccessor.merge(response);
                             responseData.put(response.getData(), response);
                             response.setGeneratedBy(builderMeta.getName());
