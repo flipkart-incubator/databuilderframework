@@ -61,7 +61,7 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <jackson.version>2.10.3</jackson.version>
+        <jackson.version>2.12.7.1</jackson.version>
         <lombok.version>1.16.6</lombok.version>
         <lombok.maven.version>1.16.6.1</lombok.maven.version>
         <hibernate.validator.version>5.2.5.Final</hibernate.validator.version>
