@@ -1,5 +1,6 @@
 package com.flipkart.databuilderframework.engine;
 
+import com.flipkart.databuilderframework.annotations.ThreadSafe;
 import com.flipkart.databuilderframework.model.*;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
@@ -16,6 +17,7 @@ import java.util.stream.Collectors;
 /**
  * The executor for a {@link com.flipkart.databuilderframework.model.DataFlow}.
  */
+@ThreadSafe
 public class SimpleDataFlowExecutor extends DataFlowExecutor {
     private static final Logger logger = LoggerFactory.getLogger(SimpleDataFlowExecutor.class.getSimpleName());
 
@@ -145,18 +147,14 @@ public class SimpleDataFlowExecutor extends DataFlowExecutor {
                 }
             }
             if(newlyGeneratedData.contains(dataFlow.getTargetData())) {
-                //logger.debug("Finished running this instance of the flow. Exiting.");
+                // Found the target data node
+                logger.debug("Finished running this instance of the flow. Exiting.");
                 break;
             }
             if(newlyGeneratedData.isEmpty()) {
-                //logger.debug("Nothing happened in this loop, exiting..");
+                logger.debug("Nothing happened in this loop, exiting..");
                 break;
             }
-//            StringBuilder stringBuilder = new StringBuilder();
-//            for(String data : newlyGeneratedData) {
-//                stringBuilder.append(data + ", ");
-//            }
-            //logger.info("Newly generated: " + stringBuilder);
             activeDataSet.clear();
             activeDataSet.addAll(newlyGeneratedData);
             newlyGeneratedData.clear();

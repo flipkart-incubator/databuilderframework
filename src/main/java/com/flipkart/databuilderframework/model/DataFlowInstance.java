@@ -4,14 +4,16 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.constraints.NotNull;
+import java.io.Serializable;
 
 /**
  * A instance of the {@link com.flipkart.databuilderframework.model.DataFlow} object to be used for execution.
  * This class represents a running instance of the flow. It contains the flow itself as well as the
  * {@link com.flipkart.databuilderframework.model.DataSet} required for execution.
  */
-public class DataFlowInstance {
+public class DataFlowInstance implements Serializable {
 
+    private static final long serialVersionUID = 7886384565411534126L;
     /**
      * The ID of the flow instance.
      */

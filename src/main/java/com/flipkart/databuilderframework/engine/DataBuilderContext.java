@@ -45,7 +45,7 @@ public class DataBuilderContext {
 
     /**
      * Access the data set. Ideally a builder should only access data as declared.
-     * Deprecated: This methpd will be removed in the near future. Do not use this in newer projects.
+     * Deprecated: This method will be removed in the near future. Do not use this in newer projects.
      * @return The full data set.
      */
     @Deprecated

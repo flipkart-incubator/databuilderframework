@@ -1,5 +1,6 @@
 package com.flipkart.databuilderframework.engine;
 
+import com.flipkart.databuilderframework.annotations.ThreadSafe;
 import com.flipkart.databuilderframework.model.*;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
@@ -15,6 +16,7 @@ import java.util.concurrent.*;
 /**
  * The executor for a {@link com.flipkart.databuilderframework.model.DataFlow}.
  */
+@ThreadSafe
 public class OptimizedMultiThreadedDataFlowExecutor extends DataFlowExecutor {
     private static final Logger logger = LoggerFactory.getLogger(OptimizedMultiThreadedDataFlowExecutor.class.getSimpleName());
     private final ExecutorService executorService;
@@ -50,11 +52,11 @@ public class OptimizedMultiThreadedDataFlowExecutor extends DataFlowExecutor {
         }
         List<List<DataBuilderMeta>> dependencyHierarchy = executionGraph.getDependencyHierarchy();
         Set<String> newlyGeneratedData = Sets.newHashSet();
-        Set<DataBuilderMeta> processedBuilders = Collections.synchronizedSet(Sets.<DataBuilderMeta>newHashSet());
+        Set<DataBuilderMeta> processedBuilders = ConcurrentHashMap.newKeySet();
         while(true) {
             for (List<DataBuilderMeta> levelBuilders : dependencyHierarchy) {
                 List<Future<DataContainer>> dataFutures = Lists.newArrayList();
-                BuilderRunner singleRef = null; //refrence to builderRunner when size of levelBuilders == 1 to avoid running it behind thread
+                BuilderRunner singleRef = null; //reference to builderRunner when size of levelBuilders == 1 to avoid running it behind thread
                 for (DataBuilderMeta builderMeta : levelBuilders) {
                     if (processedBuilders.contains(builderMeta)) {
                         continue;
@@ -128,18 +130,13 @@ public class OptimizedMultiThreadedDataFlowExecutor extends DataFlowExecutor {
                 }
             }
             if(newlyGeneratedData.contains(dataFlow.getTargetData())) {
-                //logger.debug("Finished running this instance of the flow. Exiting.");
+                logger.debug("Finished running this instance of the flow. Exiting.");
                 break;
             }
             if(newlyGeneratedData.isEmpty()) {
-                //logger.debug("Nothing happened in this loop, exiting..");
+                logger.debug("Nothing happened in this loop, exiting..");
                 break;
             }
-//            StringBuilder stringBuilder = new StringBuilder();
-//            for(String data : newlyGeneratedData) {
-//                stringBuilder.append(data + ", ");
-//            }
-            //logger.info("Newly generated: " + stringBuilder);
             activeDataSet.clear();
             activeDataSet.addAll(newlyGeneratedData);
             newlyGeneratedData.clear();

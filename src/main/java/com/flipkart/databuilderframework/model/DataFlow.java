@@ -4,11 +4,13 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.flipkart.databuilderframework.engine.DataBuilderFactory;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import lombok.Builder;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -105,13 +107,13 @@ public class DataFlow implements Serializable {
 
     public DataFlow deepCopy() {
         return new DataFlow(name,
-                            description,
-                            targetData,
-                            resolutionSpecs,
-                            executionGraph.deepCopy(),
-                            transients,
-                            enabled,
-                            loopingEnabled,
-                            dataBuilderFactory);
+                description,
+                targetData,
+                Maps.newHashMap(resolutionSpecs),
+                executionGraph.deepCopy(),
+                Sets.newHashSet(transients),
+                enabled,
+                loopingEnabled,
+                dataBuilderFactory);
     }
 }

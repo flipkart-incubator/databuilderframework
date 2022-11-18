@@ -79,7 +79,6 @@ public class ExecutionGraphGenerator {
         List<List<DataBuilderMeta>> dependencyHierarchy
                 = TimedExecutor.run("ExecutionGraphGenerator::buildHierarchy", () -> buildHierarchy(dependencyInfoManager, maxHeight));
 
-        //Return
         return new ExecutionGraph(dependencyHierarchy);
     }
 
