@@ -100,10 +100,8 @@ public class ExecutionGraphGenerator {
                 //Data is user-input data
                 continue;
             }
-            DataBuilderMeta dataBuilderMeta = tmpDataBuilderMeta.deepCopy();
             int rank = dependencyInfo.getValue().getRank();
-            dataBuilderMeta.setRank(rank);
-
+            DataBuilderMeta dataBuilderMeta = tmpDataBuilderMeta.deepCopy(rank);
             //Set builder in the appropriate rank slots
             if(null == dependencyHierarchy.get(rank)) {
                 dependencyHierarchy.set(rank, Lists.<DataBuilderMeta>newArrayList());

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import lombok.Builder;
+import lombok.EqualsAndHashCode;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.constraints.NotNull;
@@ -18,6 +19,7 @@ import java.util.Set;
  * execution.
  */
 @lombok.Data
+@EqualsAndHashCode(cacheStrategy = EqualsAndHashCode.CacheStrategy.LAZY)
 public class DataBuilderMeta implements Comparable<DataBuilderMeta>, Serializable {
     /**
      * List of {@link com.flipkart.databuilderframework.model.Data} this {@link com.flipkart.databuilderframework.engine.DataBuilder}
@@ -26,7 +28,7 @@ public class DataBuilderMeta implements Comparable<DataBuilderMeta>, Serializabl
     @NotNull
     @NotEmpty
     @JsonProperty
-    private Set<String> consumes;
+    private final Set<String> consumes;
 
     /**
      * {@link com.flipkart.databuilderframework.model.Data} this {@link com.flipkart.databuilderframework.engine.DataBuilder} generates.
@@ -34,7 +36,7 @@ public class DataBuilderMeta implements Comparable<DataBuilderMeta>, Serializabl
     @NotNull
     @NotEmpty
     @JsonProperty
-    private String produces;
+    private final String produces;
 
     /**
      * Name for this builder
@@ -42,9 +44,9 @@ public class DataBuilderMeta implements Comparable<DataBuilderMeta>, Serializabl
     @NotNull
     @NotEmpty
     @JsonProperty
-    private String name;
+    private final String name;
 
-    private int rank;
+    private final int rank;
     
     
     /**
@@ -54,7 +56,7 @@ public class DataBuilderMeta implements Comparable<DataBuilderMeta>, Serializabl
      *  all consumes {@link com.flipkart.databuilderframework.model.Data} are present but its optional and not mandatory for {@link com.flipkart.databuilderframework.engine.DataBuilder} to run.
      */
     @JsonProperty
-    private Set<String> optionals;
+    private final Set<String> optionals;
 
     /**
      * Set of {@link com.flipkart.databuilderframework.model.Data} this {@link com.flipkart.databuilderframework.engine.DataBuilder}
@@ -63,28 +65,37 @@ public class DataBuilderMeta implements Comparable<DataBuilderMeta>, Serializabl
     @NotNull
     @NotEmpty
     @JsonProperty
-    private Set<String> access;
+    private final Set<String> access;
+
+    private final Set<String> accessibleDataSet;
+
+    private final Set<String> effectiveConsumes;
 
     public DataBuilderMeta(Set<String> consumes, String produces, String name) {
-        this(consumes, produces, name, Collections.emptySet(), Collections.emptySet());
+        this(consumes, produces, name, 0, Collections.emptySet(), Collections.emptySet());
     }
 
     @Builder
-    public DataBuilderMeta(Set<String> consumes, String produces, String name, 
+    public DataBuilderMeta(Set<String> consumes, String produces, String name,
+                           Set<String> optionals, Set<String> access) {
+        this(consumes, produces, name, 0, optionals, access);
+    }
+
+    public DataBuilderMeta(Set<String> consumes, String produces, String name,
+            int rank,
     		Set<String> optionals, Set<String> access) {
         this.consumes = consumes;
         this.produces = produces;
         this.name = name;
+        this.rank = rank;
         this.optionals = optionals;
         this.access = access;
-    }
-
-    
-    public DataBuilderMeta() {
+        this.accessibleDataSet = getAllAccessibleDataSet();
+        this.effectiveConsumes = getAllEffectiveConsumes();
     }
 
     @JsonIgnore
-    public Set<String> getEffectiveConsumes(){
+    private Set<String> getAllEffectiveConsumes(){
     	if(optionals != null && !optionals.isEmpty()){
     		return Sets.union(optionals, consumes);
     	}else{
@@ -93,9 +104,9 @@ public class DataBuilderMeta implements Comparable<DataBuilderMeta>, Serializabl
     }
     
     @JsonIgnore
-    public Set<String> getAccessibleDataSet(){
+    private Set<String> getAllAccessibleDataSet(){
     	Set<String> output = consumes;
-    	if(optionals != null && !optionals.isEmpty()){
+    	if(optionals != null && !optionals.isEmpty()) {
     		output = Sets.union(optionals, output);
     	}
     	if(access != null && !access.isEmpty()){
@@ -112,5 +123,11 @@ public class DataBuilderMeta implements Comparable<DataBuilderMeta>, Serializabl
     	Set<String> optionalCopy = (optionals != null) ? ImmutableSet.copyOf(optionals) : null;
     	Set<String> accessCopy = (access != null) ? ImmutableSet.copyOf(access) : null;
         return new DataBuilderMeta(ImmutableSet.copyOf(consumes), produces, name, optionalCopy, accessCopy);
+    }
+
+    public DataBuilderMeta deepCopy(int rank) {
+        Set<String> optionalCopy = (optionals != null) ? ImmutableSet.copyOf(optionals) : null;
+        Set<String> accessCopy = (access != null) ? ImmutableSet.copyOf(access) : null;
+        return new DataBuilderMeta(ImmutableSet.copyOf(consumes), produces, name, rank, optionalCopy, accessCopy);
     }
 }

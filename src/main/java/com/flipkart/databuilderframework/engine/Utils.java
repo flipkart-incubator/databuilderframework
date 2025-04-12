@@ -30,8 +30,8 @@ public class Utils {
     }
 
     public static String name(Class<?> clazz) {
-        return CaseFormat.UPPER_CAMEL.to(CaseFormat.UPPER_UNDERSCORE,
-                CLASS_TO_NAME_MAPPING.computeIfAbsent(clazz, aClass -> clazz.getSimpleName()));
+        return CLASS_TO_NAME_MAPPING.computeIfAbsent(clazz, aClass ->
+                CaseFormat.UPPER_CAMEL.to(CaseFormat.UPPER_UNDERSCORE, clazz.getSimpleName()));
     }
 
     public static boolean isEmpty(Collection collection) {

@@ -35,8 +35,8 @@ public class DataSetAccessor {
      */
     public <T extends Data> T get(String key, Class<T> tClass) {
         Map<String, Data> availableData = dataSet.getAvailableData();
-        if (availableData.containsKey(key)) {
-            Data data = availableData.get(key);
+        Data data = availableData.get(key);
+        if (data != null) {
             return tClass.cast(data);
         }
         return null;
@@ -76,7 +76,7 @@ public class DataSetAccessor {
      * @param data {@link com.flipkart.databuilderframework.model.Data} to be merged.
      */
     public void merge(Data data) {
-        dataSet.getAvailableData().put(data.getData(), data);
+        dataSet.add(data.getData(), data);
     }
 
     /**
@@ -99,7 +99,12 @@ public class DataSetAccessor {
      */
     public boolean checkForData(Set<String> dataList) {
         Map<String, Data> availableData = dataSet.getAvailableData();
-        return availableData.keySet().containsAll(dataList);
+        for (String key : dataList) {
+            if (!availableData.containsKey(key)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**

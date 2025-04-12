@@ -4,6 +4,8 @@ import com.flipkart.databuilderframework.model.*;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import lombok.val;
+import org.apache.commons.collections4.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,13 +41,13 @@ public class SimpleDataFlowExecutor extends DataFlowExecutor {
         DataSet dataSet = dataFlowInstance.getDataSet().accessor().copy(); //Create own copy to work with
         DataSetAccessor dataSetAccessor = DataSet.accessor(dataSet);
         dataSetAccessor.merge(dataDelta);
-        Map<String, Data> responseData = Maps.newTreeMap();
+        Map<String, Data> responseData = Maps.newHashMap();
         Set<String> activeDataSet = Sets.newHashSet();
 
-        activeDataSet.addAll(dataDelta.getDelta()
-                .stream()
-                .map(Data::getData)
-                .collect(Collectors.toList()));
+        for (Data deltaDeltaElement : dataDelta.getDelta()) {
+            activeDataSet.add(deltaDeltaElement.getData());
+        }
+
         List<List<DataBuilderMeta>> dependencyHierarchy = executionGraph.getDependencyHierarchy();
         Set<String> newlyGeneratedData = Sets.newHashSet();
         Set<DataBuilderMeta> processedBuilders = Sets.newHashSet();
@@ -55,10 +57,12 @@ public class SimpleDataFlowExecutor extends DataFlowExecutor {
                     if (processedBuilders.contains(builderMeta)) {
                         continue;
                     }
-                    //If there is an intersection, means some of it's inputs have changed. Reevaluate
-                    if (Sets.intersection(builderMeta.getEffectiveConsumes(), activeDataSet).isEmpty()) {
+
+                    val effectiveConsumes = builderMeta.getEffectiveConsumes();
+                    if (!CollectionUtils.containsAny(effectiveConsumes, activeDataSet)) {
                         continue;
                     }
+
                     DataBuilder builder = builderFactory.create(builderMeta);
                     if (!dataSetAccessor.checkForData(builder.getDataBuilderMeta().getConsumes())) {
                         continue;
