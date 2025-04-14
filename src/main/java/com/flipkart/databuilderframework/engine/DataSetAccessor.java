@@ -98,8 +98,9 @@ public class DataSetAccessor {
      * @return <i>true</i> if all elements are present. <i>false</i> otherwise.
      */
     public boolean checkForData(Set<String> dataList) {
+        Map<String, Data> availableData = dataSet.getAvailableData();
         for (String data : dataList) {
-            if (!dataSet.getAvailableData().containsKey(data)) {
+            if (!availableData.containsKey(data)) {
                 return false;
             }
         }
