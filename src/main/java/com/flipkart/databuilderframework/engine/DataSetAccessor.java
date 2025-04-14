@@ -99,8 +99,8 @@ public class DataSetAccessor {
      */
     public boolean checkForData(Set<String> dataList) {
         Map<String, Data> availableData = dataSet.getAvailableData();
-        for (String key : dataList) {
-            if (!availableData.containsKey(key)) {
+        for (String data : dataList) {
+            if (!availableData.containsKey(data)) {
                 return false;
             }
         }
