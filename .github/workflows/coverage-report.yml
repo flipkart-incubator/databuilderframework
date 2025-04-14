@@ -1,0 +1,58 @@
+name: JaCoCo Coverage Report
+
+on:
+  pull_request:
+    branches: [ main, master ] # Adjust branches as needed
+
+permissions:
+  # Required for checking out the code
+  contents: read
+  # Required for posting comments and status checks
+  pull-requests: write
+  # Required for reading report files
+  actions: read # Optional, often implicitly available
+
+jobs:
+  build-and-report:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: '8' # Or your project's Java version
+          distribution: 'temurin' # Or your preferred distribution
+
+      - name: Build and Test with Maven
+        run: mvn clean verify --batch-mode # The 'verify' phase usually triggers the jacoco:report goal
+
+      - name: Check for JaCoCo Report File
+        run: |
+          echo "Searching for JaCoCo reports..."
+          find ${{ github.workspace }} -name 'jacoco*.xml' # General search
+          echo "--- Listing Maven default ---"
+          ls -l ${{ github.workspace }}/target/site/jacoco/jacoco.xml || echo "Maven default not found"
+
+      # --- Coverage Reporting Step ---
+      - name: JaCoCo Report to PR Comment
+        id: jacoco
+        uses: madrapps/jacoco-report@v1.7.1 # Use the latest version
+        with:
+          paths: |
+            ${{ github.workspace }}/**/target/site/jacoco/jacoco.xml
+          token: ${{ secrets.GITHUB_TOKEN }}
+          min-coverage-overall: 95 # Example value
+          min-coverage-changed-files: 95 # Example value
+          update-comment: true
+          title: "📊 JaCoCo Code Coverage"
+
+      # Optional: Output coverage details
+      - name: Print Coverage Summary
+        run: |
+          echo "Overall Coverage: ${{ steps.jacoco.outputs.coverage-overall }}%"
+          echo "Changed Files Coverage: ${{ steps.jacoco.outputs.coverage-changed-files }}%"
