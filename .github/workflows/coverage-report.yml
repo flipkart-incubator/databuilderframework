@@ -44,7 +44,7 @@ jobs:
         uses: madrapps/jacoco-report@v1.7.1 # Use the latest version
         with:
           paths: |
-            ${{ github.workspace }}/**/target/site/jacoco/jacoc.xml
+            ${{ github.workspace }}/**/target/site/jacoco/jacoco.xml
           token: ${{ secrets.GITHUB_TOKEN }}
           min-coverage-overall: 95 # Example value
           min-coverage-changed-files: 95 # Example value
