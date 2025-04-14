@@ -42,10 +42,9 @@ public class SimpleDataFlowExecutor extends DataFlowExecutor {
         Map<String, Data> responseData = Maps.newTreeMap();
         Set<String> activeDataSet = Sets.newHashSet();
 
-        activeDataSet.addAll(dataDelta.getDelta()
-                .stream()
-                .map(Data::getData)
-                .collect(Collectors.toList()));
+        for (Data deltaDeltaElement : dataDelta.getDelta()) {
+            activeDataSet.add(deltaDeltaElement.getData());
+        }
         List<List<DataBuilderMeta>> dependencyHierarchy = executionGraph.getDependencyHierarchy();
         Set<String> newlyGeneratedData = Sets.newHashSet();
         Set<DataBuilderMeta> processedBuilders = Sets.newHashSet();
@@ -145,18 +144,12 @@ public class SimpleDataFlowExecutor extends DataFlowExecutor {
                 }
             }
             if(newlyGeneratedData.contains(dataFlow.getTargetData())) {
-                //logger.debug("Finished running this instance of the flow. Exiting.");
                 break;
             }
             if(newlyGeneratedData.isEmpty()) {
-                //logger.debug("Nothing happened in this loop, exiting..");
                 break;
             }
-//            StringBuilder stringBuilder = new StringBuilder();
-//            for(String data : newlyGeneratedData) {
-//                stringBuilder.append(data + ", ");
-//            }
-            //logger.info("Newly generated: " + stringBuilder);
+
             activeDataSet.clear();
             activeDataSet.addAll(newlyGeneratedData);
             newlyGeneratedData.clear();
