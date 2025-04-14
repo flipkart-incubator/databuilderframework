@@ -73,6 +73,7 @@ public class DataSetAccessor {
      * Merge data with current {@link com.flipkart.databuilderframework.model.DataSet}.
      * Data will be added to the current data-set and override data with same type as identified by
      * {@link com.flipkart.databuilderframework.model.Data#getData()}
+     *
      * @param data {@link com.flipkart.databuilderframework.model.Data} to be merged.
      */
     public void merge(Data data) {

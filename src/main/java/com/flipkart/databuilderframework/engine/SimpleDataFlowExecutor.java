@@ -11,7 +11,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * The executor for a {@link com.flipkart.databuilderframework.model.DataFlow}.
@@ -39,7 +38,7 @@ public class SimpleDataFlowExecutor extends DataFlowExecutor {
         DataSet dataSet = dataFlowInstance.getDataSet().accessor().copy(); //Create own copy to work with
         DataSetAccessor dataSetAccessor = DataSet.accessor(dataSet);
         dataSetAccessor.merge(dataDelta);
-        Map<String, Data> responseData = Maps.newTreeMap();
+        Map<String, Data> responseData = Maps.newHashMap();
         Set<String> activeDataSet = Sets.newHashSet();
 
         for (Data deltaDeltaElement : dataDelta.getDelta()) {
