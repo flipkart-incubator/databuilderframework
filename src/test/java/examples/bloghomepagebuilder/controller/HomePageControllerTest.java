@@ -49,6 +49,7 @@ public class HomePageControllerTest {
         for(long i = 0; i < 1000000; i++) {
             HomePageResponse response = executor.run(homePageDataFlow, request).get(HomePageResponse.class);
             Assert.assertNotNull(response);
+            //System.out.println(new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(response));
         }
         log.info("Time taken: {}", stopwatch.elapsed(TimeUnit.MILLISECONDS));
     }

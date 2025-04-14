@@ -90,12 +90,12 @@ public class DataBuilderMeta implements Comparable<DataBuilderMeta>, Serializabl
         this.rank = rank;
         this.optionals = optionals;
         this.access = access;
-        this.accessibleDataSet = getAllAccessibleDataSet();
-        this.effectiveConsumes = getAllEffectiveConsumes();
+        this.accessibleDataSet = constructAccessibleDataSet();
+        this.effectiveConsumes = constructEffectiveConsumes();
     }
 
     @JsonIgnore
-    private Set<String> getAllEffectiveConsumes(){
+    private Set<String> constructEffectiveConsumes(){
     	if(optionals != null && !optionals.isEmpty()){
     		return Sets.union(optionals, consumes);
     	}else{
@@ -104,7 +104,7 @@ public class DataBuilderMeta implements Comparable<DataBuilderMeta>, Serializabl
     }
     
     @JsonIgnore
-    private Set<String> getAllAccessibleDataSet(){
+    private Set<String> constructAccessibleDataSet(){
     	Set<String> output = consumes;
     	if(optionals != null && !optionals.isEmpty()) {
     		output = Sets.union(optionals, output);
@@ -120,9 +120,7 @@ public class DataBuilderMeta implements Comparable<DataBuilderMeta>, Serializabl
     }
 
     public DataBuilderMeta deepCopy() {
-    	Set<String> optionalCopy = (optionals != null) ? ImmutableSet.copyOf(optionals) : null;
-    	Set<String> accessCopy = (access != null) ? ImmutableSet.copyOf(access) : null;
-        return new DataBuilderMeta(ImmutableSet.copyOf(consumes), produces, name, optionalCopy, accessCopy);
+        return deepCopy(0);
     }
 
     public DataBuilderMeta deepCopy(int rank) {

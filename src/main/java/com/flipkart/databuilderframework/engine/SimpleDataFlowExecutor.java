@@ -4,8 +4,6 @@ import com.flipkart.databuilderframework.model.*;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import lombok.val;
-import org.apache.commons.collections4.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,7 +11,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * The executor for a {@link com.flipkart.databuilderframework.model.DataFlow}.
@@ -47,7 +44,6 @@ public class SimpleDataFlowExecutor extends DataFlowExecutor {
         for (Data deltaDeltaElement : dataDelta.getDelta()) {
             activeDataSet.add(deltaDeltaElement.getData());
         }
-
         List<List<DataBuilderMeta>> dependencyHierarchy = executionGraph.getDependencyHierarchy();
         Set<String> newlyGeneratedData = Sets.newHashSet();
         Set<DataBuilderMeta> processedBuilders = Sets.newHashSet();
@@ -57,12 +53,10 @@ public class SimpleDataFlowExecutor extends DataFlowExecutor {
                     if (processedBuilders.contains(builderMeta)) {
                         continue;
                     }
-
-                    val effectiveConsumes = builderMeta.getEffectiveConsumes();
-                    if (!CollectionUtils.containsAny(effectiveConsumes, activeDataSet)) {
+                    //If there is an intersection, means some of it's inputs have changed. Reevaluate
+                    if (Sets.intersection(builderMeta.getEffectiveConsumes(), activeDataSet).isEmpty()) {
                         continue;
                     }
-
                     DataBuilder builder = builderFactory.create(builderMeta);
                     if (!dataSetAccessor.checkForData(builder.getDataBuilderMeta().getConsumes())) {
                         continue;
