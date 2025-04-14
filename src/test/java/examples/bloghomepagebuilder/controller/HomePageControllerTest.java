@@ -46,7 +46,7 @@ public class HomePageControllerTest {
     private void runHomePageTest(DataFlowExecutor executor) throws Exception {
         final HomePageRequest request = new HomePageRequest("2321312312", "2323454", "Blah".getBytes());
         Stopwatch stopwatch = Stopwatch.createStarted();
-        for(long i = 0; i < 100000; i++) {
+        for(long i = 0; i < 1000000; i++) {
             HomePageResponse response = executor.run(homePageDataFlow, request).get(HomePageResponse.class);
             Assert.assertNotNull(response);
             //System.out.println(new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(response));
