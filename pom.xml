@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <groupId>com.flipkart.databuilderframework</groupId>
-    <version>0.5.12</version>
+    <version>0.5.13-RC1</version>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>databuilderframework</artifactId>
@@ -62,8 +62,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <jackson.version>2.10.3</jackson.version>
-        <lombok.version>1.16.6</lombok.version>
-        <lombok.maven.version>1.16.6.1</lombok.maven.version>
+        <lombok.version>1.18.30</lombok.version>
         <hibernate.validator.version>5.2.5.Final</hibernate.validator.version>
         <junit.version>4.13.1</junit.version>
     </properties>
@@ -118,17 +117,23 @@
     <build>
         <plugins>
             <plugin>
-                <groupId>org.projectlombok</groupId>
-                <artifactId>lombok-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <phase>generate-sources</phase>
-                        <goals>
-                            <goal>delombok</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <version>${lombok.maven.version}</version>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>0.8.13</version> <executions>
+                <execution>
+                    <goals>
+                        <goal>prepare-agent</goal>
+                    </goals>
+                </execution>
+                <execution>
+                    <id>report</id>
+                    <phase>verify</phase> <goals>
+                    <goal>report</goal>
+                </goals>
+                    <configuration>
+                    </configuration>
+                </execution>
+            </executions>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -137,39 +142,6 @@
                     <source>1.8</source>
                     <target>1.8</target>
                 </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>cobertura-maven-plugin</artifactId>
-                <version>2.6</version>
-                <configuration>
-                    <check>
-                        <branchRate>85</branchRate>
-                        <lineRate>85</lineRate>
-                        <haltOnFailure>true</haltOnFailure>
-                        <totalBranchRate>85</totalBranchRate>
-                        <totalLineRate>85</totalLineRate>
-                        <packageLineRate>85</packageLineRate>
-                        <packageBranchRate>85</packageBranchRate>
-                        <regexes>
-                            <regex>
-                                <pattern>com.flipkart.databuilderframework.*</pattern>
-                                <branchRate>100</branchRate>
-                                <lineRate>100</lineRate>
-                            </regex>
-                        </regexes>
-                    </check>
-					<instrumentation>
-						<ignoreTrivial>true</ignoreTrivial>
-					</instrumentation>
-				</configuration>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>clean</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
