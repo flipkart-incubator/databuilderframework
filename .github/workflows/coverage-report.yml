@@ -41,10 +41,10 @@ jobs:
       # --- Coverage Reporting Step ---
       - name: JaCoCo Report to PR Comment
         id: jacoco
-        uses: madrapps/jacoco-report@v1.6.1 # Use the latest version
+        uses: madrapps/jacoco-report@v1.7.1 # Use the latest version
         with:
           paths: |
-            ${{ github.workspace }}/target/site/jacoco/jacoc.xml
+            ${{ github.workspace }}/**/target/site/jacoco/jacoc.xml
           token: ${{ secrets.GITHUB_TOKEN }}
           min-coverage-overall: 95 # Example value
           min-coverage-changed-files: 95 # Example value
