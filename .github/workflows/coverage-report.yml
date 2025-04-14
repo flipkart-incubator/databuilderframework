@@ -1,0 +1,72 @@
+name: JaCoCo Coverage Report
+
+on:
+  pull_request:
+    branches: [ main, master ] # Adjust branches as needed
+
+permissions:
+  # Required for checking out the code
+  contents: read
+  # Required for posting comments and status checks
+  pull-requests: write
+  # Required for reading report files
+  actions: read # Optional, often implicitly available
+
+jobs:
+  build-and-report:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          # Fetch depth 0 is needed for calculating coverage on changed files accurately
+          fetch-depth: 0
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: '1.8' # Or your project's Java version
+          distribution: 'temurin' # Or your preferred distribution
+
+      # --- Build and Test Step ---
+      # Choose ONE of the following based on your build tool
+
+      # Option A: Maven
+      - name: Build and Test with Maven
+        run: mvn clean verify --batch-mode # The 'verify' phase usually triggers the jacoco:report goal
+
+      # Option B: Gradle
+      # - name: Grant execute permission for gradlew
+      #   run: chmod +x gradlew
+      # - name: Build and Test with Gradle
+      #   run: ./gradlew build jacocoTestReport # Explicitly run jacocoTestReport task
+
+      # --- Coverage Reporting Step ---
+      - name: JaCoCo Report to PR Comment
+        id: jacoco
+        uses: madrapps/jacoco-report@v1.6.1 # Use the latest version
+        with:
+          # IMPORTANT: Adjust the path(s) to your jacoco.xml report file(s)
+          paths: |
+            ${{ github.workspace }}/target/site/jacoco/jacoco.xml # Maven default
+            ${{ github.workspace }}/**/build/reports/jacoco/test/jacocoTestReport.xml # Gradle default (using wildcard for multi-module)
+          # Token is needed to post comments and status checks
+          token: ${{ secrets.GITHUB_TOKEN }}
+          # Minimum coverage percentages (optional) - Fails the check if below
+          min-coverage-overall: 0 # Example value
+          min-coverage-changed-files: 0 # Example value
+          # Update existing comment instead of posting new ones
+          update-comment: true
+          # Custom title for the comment (optional)
+          title: "📊 JaCoCo Code Coverage"
+          # Fail build if coverage requirements are not met (optional)
+          # fail-if-coverage-less-than: false # Default is false
+          # Skip comment if coverage is 100% (optional)
+          # skip-comment-if-no-changes: true # Default is false
+
+      # Optional: Output coverage details
+      - name: Print Coverage Summary
+        run: |
+          echo "Overall Coverage: ${{ steps.jacoco.outputs.coverage-overall }}%"
+          echo "Changed Files Coverage: ${{ steps.jacoco.outputs.coverage-changed-files }}%"
